@@ -28,8 +28,6 @@ public class DepartamentoAcademico {
         this.eliminado = eliminado != null && eliminado;
     }
 
-    // --- REGLAS DE NEGOCIO Y VALIDACIONES INTERNAS DE LA ENTIDAD ---
-
     public void desactivar() {
         this.estado = 0;
     }

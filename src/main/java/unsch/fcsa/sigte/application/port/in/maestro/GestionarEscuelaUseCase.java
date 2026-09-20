@@ -1,4 +1,4 @@
-package unsch.fcsa.sigte.domain.port.in.maestro;
+package unsch.fcsa.sigte.application.port.in.maestro;
 
 import unsch.fcsa.sigte.domain.model.maestro.EscuelaProfesional;
 

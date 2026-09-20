@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import unsch.fcsa.sigte.application.dto.maestro.CrearDepartamentoRequest;
 import unsch.fcsa.sigte.application.dto.maestro.DepartamentoResponse;
 import unsch.fcsa.sigte.domain.model.maestro.DepartamentoAcademico;
-import unsch.fcsa.sigte.domain.port.in.maestro.GestionarDepartamentoUseCase;
+import unsch.fcsa.sigte.application.port.in.maestro.GestionarDepartamentoUseCase;
 
 import java.util.List;
 

@@ -1,9 +1,9 @@
 package unsch.fcsa.sigte.application.usecase.maestro;
 
 import unsch.fcsa.sigte.domain.model.maestro.EscuelaProfesional;
-import unsch.fcsa.sigte.domain.port.in.maestro.GestionarEscuelaUseCase;
-import unsch.fcsa.sigte.domain.port.out.maestro.DepartamentoRepositoryPort;
-import unsch.fcsa.sigte.domain.port.out.maestro.EscuelaProfesionalRepositoryPort;
+import unsch.fcsa.sigte.application.port.in.maestro.GestionarEscuelaUseCase;
+import unsch.fcsa.sigte.application.port.out.maestro.DepartamentoRepositoryPort;
+import unsch.fcsa.sigte.application.port.out.maestro.EscuelaProfesionalRepositoryPort;
 
 import java.util.List;
 

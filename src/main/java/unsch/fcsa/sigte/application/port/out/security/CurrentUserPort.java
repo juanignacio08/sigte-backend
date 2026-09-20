@@ -1,4 +1,4 @@
-package unsch.fcsa.sigte.domain.port.out.security;
+package unsch.fcsa.sigte.application.port.out.security;
 
 public interface CurrentUserPort {
     Long getCurrentUserId();

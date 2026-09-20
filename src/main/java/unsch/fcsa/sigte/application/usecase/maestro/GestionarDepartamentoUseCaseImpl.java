@@ -1,8 +1,8 @@
 package unsch.fcsa.sigte.application.usecase.maestro;
 
 import unsch.fcsa.sigte.domain.model.maestro.DepartamentoAcademico;
-import unsch.fcsa.sigte.domain.port.in.maestro.GestionarDepartamentoUseCase;
-import unsch.fcsa.sigte.domain.port.out.maestro.DepartamentoRepositoryPort;
+import unsch.fcsa.sigte.application.port.in.maestro.GestionarDepartamentoUseCase;
+import unsch.fcsa.sigte.application.port.out.maestro.DepartamentoRepositoryPort;
 
 import java.util.List;
 

@@ -2,12 +2,12 @@ package unsch.fcsa.sigte.infrastructure.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import unsch.fcsa.sigte.domain.port.in.maestro.GestionarDepartamentoUseCase;
-import unsch.fcsa.sigte.domain.port.in.maestro.GestionarEscuelaUseCase;
+import unsch.fcsa.sigte.application.port.in.maestro.GestionarDepartamentoUseCase;
+import unsch.fcsa.sigte.application.port.in.maestro.GestionarEscuelaUseCase;
 import unsch.fcsa.sigte.application.usecase.maestro.GestionarDepartamentoUseCaseImpl;
 import unsch.fcsa.sigte.application.usecase.maestro.GestionarEscuelaUseCaseImpl;
-import unsch.fcsa.sigte.domain.port.out.maestro.DepartamentoRepositoryPort;
-import unsch.fcsa.sigte.domain.port.out.maestro.EscuelaProfesionalRepositoryPort;
+import unsch.fcsa.sigte.application.port.out.maestro.DepartamentoRepositoryPort;
+import unsch.fcsa.sigte.application.port.out.maestro.EscuelaProfesionalRepositoryPort;
 
 @Configuration
 public class UseCaseConfig {

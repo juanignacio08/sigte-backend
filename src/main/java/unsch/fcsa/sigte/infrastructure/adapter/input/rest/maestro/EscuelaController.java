@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import unsch.fcsa.sigte.application.dto.maestro.EscuelaProfesionalRequest;
 import unsch.fcsa.sigte.application.dto.maestro.EscuelaProfesionalResponse;
 import unsch.fcsa.sigte.domain.model.maestro.EscuelaProfesional;
-import unsch.fcsa.sigte.domain.port.in.maestro.GestionarEscuelaUseCase;
+import unsch.fcsa.sigte.application.port.in.maestro.GestionarEscuelaUseCase;
 
 import java.util.List;
 

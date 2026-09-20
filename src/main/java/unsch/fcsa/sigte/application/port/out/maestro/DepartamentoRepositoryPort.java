@@ -1,4 +1,4 @@
-package unsch.fcsa.sigte.domain.port.out.maestro;
+package unsch.fcsa.sigte.application.port.out.maestro;
 
 import unsch.fcsa.sigte.domain.model.maestro.DepartamentoAcademico;
 

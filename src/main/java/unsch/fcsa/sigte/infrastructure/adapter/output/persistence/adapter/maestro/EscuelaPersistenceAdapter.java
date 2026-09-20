@@ -2,7 +2,7 @@ package unsch.fcsa.sigte.infrastructure.adapter.output.persistence.adapter.maest
 
 import org.springframework.stereotype.Component;
 import unsch.fcsa.sigte.domain.model.maestro.EscuelaProfesional;
-import unsch.fcsa.sigte.domain.port.out.maestro.EscuelaProfesionalRepositoryPort;
+import unsch.fcsa.sigte.application.port.out.maestro.EscuelaProfesionalRepositoryPort;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.maestro.DepartamentoEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.maestro.EscuelaEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.repository.maestro.SpringDataEscuelaRepository;

@@ -1,0 +1,19 @@
+unsch.fcsa.sigte
+├── domain                      --> Reglas de Negocio (Java Puro SE)
+│   ├── model                   --> Clases del modelo (ej. DepartamentoAcademico)
+│   ├── exception               --> Excepciones personalizadas de negocio
+│   └── port                    --> Interfaces (Contratos)
+│       ├── in                  --> Puertos de Entrada (Casos de uso)
+│       └── out                 --> Puertos de Salida (Repositorios)
+│
+├── application                 --> Casos de Uso / Aplicación
+│   ├── usecase                 --> Implementación de la lógica de aplicación
+│   └── dto                     --> Records Java para transferencia de datos
+│
+└── infrastructure              --> Adaptadores Técnicos / Framework
+    ├── adapter
+    │   ├── input
+    │   │   └── rest            --> Controladores Spring REST
+    │   └── output
+    │       └── persistence     --> Entidades JPA y repositorios de Spring Data
+    └── config                  --> Configuración de Beans de Spring

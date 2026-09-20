@@ -1,4 +1,4 @@
-package unsch.fcsa.sigte.application.dto.maestro;
+package unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.maestro;
 
 public record   DepartamentoResponse(
         Long id,

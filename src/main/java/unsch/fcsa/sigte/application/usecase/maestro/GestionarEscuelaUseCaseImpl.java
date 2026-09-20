@@ -1,5 +1,7 @@
 package unsch.fcsa.sigte.application.usecase.maestro;
 
+import unsch.fcsa.sigte.domain.exception.DuplicateKeyException;
+import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
 import unsch.fcsa.sigte.domain.model.maestro.EscuelaProfesional;
 import unsch.fcsa.sigte.application.port.in.maestro.GestionarEscuelaUseCase;
 import unsch.fcsa.sigte.application.port.out.maestro.DepartamentoRepositoryPort;
@@ -23,15 +25,15 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
     @Override
     public EscuelaProfesional crearEscuela(Long departamentoId, Integer codigo, String abreviatura, String denominacion, String plantillaMemo, String plantillaRes) {
         if (escuelaProfesionalRepositoryPort.existePorCodigo(codigo)) {
-            throw new IllegalArgumentException("El codigo " + codigo + " ya existe en el sistema");
+            throw new DuplicateKeyException("Escuela", "codigo", codigo);
         }
 
         if (escuelaProfesionalRepositoryPort.existePorAbreviatura(abreviatura)) {
-            throw new IllegalArgumentException("Ya existe una escuela con la abreviatura " + abreviatura);
+            throw new DuplicateKeyException("Escuela", "abreviatura", abreviatura);
         }
 
         if (!departamentoRepositoryPort.existePorId(departamentoId)) {
-            throw new IllegalArgumentException("El departamento " + departamentoId + " no existe");
+            throw new ResourceNotFoundException("Departamento",  "id", departamentoId);
         }
 
         EscuelaProfesional escuelaProfesional = new EscuelaProfesional(
@@ -47,17 +49,17 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
 
         if (!existente.getAbreviatura().equalsIgnoreCase(abreviatura) &&
                 escuelaProfesionalRepositoryPort.existePorAbreviatura(abreviatura)) {
-            throw new IllegalArgumentException("La abreviatura " + abreviatura + " ya está registrada por otra escuela.");
+            throw new DuplicateKeyException("Escuela", "abreviatura", abreviatura);
         }
 
         if (!existente.getCodigo().equals(codigo) &&
                 escuelaProfesionalRepositoryPort.existePorCodigo(codigo)) {
-            throw new IllegalArgumentException("El codigo " + codigo + " ya está registrado por otra escuela.");
+            throw new DuplicateKeyException("Escuela", "codigo", codigo);
         }
 
         if (!existente.getDepartamentoAcademicoId().equals(departamentoId) &&
                 !departamentoRepositoryPort.existePorId(departamentoId)) {
-            throw new IllegalArgumentException("No existe un departamento academico con el id " + departamentoId);
+            throw new ResourceNotFoundException("Departamento",  "id", departamentoId);
         }
 
         existente.actualizarDatos(departamentoId, codigo, abreviatura, denominacion, plantillaMemo, plantillaRes);
@@ -72,7 +74,7 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
         }
 
         return escuelaProfesionalRepositoryPort.buscarPorId(id)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró la escuela con ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Escuela", "id", id));
     }
 
     @Override

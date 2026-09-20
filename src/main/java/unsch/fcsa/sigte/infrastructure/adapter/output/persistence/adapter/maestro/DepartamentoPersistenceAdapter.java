@@ -60,7 +60,6 @@ public class DepartamentoPersistenceAdapter implements DepartamentoRepositoryPor
         return repository.existsByIdAndEliminadoFalse(id);
     }
 
-    // Método helper para transformar JPA -> Dominio
     private DepartamentoAcademico toDomain(DepartamentoEntity entity) {
         return new DepartamentoAcademico(
                 entity.getId(),

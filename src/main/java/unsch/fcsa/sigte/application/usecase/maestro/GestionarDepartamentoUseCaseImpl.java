@@ -50,7 +50,31 @@ public class GestionarDepartamentoUseCaseImpl implements GestionarDepartamentoUs
     }
 
     @Override
+    @Transactional
+    public DepartamentoAcademico actualizarDepartamento(DepartamentoCommand command) {
+        log.info("Actualizando un recurso. [ DEPARTAMENTO : {} ]", command.id());
+
+        DepartamentoAcademico departamentoAcademico = obtenerPorId(command.id());
+
+        if (!departamentoAcademico.getAbreviatura().equalsIgnoreCase(command.abreviatura()) && departamentoRepositoryPort.existePorAbreviatura(command.abreviatura())) {
+            log.warn("Abreviatura duplicada: {}", command.abreviatura());
+            throw new DuplicateKeyException("Departamento", "abreviatura", command.abreviatura());
+        }
+
+        departamentoAcademico.actualizarDatos(command.abreviatura(), command.denominacion());
+
+        DepartamentoAcademico saved = departamentoRepositoryPort.guardar(departamentoAcademico);
+        log.info("Departamento académico actualizado exitosamente");
+
+        return saved;
+    }
+
+    @Override
     public DepartamentoAcademico obtenerPorId(Long id) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("ID invalido [ DEPARTAMENTO ]");
+        }
+
         return departamentoRepositoryPort.buscarPorId(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Departamento", "id", id));
     }

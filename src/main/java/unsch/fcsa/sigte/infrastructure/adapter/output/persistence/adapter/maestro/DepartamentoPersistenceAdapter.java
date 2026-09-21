@@ -2,7 +2,6 @@ package unsch.fcsa.sigte.infrastructure.adapter.output.persistence.adapter.maest
 
 import org.springframework.stereotype.Component;
 import unsch.fcsa.sigte.application.port.out.maestro.projections.DepartamentoConTotalEscuelasView;
-import unsch.fcsa.sigte.application.port.out.security.CurrentUserPort;
 import unsch.fcsa.sigte.domain.model.maestro.DepartamentoAcademico;
 import unsch.fcsa.sigte.application.port.out.maestro.DepartamentoRepositoryPort;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.maestro.DepartamentoEntity;
@@ -17,25 +16,17 @@ public class DepartamentoPersistenceAdapter implements DepartamentoRepositoryPor
 
     private final SpringDataDepartamentoRepository repository;
 
-    private final CurrentUserPort currentUserPort;
-
     private final DepartamentoMapperOut mapper;
 
-    public DepartamentoPersistenceAdapter(SpringDataDepartamentoRepository repository, CurrentUserPort currentUserPort, DepartamentoMapperOut mapper) {
+    public DepartamentoPersistenceAdapter(SpringDataDepartamentoRepository repository, DepartamentoMapperOut mapper) {
         this.repository = repository;
-        this.currentUserPort = currentUserPort;
         this.mapper = mapper;
     }
 
     @Override
-    // Deberia de poner el transaccional? o donde debe de ir?
     public DepartamentoAcademico guardar(DepartamentoAcademico domain) {
-        DepartamentoEntity entity = mapper.toEntitySave(domain);
-        entity.setCreadoPor(currentUserPort.getCurrentUserId());
-        entity.setActualizadoPor(currentUserPort.getCurrentUserId());
-
+        DepartamentoEntity entity = mapper.toEntity(domain);
         DepartamentoEntity saved = repository.save(entity);
-
         return mapper.toDomain(saved);
     }
 

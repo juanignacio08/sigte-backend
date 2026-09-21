@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Component
 public class DepartamentoMapperOut {
 
-    public DepartamentoEntity toEntitySave(DepartamentoAcademico domain) {
+    public DepartamentoEntity toEntity(DepartamentoAcademico domain) {
         if (domain == null) return null;
 
         return DepartamentoEntity.builder()
@@ -18,8 +18,6 @@ public class DepartamentoMapperOut {
                 .abreviatura(domain.getAbreviatura())
                 .denominacion(domain.getDenominacion())
                 .estado(domain.getEstado())
-                .fechaCreacion(LocalDateTime.now())
-                .fechaActualizacion(LocalDateTime.now())
                 .eliminado(domain.isEliminado())
                 .build();
     }

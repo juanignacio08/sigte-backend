@@ -2,11 +2,17 @@ package unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.maestr
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "departamento_academico", schema = "maestros")
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -30,19 +36,21 @@ public class DepartamentoEntity {
     @Column(nullable = false)
     private Integer estado;
 
-    @Column(name = "creado_por", nullable = false)
+    @CreatedBy
+    @Column(name = "creado_por", nullable = false, updatable = false)
     private Long creadoPor;
 
-    @Column(name = "fecha_creacion", nullable = false)
-    @Builder.Default
-    private LocalDateTime fechaCreacion = LocalDateTime.now();
+    @CreatedDate
+    @Column(name = "fecha_creacion", nullable = false, updatable = false)
+    private LocalDateTime fechaCreacion;
 
+    @LastModifiedBy
     @Column(name = "actualizado_por", nullable = false)
     private Long actualizadoPor;
 
+    @LastModifiedDate
     @Column(name = "fecha_actualizacion", nullable = false)
-    @Builder.Default
-    private LocalDateTime fechaActualizacion = LocalDateTime.now();
+    private LocalDateTime fechaActualizacion;
 
     @Column(nullable = false)
     private Boolean eliminado;

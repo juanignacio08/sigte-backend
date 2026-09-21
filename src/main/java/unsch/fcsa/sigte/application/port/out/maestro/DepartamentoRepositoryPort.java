@@ -10,9 +10,9 @@ public interface DepartamentoRepositoryPort {
 
     DepartamentoAcademico guardar(DepartamentoAcademico departamento);
 
-    Optional<DepartamentoAcademico> buscarPorId(Long id);
-
     List<DepartamentoConTotalEscuelasView> listarTodosPorFacultad(Long facultadId);
+
+    Optional<DepartamentoAcademico> buscarPorId(Long id);
 
     boolean existePorAbreviatura(String abreviatura);
 

@@ -41,6 +41,19 @@ public class DepartamentoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
+    @PutMapping("/editar")
+    public ResponseEntity<ResponseDTO<Object>> editar(@Valid @RequestBody DepartamentoRequest request) {
+        DepartamentoCommand command = DepartamentoCommand.update(
+                request.id(), request.facultadId(), request.abreviatura(), request.denominacion()
+        );
+
+        DepartamentoAcademico creado = departamentoUseCase.actualizarDepartamento(command);
+
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(mapper.toResponse(creado), "Departamento Académico actualizado!", "201");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+    }
+
     @GetMapping("/listarPorFacultad/{facultadId}")
     public ResponseEntity<ResponseDTO<Object>> listarPorFacultad(@PathVariable Long facultadId) {
         List<DepartamentoResponse> lista = departamentoUseCase.listarTodosPorFacultad(facultadId).stream()

@@ -9,11 +9,11 @@ import java.util.List;
 public class ResponseGlobalMapper {
     private static final String SUCCESS = "success";
 
-    public static ResponseDTO<Object> build(Object result, String message) {
+    public static ResponseDTO<Object> build(Object result, String message, String code) {
         return ResponseDTO.builder()
                 .data(result)
                 .status(SUCCESS)
-                .code("200")
+                .code(code)
                 .message(message)
                 .build();
     }

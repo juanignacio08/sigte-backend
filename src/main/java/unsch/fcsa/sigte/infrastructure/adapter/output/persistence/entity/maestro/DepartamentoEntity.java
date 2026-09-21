@@ -1,10 +1,9 @@
 package unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.maestro;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "departamento_academico", schema = "maestros")
@@ -12,6 +11,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class DepartamentoEntity {
 
     @Id
@@ -30,6 +30,21 @@ public class DepartamentoEntity {
     @Column(nullable = false)
     private Integer estado;
 
+    @Column(name = "creado_por", nullable = false)
+    private Long creadoPor;
+
+    @Column(name = "fecha_creacion", nullable = false)
+    @Builder.Default
+    private LocalDateTime fechaCreacion = LocalDateTime.now();
+
+    @Column(name = "actualizado_por", nullable = false)
+    private Long actualizadoPor;
+
+    @Column(name = "fecha_actualizacion", nullable = false)
+    @Builder.Default
+    private LocalDateTime fechaActualizacion = LocalDateTime.now();
+
     @Column(nullable = false)
     private Boolean eliminado;
+
 }

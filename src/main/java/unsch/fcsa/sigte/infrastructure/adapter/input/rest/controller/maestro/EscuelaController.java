@@ -1,4 +1,4 @@
-package unsch.fcsa.sigte.infrastructure.adapter.input.rest.maestro;
+package unsch.fcsa.sigte.infrastructure.adapter.input.rest.controller.maestro;
 
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

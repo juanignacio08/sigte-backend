@@ -1,12 +1,13 @@
 package unsch.fcsa.sigte.application.port.in.maestro;
 
+import unsch.fcsa.sigte.application.command.maestro.DepartamentoCommand;
 import unsch.fcsa.sigte.domain.model.maestro.DepartamentoAcademico;
 
 import java.util.List;
 
 public interface GestionarDepartamentoUseCase {
 
-    DepartamentoAcademico crearDepartamento(Long facultadId, String abreviatura, String denominacion);
+    DepartamentoAcademico crearDepartamento(DepartamentoCommand command);
 
     DepartamentoAcademico obtenerPorId(Long id);
 

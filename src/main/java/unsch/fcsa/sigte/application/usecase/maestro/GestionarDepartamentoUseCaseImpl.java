@@ -1,5 +1,9 @@
 package unsch.fcsa.sigte.application.usecase.maestro;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
+import unsch.fcsa.sigte.application.command.maestro.DepartamentoCommand;
+import unsch.fcsa.sigte.application.port.out.maestro.FacultadRepositoryPort;
 import unsch.fcsa.sigte.domain.exception.DuplicateKeyException;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
 import unsch.fcsa.sigte.domain.model.maestro.DepartamentoAcademico;
@@ -8,24 +12,40 @@ import unsch.fcsa.sigte.application.port.out.maestro.DepartamentoRepositoryPort;
 
 import java.util.List;
 
+@Slf4j
 public class GestionarDepartamentoUseCaseImpl implements GestionarDepartamentoUseCase {
 
     private final DepartamentoRepositoryPort departamentoRepositoryPort;
+    private final FacultadRepositoryPort facultadRepositoryPort;
 
-    // Inyección de dependencias por constructor
-    public GestionarDepartamentoUseCaseImpl(DepartamentoRepositoryPort departamentoRepositoryPort) {
+    public GestionarDepartamentoUseCaseImpl(DepartamentoRepositoryPort departamentoRepositoryPort, FacultadRepositoryPort facultadRepositoryPort) {
         this.departamentoRepositoryPort = departamentoRepositoryPort;
+        this.facultadRepositoryPort = facultadRepositoryPort;
     }
 
     @Override
-    public DepartamentoAcademico crearDepartamento(Long facultadId, String abreviatura, String denominacion) {
-        if (departamentoRepositoryPort.existePorAbreviatura(abreviatura)) {
-            throw new DuplicateKeyException("Departamento", "abreviatura", abreviatura);
+    @Transactional
+    public DepartamentoAcademico crearDepartamento(DepartamentoCommand command) {
+        log.info("Iniciando creación del departamento académico: {}", command.denominacion());
+
+        if (!facultadRepositoryPort.existePorId(command.facultadId())) {
+            log.warn("Intento de crear departamento en facultad inexistente ID: {}", command.facultadId());
+            throw new ResourceNotFoundException("Facultad", "id", command.facultadId());
         }
 
-        DepartamentoAcademico nuevoDepartamento = new DepartamentoAcademico(facultadId, abreviatura, denominacion);
+        if (departamentoRepositoryPort.existePorAbreviatura(command.abreviatura())) {
+            log.warn("Abreviatura duplicada detectada: {}", command.abreviatura());
+            throw new DuplicateKeyException("Departamento", "abreviatura", command.abreviatura());
+        }
 
-        return departamentoRepositoryPort.guardar(nuevoDepartamento);
+        DepartamentoAcademico nuevoDepartamento = new DepartamentoAcademico(
+                command.facultadId(), command.abreviatura(), command.denominacion()
+        );
+
+        DepartamentoAcademico saved = departamentoRepositoryPort.guardar(nuevoDepartamento);
+        log.info("Departamento académico creado exitosamente con ID: {}", saved.getId());
+
+        return saved;
     }
 
     @Override

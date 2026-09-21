@@ -1,15 +1,17 @@
-package unsch.fcsa.sigte.infrastructure.adapter.input.rest.maestro;
+package unsch.fcsa.sigte.infrastructure.adapter.input.rest.controller.maestro;
 
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import unsch.fcsa.sigte.application.command.maestro.DepartamentoCommand;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.ResponseDTO;
-import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.maestro.CrearDepartamentoRequest;
+import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.maestro.DepartamentoRequest;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.maestro.DepartamentoResponse;
 import unsch.fcsa.sigte.domain.model.maestro.DepartamentoAcademico;
 import unsch.fcsa.sigte.application.port.in.maestro.GestionarDepartamentoUseCase;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.ResponseGlobalMapper;
+import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.maestro.DepartamentoMapperExpose;
 
 import java.util.List;
 
@@ -19,20 +21,22 @@ public class DepartamentoController {
 
     private final GestionarDepartamentoUseCase departamentoUseCase;
 
-    // Inyectamos el Puerto de Entrada (La interfaz, no la implementación directamente)
-    public DepartamentoController(GestionarDepartamentoUseCase departamentoUseCase) {
+    private final DepartamentoMapperExpose mapper;
+
+    public DepartamentoController(GestionarDepartamentoUseCase departamentoUseCase, DepartamentoMapperExpose mapper) {
         this.departamentoUseCase = departamentoUseCase;
+        this.mapper = mapper;
     }
 
     @PostMapping("/guardar")
-    public ResponseEntity<ResponseDTO<Object>> crear(@Valid @RequestBody CrearDepartamentoRequest request) {
-        DepartamentoAcademico creado = departamentoUseCase.crearDepartamento(
-                request.facultadId(),
-                request.abreviatura(),
-                request.denominacion()
+    public ResponseEntity<ResponseDTO<Object>> crear(@Valid @RequestBody DepartamentoRequest request) {
+        DepartamentoCommand command = DepartamentoCommand.create(
+                request.facultadId(), request.abreviatura(), request.denominacion()
         );
 
-        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(toResponse(creado), "");
+        DepartamentoAcademico creado = departamentoUseCase.crearDepartamento(command);
+
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(mapper.toResponse(creado), "Departamento Académico registrado!", "201");
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
@@ -43,7 +47,7 @@ public class DepartamentoController {
                 .map(this::toResponse)
                 .toList();
 
-        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(lista, "");
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(lista, "", "200");
 
         return ResponseEntity.ok(responseDTO);
     }

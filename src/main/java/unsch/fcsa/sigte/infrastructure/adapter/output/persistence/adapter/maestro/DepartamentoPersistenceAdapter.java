@@ -1,9 +1,12 @@
 package unsch.fcsa.sigte.infrastructure.adapter.output.persistence.adapter.maestro;
 
 import org.springframework.stereotype.Component;
+import unsch.fcsa.sigte.application.port.out.security.CurrentUserPort;
 import unsch.fcsa.sigte.domain.model.maestro.DepartamentoAcademico;
 import unsch.fcsa.sigte.application.port.out.maestro.DepartamentoRepositoryPort;
+import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.adapter.security.CurrentUserAdapter;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.maestro.DepartamentoEntity;
+import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.mapper.maestro.DepartamentoMapperOut;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.repository.maestro.SpringDataDepartamentoRepository;
 
 import java.util.List;
@@ -14,26 +17,26 @@ public class DepartamentoPersistenceAdapter implements DepartamentoRepositoryPor
 
     private final SpringDataDepartamentoRepository repository;
 
-    public DepartamentoPersistenceAdapter(SpringDataDepartamentoRepository repository) {
+    private final CurrentUserPort currentUserPort;
+
+    private final DepartamentoMapperOut mapper;
+
+    public DepartamentoPersistenceAdapter(SpringDataDepartamentoRepository repository, CurrentUserPort currentUserPort, DepartamentoMapperOut mapper) {
         this.repository = repository;
+        this.currentUserPort = currentUserPort;
+        this.mapper = mapper;
     }
 
     @Override
+    // Deberia de poner el transaccional? o donde debe de ir?
     public DepartamentoAcademico guardar(DepartamentoAcademico domain) {
-        // Mapeo: Dominio -> Entidad JPA
-        DepartamentoEntity entity = new DepartamentoEntity(
-                domain.getId(),
-                domain.getFacultadId(),
-                domain.getAbreviatura(),
-                domain.getDenominacion(),
-                domain.getEstado(),
-                domain.isEliminado()
-        );
+        DepartamentoEntity entity = mapper.toEntitySave(domain);
+        entity.setCreadoPor(currentUserPort.getCurrentUserId());
+        entity.setActualizadoPor(currentUserPort.getCurrentUserId());
 
         DepartamentoEntity saved = repository.save(entity);
 
-        // Mapeo: Entidad JPA -> Dominio
-        return toDomain(saved);
+        return mapper.toDomain(saved);
     }
 
     @Override

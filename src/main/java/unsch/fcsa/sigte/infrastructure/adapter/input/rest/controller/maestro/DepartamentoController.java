@@ -41,13 +41,13 @@ public class DepartamentoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
-    @GetMapping("/listar")
-    public ResponseEntity<ResponseDTO<Object>> listar() {
-        List<DepartamentoResponse> lista = departamentoUseCase.listarTodos().stream()
-                .map(this::toResponse)
+    @GetMapping("/listarPorFacultad/{facultadId}")
+    public ResponseEntity<ResponseDTO<Object>> listarPorFacultad(@PathVariable Long facultadId) {
+        List<DepartamentoResponse> lista = departamentoUseCase.listarTodosPorFacultad(facultadId).stream()
+                .map(mapper::fromProjectionToResponse)
                 .toList();
 
-        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(lista, "", "200");
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(lista, "Lista de departamentos académicos", "200");
 
         return ResponseEntity.ok(responseDTO);
     }
@@ -71,7 +71,8 @@ public class DepartamentoController {
                 domain.getFacultadId(),
                 domain.getAbreviatura(),
                 domain.getDenominacion(),
-                domain.getEstado()
+                domain.getEstado(),
+                0
         );
     }
 }

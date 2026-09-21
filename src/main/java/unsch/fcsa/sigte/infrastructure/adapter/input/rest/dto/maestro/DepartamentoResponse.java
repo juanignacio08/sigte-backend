@@ -8,6 +8,8 @@ public record   DepartamentoResponse(
         Long facultadId,
         String abreviatura,
         String denominacion,
-        Integer estado
+        Integer estado,
+
+        Integer totalEscuelas
 ) {
 }

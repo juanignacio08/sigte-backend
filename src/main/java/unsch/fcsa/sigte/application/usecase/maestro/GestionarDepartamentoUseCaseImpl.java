@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import unsch.fcsa.sigte.application.command.maestro.DepartamentoCommand;
 import unsch.fcsa.sigte.application.port.out.maestro.FacultadRepositoryPort;
+import unsch.fcsa.sigte.application.port.out.maestro.projections.DepartamentoConTotalEscuelasView;
 import unsch.fcsa.sigte.domain.exception.DuplicateKeyException;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
 import unsch.fcsa.sigte.domain.model.maestro.DepartamentoAcademico;
@@ -55,8 +56,10 @@ public class GestionarDepartamentoUseCaseImpl implements GestionarDepartamentoUs
     }
 
     @Override
-    public List<DepartamentoAcademico> listarTodos() {
-        return departamentoRepositoryPort.listarTodos();
+    public List<DepartamentoConTotalEscuelasView> listarTodosPorFacultad(Long facultadId) {
+        log.info("Listando todos los departamentos academicos. [ FACULTAD : {} ]", facultadId);
+
+        return departamentoRepositoryPort.listarTodosPorFacultad(facultadId);
     }
 
     @Override

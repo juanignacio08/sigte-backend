@@ -1,10 +1,10 @@
 package unsch.fcsa.sigte.infrastructure.adapter.output.persistence.adapter.maestro;
 
 import org.springframework.stereotype.Component;
+import unsch.fcsa.sigte.application.port.out.maestro.projections.DepartamentoConTotalEscuelasView;
 import unsch.fcsa.sigte.application.port.out.security.CurrentUserPort;
 import unsch.fcsa.sigte.domain.model.maestro.DepartamentoAcademico;
 import unsch.fcsa.sigte.application.port.out.maestro.DepartamentoRepositoryPort;
-import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.adapter.security.CurrentUserAdapter;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.maestro.DepartamentoEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.mapper.maestro.DepartamentoMapperOut;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.repository.maestro.SpringDataDepartamentoRepository;
@@ -47,10 +47,8 @@ public class DepartamentoPersistenceAdapter implements DepartamentoRepositoryPor
     }
 
     @Override
-    public List<DepartamentoAcademico> listarTodos() {
-        return repository.findByEliminadoFalse().stream()
-                .map(this::toDomain)
-                .toList();
+    public List<DepartamentoConTotalEscuelasView> listarTodosPorFacultad(Long facultadId) {
+        return repository.listarConTotalEscuelasPorFacultad(facultadId);
     }
 
     @Override

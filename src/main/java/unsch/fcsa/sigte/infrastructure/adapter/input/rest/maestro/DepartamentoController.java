@@ -4,10 +4,12 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.ResponseDTO;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.maestro.CrearDepartamentoRequest;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.maestro.DepartamentoResponse;
 import unsch.fcsa.sigte.domain.model.maestro.DepartamentoAcademico;
 import unsch.fcsa.sigte.application.port.in.maestro.GestionarDepartamentoUseCase;
+import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.ResponseGlobalMapper;
 
 import java.util.List;
 
@@ -23,21 +25,27 @@ public class DepartamentoController {
     }
 
     @PostMapping("/guardar")
-    public ResponseEntity<DepartamentoResponse> crear(@Valid @RequestBody CrearDepartamentoRequest request) {
+    public ResponseEntity<ResponseDTO<Object>> crear(@Valid @RequestBody CrearDepartamentoRequest request) {
         DepartamentoAcademico creado = departamentoUseCase.crearDepartamento(
                 request.facultadId(),
                 request.abreviatura(),
                 request.denominacion()
         );
-        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(creado));
+
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(toResponse(creado), "");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
     @GetMapping("/listar")
-    public ResponseEntity<List<DepartamentoResponse>> listar() {
+    public ResponseEntity<ResponseDTO<Object>> listar() {
         List<DepartamentoResponse> lista = departamentoUseCase.listarTodos().stream()
                 .map(this::toResponse)
                 .toList();
-        return ResponseEntity.ok(lista);
+
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(lista, "");
+
+        return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/{id}")

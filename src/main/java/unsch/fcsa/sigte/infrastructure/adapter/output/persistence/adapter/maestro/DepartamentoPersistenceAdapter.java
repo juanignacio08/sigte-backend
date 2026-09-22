@@ -1,9 +1,11 @@
 package unsch.fcsa.sigte.infrastructure.adapter.output.persistence.adapter.maestro;
 
 import org.springframework.stereotype.Component;
+import unsch.fcsa.sigte.application.port.out.maestro.projections.DepartamentoConTotalEscuelasView;
 import unsch.fcsa.sigte.domain.model.maestro.DepartamentoAcademico;
 import unsch.fcsa.sigte.application.port.out.maestro.DepartamentoRepositoryPort;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.maestro.DepartamentoEntity;
+import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.mapper.maestro.DepartamentoMapperOut;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.repository.maestro.SpringDataDepartamentoRepository;
 
 import java.util.List;
@@ -14,39 +16,36 @@ public class DepartamentoPersistenceAdapter implements DepartamentoRepositoryPor
 
     private final SpringDataDepartamentoRepository repository;
 
-    public DepartamentoPersistenceAdapter(SpringDataDepartamentoRepository repository) {
+    private final DepartamentoMapperOut mapper;
+
+    public DepartamentoPersistenceAdapter(SpringDataDepartamentoRepository repository, DepartamentoMapperOut mapper) {
         this.repository = repository;
+        this.mapper = mapper;
     }
 
     @Override
     public DepartamentoAcademico guardar(DepartamentoAcademico domain) {
-        // Mapeo: Dominio -> Entidad JPA
-        DepartamentoEntity entity = new DepartamentoEntity(
-                domain.getId(),
-                domain.getFacultadId(),
-                domain.getAbreviatura(),
-                domain.getDenominacion(),
-                domain.getEstado(),
-                domain.isEliminado()
-        );
-
+        DepartamentoEntity entity = mapper.toEntity(domain);
         DepartamentoEntity saved = repository.save(entity);
-
-        // Mapeo: Entidad JPA -> Dominio
-        return toDomain(saved);
+        return mapper.toDomain(saved);
     }
 
     @Override
     public Optional<DepartamentoAcademico> buscarPorId(Long id) {
         return repository.findById(id)
-                .filter(entity -> !entity.getEliminado()) // Ignorar si está eliminado lógicamente
+                .filter(entity -> !entity.getEliminado())
                 .map(this::toDomain);
     }
 
     @Override
-    public List<DepartamentoAcademico> listarTodos() {
-        return repository.findByEliminadoFalse().stream()
-                .map(this::toDomain)
+    public List<DepartamentoConTotalEscuelasView> listarTodosPorFacultad(Long facultadId) {
+        return repository.listarConTotalEscuelasPorFacultad(facultadId);
+    }
+
+    @Override
+    public List<DepartamentoAcademico> listarActivosPorFacultad(Long facultadId) {
+        return repository.getActivesByFaculty(facultadId).stream()
+                .map(mapper::toDomain)
                 .toList();
     }
 

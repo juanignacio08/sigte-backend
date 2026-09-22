@@ -1,10 +1,15 @@
 package unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.maestro;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public record CrearDepartamentoRequest(
+public record DepartamentoRequest(
+
+        @Min(value = 1, message = "El id no puede ser menor a 1.")
+        Long id,
+
         @NotNull(message = "El ID de la facultad es obligatorio")
         Long facultadId,
 

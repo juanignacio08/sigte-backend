@@ -16,6 +16,11 @@ public interface SpringDataDepartamentoRepository extends JpaRepository<Departam
 
     boolean existsByIdAndEliminadoFalse(Long id);
 
+    List<DepartamentoEntity> findByFacultadIdAndEstadoAndEliminadoFalse(Long facultadId, Integer estado);
+    default List<DepartamentoEntity> getActivesByFaculty(Long facultyId) {
+        return findByFacultadIdAndEstadoAndEliminadoFalse(facultyId, 1);
+    }
+
     @Query("""
             SELECT d.id AS id, 
             d.facultadId AS facultadId, 

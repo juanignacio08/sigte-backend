@@ -70,7 +70,16 @@ public class GestionarDepartamentoUseCaseImpl implements GestionarDepartamentoUs
     }
 
     @Override
+    public List<DepartamentoConTotalEscuelasView> listarTodosPorFacultad(Long facultadId) {
+        log.info("Listando todos los departamentos academicos. [ FACULTAD : {} ]", facultadId);
+
+        return departamentoRepositoryPort.listarTodosPorFacultad(facultadId);
+    }
+
+    @Override
     public DepartamentoAcademico obtenerPorId(Long id) {
+        log.info("Obteniendo el departamento por ID: {}", id);
+
         if (id == null || id <= 0) {
             throw new IllegalArgumentException("ID invalido [ DEPARTAMENTO ]");
         }
@@ -80,30 +89,47 @@ public class GestionarDepartamentoUseCaseImpl implements GestionarDepartamentoUs
     }
 
     @Override
-    public List<DepartamentoConTotalEscuelasView> listarTodosPorFacultad(Long facultadId) {
-        log.info("Listando todos los departamentos academicos. [ FACULTAD : {} ]", facultadId);
+    public List<DepartamentoAcademico> listarActivosPorFacultad(Long facultadId) {
+        log.info("Listando los departamentos academicos activos de una facultad. [ FACULTAD : {} ]", facultadId);
 
-        return departamentoRepositoryPort.listarTodosPorFacultad(facultadId);
+        return departamentoRepositoryPort.listarActivosPorFacultad(facultadId);
     }
 
     @Override
-    public DepartamentoAcademico actualizarDepartamento(Long id, String abreviatura, String denominacion) {
-        DepartamentoAcademico existente = obtenerPorId(id);
+    @Transactional
+    public DepartamentoAcademico activarDepartamento(Long id) {
+        log.info("Activando departamento por ID: {}", id);
 
-        if (!existente.getAbreviatura().equalsIgnoreCase(abreviatura) &&
-                departamentoRepositoryPort.existePorAbreviatura(abreviatura)) {
-            throw new DuplicateKeyException("Departamento", "abreviatura", abreviatura);
+        DepartamentoAcademico departamento = obtenerPorId(id);
+        if (departamento.getEstado().equals(1)) {
+            return departamento;
         }
 
-        existente.actualizarDatos(abreviatura, denominacion);
-        return departamentoRepositoryPort.guardar(existente);
+        departamento.activar();
+
+        return departamentoRepositoryPort.guardar(departamento);
+    }
+
+    @Override
+    @Transactional
+    public DepartamentoAcademico desactivarDepartamento(Long id) {
+        log.info("Desactivando departamento por ID: {}", id);
+
+        DepartamentoAcademico departamento = obtenerPorId(id);
+        if (departamento.getEstado().equals(0)) {
+            return departamento;
+        }
+
+        departamento.desactivar();
+
+        return departamentoRepositoryPort.guardar(departamento);
     }
 
     @Override
     public void eliminarDepartamento(Long id) {
-        DepartamentoAcademico departamento = obtenerPorId(id);
+        log.info("Eliminando departamento por ID: {}", id);
 
-        // Aplicamos el borrado lógico desde la entidad de dominio
+        DepartamentoAcademico departamento = obtenerPorId(id);
         departamento.marcarComoEliminado();
 
         departamentoRepositoryPort.guardar(departamento);

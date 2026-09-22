@@ -65,27 +65,48 @@ public class DepartamentoController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @GetMapping("/listarActivosPorFacultad/{facultadId}")
+    public ResponseEntity<ResponseDTO<Object>> listarActivosPorFacultad(@PathVariable Long facultadId) {
+        List<DepartamentoResponse> lista = departamentoUseCase.listarActivosPorFacultad(facultadId).stream()
+                .map(mapper::toResponse)
+                .toList();
+
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(lista, "Lista de departamentos académicos áctivos", "200");
+
+        return ResponseEntity.ok(responseDTO);
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<DepartamentoResponse> obtenerPorId(@PathVariable Long id) {
+    public ResponseEntity<ResponseDTO<Object>> obtenerPorId(@PathVariable Long id) {
         DepartamentoAcademico dominio = departamentoUseCase.obtenerPorId(id);
-        return ResponseEntity.ok(toResponse(dominio));
+
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(mapper.toResponse(dominio), "Departamento Académico encontrado!", "200");
+
+        return ResponseEntity.ok(responseDTO);
+    }
+
+    @PutMapping("activar/{id}")
+    public ResponseEntity<ResponseDTO<Object>> activar(@PathVariable Long id) {
+        DepartamentoAcademico dominio = departamentoUseCase.activarDepartamento(id);
+
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(mapper.toResponse(dominio), "Departamento Académico activado!", "201");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+    }
+
+    @PutMapping("desactivar/{id}")
+    public ResponseEntity<ResponseDTO<Object>> desactivar(@PathVariable Long id) {
+        DepartamentoAcademico dominio = departamentoUseCase.desactivarDepartamento(id);
+
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(mapper.toResponse(dominio), "Departamento Académico desactivado!", "201");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+    public ResponseEntity<ResponseDTO<Object>> eliminar(@PathVariable Long id) {
         departamentoUseCase.eliminarDepartamento(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    // Mapper helper: Convertir Modelo de Dominio -> DTO de Respuesta REST
-    private DepartamentoResponse toResponse(DepartamentoAcademico domain) {
-        return new DepartamentoResponse(
-                domain.getId(),
-                domain.getFacultadId(),
-                domain.getAbreviatura(),
-                domain.getDenominacion(),
-                domain.getEstado(),
-                0
-        );
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(null, "Departamento Académico eliminado!", "200");
+        return ResponseEntity.ok().body(responseDTO);
     }
 }

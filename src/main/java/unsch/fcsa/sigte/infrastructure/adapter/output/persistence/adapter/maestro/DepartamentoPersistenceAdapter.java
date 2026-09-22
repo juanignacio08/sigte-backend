@@ -33,13 +33,20 @@ public class DepartamentoPersistenceAdapter implements DepartamentoRepositoryPor
     @Override
     public Optional<DepartamentoAcademico> buscarPorId(Long id) {
         return repository.findById(id)
-                .filter(entity -> !entity.getEliminado()) // Ignorar si está eliminado lógicamente
+                .filter(entity -> !entity.getEliminado())
                 .map(this::toDomain);
     }
 
     @Override
     public List<DepartamentoConTotalEscuelasView> listarTodosPorFacultad(Long facultadId) {
         return repository.listarConTotalEscuelasPorFacultad(facultadId);
+    }
+
+    @Override
+    public List<DepartamentoAcademico> listarActivosPorFacultad(Long facultadId) {
+        return repository.getActivesByFaculty(facultadId).stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 
     @Override

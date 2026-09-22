@@ -12,6 +12,8 @@ public interface DepartamentoRepositoryPort {
 
     List<DepartamentoConTotalEscuelasView> listarTodosPorFacultad(Long facultadId);
 
+    List<DepartamentoAcademico> listarActivosPorFacultad(Long facultadId);
+
     Optional<DepartamentoAcademico> buscarPorId(Long id);
 
     boolean existePorAbreviatura(String abreviatura);

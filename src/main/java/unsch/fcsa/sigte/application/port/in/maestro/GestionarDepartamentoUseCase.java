@@ -12,8 +12,9 @@ public interface GestionarDepartamentoUseCase {
     DepartamentoAcademico actualizarDepartamento(DepartamentoCommand command);
     List<DepartamentoConTotalEscuelasView> listarTodosPorFacultad(Long facultadId);
     DepartamentoAcademico obtenerPorId(Long id);
-    DepartamentoAcademico actualizarDepartamento(Long id, String abreviatura, String denominacion);
-
+    List<DepartamentoAcademico> listarActivosPorFacultad(Long facultadId);
+    DepartamentoAcademico activarDepartamento(Long id);
+    DepartamentoAcademico desactivarDepartamento(Long id);
     void eliminarDepartamento(Long id);
 
 }

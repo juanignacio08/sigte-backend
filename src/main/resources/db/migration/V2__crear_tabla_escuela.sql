@@ -17,9 +17,7 @@ CREATE TABLE maestros.escuela (
     CONSTRAINT fk_escuela_departamento FOREIGN KEY (departamento_academico_id)
         REFERENCES maestros.departamento_academico (id) ON DELETE RESTRICT,
 
-    CONSTRAINT uk_escuela_codigo UNIQUE (codigo),
-
-    CONSTRAINT uk_escuela_abreviatura UNIQUE (abreviatura)
+    CONSTRAINT uk_escuela_codigo UNIQUE (codigo)
 );
 
 CREATE INDEX idx_escuela_departamento_id ON maestros.escuela(departamento_academico_id);

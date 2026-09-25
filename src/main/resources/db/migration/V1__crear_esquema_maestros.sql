@@ -11,9 +11,7 @@ CREATE TABLE maestros.facultad (
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     actualizado_por BIGINT NOT NULL DEFAULT 1,
     fecha_actualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    eliminado BOOLEAN NOT NULL DEFAULT FALSE,
-
-    CONSTRAINT uk_facultad_abreviatura UNIQUE (abreviatura)
+    eliminado BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 -- 2. Tabla: departamento_academico
@@ -30,9 +28,7 @@ CREATE TABLE maestros.departamento_academico (
     eliminado BOOLEAN NOT NULL DEFAULT FALSE,
 
     CONSTRAINT fk_departamento_facultad FOREIGN KEY (facultad_id)
-        REFERENCES maestros.facultad (id) ON DELETE RESTRICT,
-
-    CONSTRAINT uk_departamento_abreviatura UNIQUE (abreviatura)
+        REFERENCES maestros.facultad (id) ON DELETE RESTRICT
 );
 
 -- Datos iniciales de prueba (Semilla)

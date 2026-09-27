@@ -7,7 +7,7 @@ import lombok.Builder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record EscuelaProfesionalResponse(
         Long id,
-        Long departamentoId,
+        DepartamentoResponse departamento,
         Integer codigo,
         String abreviatura,
         String denominacion,

@@ -5,7 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import unsch.fcsa.sigte.application.command.maestro.EscuelaCommand;
+import unsch.fcsa.sigte.application.port.out.maestro.projections.EscuelaProfesionalProjection;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.ResponseDTO;
+import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.maestro.DepartamentoResponse;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.maestro.EscuelaProfesionalRequest;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.maestro.EscuelaProfesionalResponse;
 import unsch.fcsa.sigte.domain.model.maestro.EscuelaProfesional;
@@ -65,6 +67,13 @@ public class EscuelaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseDTO<Object>> obtenerPorId(@PathVariable Long id) {
+        EscuelaProfesionalProjection projection = gestionarEscuelaUseCase.obtenerDetallePorId(id);
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(mapper.fromProjectionToResponse(projection), "Escuela Profesional encontrada!", "200");
+        return ResponseEntity.ok(responseDTO);
+    }
+
     @GetMapping("/listar")
     public ResponseEntity<List<EscuelaProfesionalResponse>> listar() {
         List<EscuelaProfesionalResponse> lista = gestionarEscuelaUseCase.listarTodosPorFacultad(1L).stream()
@@ -82,7 +91,7 @@ public class EscuelaController {
     private EscuelaProfesionalResponse toResponse(EscuelaProfesional domain) {
         return new EscuelaProfesionalResponse(
                 domain.getId(),
-                domain.getDepartamentoAcademicoId(),
+                DepartamentoResponse.builder().id(domain.getDepartamentoAcademicoId()).build(),
                 domain.getCodigo(),
                 domain.getAbreviatura(),
                 domain.getDenominacion(),

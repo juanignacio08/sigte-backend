@@ -1,9 +1,9 @@
 package unsch.fcsa.sigte.infrastructure.adapter.output.persistence.adapter.maestro;
 
 import org.springframework.stereotype.Component;
+import unsch.fcsa.sigte.application.port.out.maestro.projections.EscuelaProfesionalProjection;
 import unsch.fcsa.sigte.domain.model.maestro.EscuelaProfesional;
 import unsch.fcsa.sigte.application.port.out.maestro.EscuelaProfesionalRepositoryPort;
-import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.maestro.DepartamentoEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.maestro.EscuelaEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.mapper.maestro.EscuelaProfesionalMapperOut;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.repository.maestro.SpringDataEscuelaRepository;
@@ -35,6 +35,11 @@ public class EscuelaPersistenceAdapter implements EscuelaProfesionalRepositoryPo
         return repository.findById(id)
                 .filter(entity -> !entity.getEliminado())
                 .map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<EscuelaProfesionalProjection> obtenerDetallerPorId(Long id) {
+        return repository.getDetailByID(id);
     }
 
     @Override

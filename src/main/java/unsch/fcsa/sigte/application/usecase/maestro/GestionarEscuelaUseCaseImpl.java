@@ -1,5 +1,6 @@
 package unsch.fcsa.sigte.application.usecase.maestro;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import unsch.fcsa.sigte.application.command.maestro.EscuelaCommand;
 import unsch.fcsa.sigte.domain.exception.DuplicateKeyException;
@@ -11,6 +12,7 @@ import unsch.fcsa.sigte.application.port.out.maestro.EscuelaProfesionalRepositor
 
 import java.util.List;
 
+@Slf4j
 public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
 
     private final EscuelaProfesionalRepositoryPort escuelaProfesionalRepositoryPort;
@@ -27,6 +29,8 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
     @Override
     @Transactional
     public EscuelaProfesional crearEscuela(EscuelaCommand command) {
+        log.info("Iniciando el registro de una escuela: {}", command.denominacion());
+
         if (escuelaProfesionalRepositoryPort.existePorCodigo(command.codigo())) {
             throw new DuplicateKeyException("Escuela", "codigo", command.codigo());
         }
@@ -54,6 +58,8 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
     @Override
     @Transactional
     public EscuelaProfesional modificarEscuela(EscuelaCommand command) {
+        log.info("Actualizando un recurso. [ ESCUELA : {} ]", command.id());
+
         EscuelaProfesional existente = obtenerPorId(command.id());
 
         if (!existente.getAbreviatura().equalsIgnoreCase(command.abreviatura()) &&
@@ -85,8 +91,10 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
 
     @Override
     public EscuelaProfesional obtenerPorId(Long id) {
+        log.info("Obteniendo una escuela por ID: {}", id);
+
         if (id == null || id <= 0) {
-            throw new IllegalArgumentException("El id de escuela no puede ser null o negativo.");
+            throw new IllegalArgumentException("ID invalido [ ESCUELA ]");
         }
 
         return escuelaProfesionalRepositoryPort.buscarPorId(id)

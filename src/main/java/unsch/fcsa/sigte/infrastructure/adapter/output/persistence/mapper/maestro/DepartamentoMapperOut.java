@@ -4,8 +4,6 @@ import org.springframework.stereotype.Component;
 import unsch.fcsa.sigte.domain.model.maestro.DepartamentoAcademico;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.maestro.DepartamentoEntity;
 
-import java.time.LocalDateTime;
-
 @Component
 public class DepartamentoMapperOut {
 

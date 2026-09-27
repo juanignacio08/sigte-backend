@@ -11,7 +11,7 @@ public interface EscuelaProfesionalRepositoryPort {
     Optional<EscuelaProfesional> buscarPorId(Long id);
     Optional<EscuelaProfesionalProjection> obtenerDetallerPorId(Long id);
     Optional<EscuelaProfesional> buscarPorCodigo(Integer codigo);
-    List<EscuelaProfesional> listarTodos();
+    List<EscuelaProfesionalProjection> listarTodosPorFacultad(Long facultadId);
     boolean existePorAbreviatura(String abreviatura);
     boolean existePorCodigo(Integer codigo);
 }

@@ -48,10 +48,8 @@ public class EscuelaPersistenceAdapter implements EscuelaProfesionalRepositoryPo
     }
 
     @Override
-    public List<EscuelaProfesional> listarTodos() {
-        return repository.findByEliminadoFalse().stream()
-                .map(mapper::toDomain)
-                .toList();
+    public List<EscuelaProfesionalProjection> listarTodosPorFacultad(Long facultadId) {
+        return repository.getDetailByFacultyId(facultadId);
     }
 
     @Override

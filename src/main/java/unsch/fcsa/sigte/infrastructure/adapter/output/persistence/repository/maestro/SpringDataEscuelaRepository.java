@@ -29,4 +29,20 @@ public interface SpringDataEscuelaRepository extends JpaRepository<EscuelaEntity
             WHERE e.id = :escuelaId AND e.eliminado = false 
             """)
     Optional<EscuelaProfesionalProjection> getDetailByID(@Param("escuelaId") Long escuelaId);
+
+    @Query("""
+            SELECT e.id AS id, 
+            e.codigo AS codigo, 
+            e.abreviatura AS abreviatura, 
+            e.denominacion AS denominacion, 
+            e.plantillaMemorando AS plantillaMemorando,
+            e.plantillaResolucion AS plantillaResolucion,
+            e.estado AS estado, 
+            d.id AS departamentoId,
+            d.denominacion AS departamentoDenominacion
+            FROM EscuelaEntity e 
+            LEFT JOIN DepartamentoEntity d ON d = e.departamento AND d.eliminado = false 
+            WHERE e.eliminado = false AND d.facultadId = :facultadId  
+            """)
+    List<EscuelaProfesionalProjection> getDetailByFacultyId(@Param("facultadId") Long facultadId);
 }

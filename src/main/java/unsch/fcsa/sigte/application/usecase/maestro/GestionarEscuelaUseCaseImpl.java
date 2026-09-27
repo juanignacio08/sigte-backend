@@ -115,8 +115,8 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
     }
 
     @Override
-    public List<EscuelaProfesional> listarTodosPorFacultad(Long facultadId) {
-        return escuelaProfesionalRepositoryPort.listarTodos();
+    public List<EscuelaProfesionalProjection> listarTodosPorFacultad(Long facultadId) {
+        return escuelaProfesionalRepositoryPort.listarTodosPorFacultad(facultadId);
     }
 
     @Override

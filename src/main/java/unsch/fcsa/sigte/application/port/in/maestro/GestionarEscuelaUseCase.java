@@ -11,7 +11,7 @@ public interface GestionarEscuelaUseCase {
     EscuelaProfesional modificarEscuela(EscuelaCommand command);
     EscuelaProfesional obtenerPorId(Long id);
     EscuelaProfesionalProjection obtenerDetallePorId(Long id);
-    List<EscuelaProfesional> listarTodosPorFacultad(Long facultadId);
+    List<EscuelaProfesionalProjection> listarTodosPorFacultad(Long facultadId);
     List<EscuelaProfesional> listarActivosPorFacultad(Long facultadId);
     List<EscuelaProfesional> listarTodosPorDepartamento(Long departamentoId);
     EscuelaProfesional activarEscuela(Long id);

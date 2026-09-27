@@ -6,7 +6,7 @@ import unsch.fcsa.sigte.application.port.out.security.CurrentUserPort;
 @Component
 public class CurrentUserAdapter implements CurrentUserPort {
     @Override
-    public Long getCurrentUserId() {
-        return 1L;
+    public String getCurrentUser() {
+        return "admin";
     }
 }

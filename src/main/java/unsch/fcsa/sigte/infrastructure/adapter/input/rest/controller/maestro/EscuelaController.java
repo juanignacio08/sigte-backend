@@ -4,10 +4,14 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import unsch.fcsa.sigte.application.command.maestro.EscuelaCommand;
+import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.ResponseDTO;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.maestro.EscuelaProfesionalRequest;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.maestro.EscuelaProfesionalResponse;
 import unsch.fcsa.sigte.domain.model.maestro.EscuelaProfesional;
 import unsch.fcsa.sigte.application.port.in.maestro.GestionarEscuelaUseCase;
+import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.ResponseGlobalMapper;
+import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.maestro.EscuelaProfesionalMapperExpose;
 
 import java.util.List;
 
@@ -17,13 +21,16 @@ public class EscuelaController {
 
     private final GestionarEscuelaUseCase gestionarEscuelaUseCase;
 
-    public EscuelaController(GestionarEscuelaUseCase gestionarEscuelaUseCase) {
+    private final EscuelaProfesionalMapperExpose mapper;
+
+    public EscuelaController(GestionarEscuelaUseCase gestionarEscuelaUseCase, EscuelaProfesionalMapperExpose mapper) {
         this.gestionarEscuelaUseCase = gestionarEscuelaUseCase;
+        this.mapper = mapper;
     }
 
     @PostMapping("guardar")
-    public ResponseEntity<EscuelaProfesionalResponse> crear(@RequestBody @Valid EscuelaProfesionalRequest request) {
-        EscuelaProfesional creado = gestionarEscuelaUseCase.crearEscuela(
+    public ResponseEntity<ResponseDTO<Object>> crear(@RequestBody @Valid EscuelaProfesionalRequest request) {
+        EscuelaCommand command = EscuelaCommand.create(
                 request.departamentoId(),
                 request.codigo(),
                 request.abreviatura(),
@@ -32,12 +39,16 @@ public class EscuelaController {
                 request.plantillaRes()
         );
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(creado));
+        EscuelaProfesional creado = gestionarEscuelaUseCase.crearEscuela(command);
+
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(mapper.toResponse(creado), "Escuela Profesional registrado!", "201");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
     @PutMapping("modificar")
-    public ResponseEntity<EscuelaProfesionalResponse> modificar(@RequestBody @Valid EscuelaProfesionalRequest request) {
-        EscuelaProfesional creado = gestionarEscuelaUseCase.modificarEscuela(
+    public ResponseEntity<ResponseDTO<Object>> modificar(@RequestBody @Valid EscuelaProfesionalRequest request) {
+        EscuelaCommand command = EscuelaCommand.update(
                 request.id(),
                 request.departamentoId(),
                 request.codigo(),
@@ -47,12 +58,16 @@ public class EscuelaController {
                 request.plantillaRes()
         );
 
-        return ResponseEntity.status(200).body(toResponse(creado));
+        EscuelaProfesional creado = gestionarEscuelaUseCase.modificarEscuela(command);
+
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(mapper.toResponse(creado), "Escuela Profesional actualizada!", "201");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
     @GetMapping("/listar")
     public ResponseEntity<List<EscuelaProfesionalResponse>> listar() {
-        List<EscuelaProfesionalResponse> lista = gestionarEscuelaUseCase.listarTodos().stream()
+        List<EscuelaProfesionalResponse> lista = gestionarEscuelaUseCase.listarTodosPorFacultad(1L).stream()
                 .map(this::toResponse)
                 .toList();
         return ResponseEntity.ok(lista);

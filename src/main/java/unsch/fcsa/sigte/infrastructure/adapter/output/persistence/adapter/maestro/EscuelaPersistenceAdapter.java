@@ -5,6 +5,7 @@ import unsch.fcsa.sigte.domain.model.maestro.EscuelaProfesional;
 import unsch.fcsa.sigte.application.port.out.maestro.EscuelaProfesionalRepositoryPort;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.maestro.DepartamentoEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.maestro.EscuelaEntity;
+import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.mapper.maestro.EscuelaProfesionalMapperOut;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.repository.maestro.SpringDataEscuelaRepository;
 
 import java.util.List;
@@ -15,22 +16,25 @@ public class EscuelaPersistenceAdapter implements EscuelaProfesionalRepositoryPo
 
     private final SpringDataEscuelaRepository repository;
 
-    public EscuelaPersistenceAdapter(SpringDataEscuelaRepository repository) {
+    private final EscuelaProfesionalMapperOut mapper;
+
+    public EscuelaPersistenceAdapter(SpringDataEscuelaRepository repository, EscuelaProfesionalMapperOut mapper) {
         this.repository = repository;
+        this.mapper = mapper;
     }
 
     @Override
     public EscuelaProfesional guardar(EscuelaProfesional escuelaProfesional) {
-        EscuelaEntity escuelaEntity = toEntity(escuelaProfesional);
+        EscuelaEntity escuelaEntity = mapper.toEntity(escuelaProfesional);
         escuelaEntity = repository.save(escuelaEntity);
-        return toDomain(escuelaEntity);
+        return mapper.toDomain(escuelaEntity);
     }
 
     @Override
     public Optional<EscuelaProfesional> buscarPorId(Long id) {
         return repository.findById(id)
                 .filter(entity -> !entity.getEliminado())
-                .map(this::toDomain);
+                .map(mapper::toDomain);
     }
 
     @Override
@@ -41,7 +45,7 @@ public class EscuelaPersistenceAdapter implements EscuelaProfesionalRepositoryPo
     @Override
     public List<EscuelaProfesional> listarTodos() {
         return repository.findByEliminadoFalse().stream()
-                .map(this::toDomain)
+                .map(mapper::toDomain)
                 .toList();
     }
 
@@ -52,37 +56,7 @@ public class EscuelaPersistenceAdapter implements EscuelaProfesionalRepositoryPo
 
     @Override
     public boolean existePorCodigo(Integer codigo) {
-        return repository.existsByCodigoAndEliminadoFalse(codigo);
+        return repository.existsByCodigo(codigo);
     }
 
-    private EscuelaEntity toEntity(EscuelaProfesional escuelaProfesional) {
-        DepartamentoEntity departamentoEntity = new DepartamentoEntity();
-        departamentoEntity.setId(escuelaProfesional.getDepartamentoAcademicoId());
-
-        return new EscuelaEntity(
-                escuelaProfesional.getId(),
-                departamentoEntity,
-                escuelaProfesional.getCodigo(),
-                escuelaProfesional.getAbreviatura(),
-                escuelaProfesional.getDenominacion(),
-                escuelaProfesional.getPlantillaMemorando(),
-                escuelaProfesional.getPlantillaResolucion(),
-                escuelaProfesional.getEstado(),
-                escuelaProfesional.isEliminado()
-        );
-    }
-
-    private EscuelaProfesional toDomain(EscuelaEntity entity) {
-        return new EscuelaProfesional(
-                entity.getId(),
-                entity.getDepartamento().getId(),
-                entity.getCodigo(),
-                entity.getAbreviatura(),
-                entity.getDenominacion(),
-                entity.getPlantillaMemorando(),
-                entity.getPlantillaResolucion(),
-                entity.getEstado(),
-                entity.getEliminado()
-        );
-    }
 }

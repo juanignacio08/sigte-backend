@@ -84,7 +84,7 @@ public class EscuelaProfesional {
 
     private void setDepartamentoAcademicoId(Long departamentoAcademicoId) {
         if (departamentoAcademicoId == null || departamentoAcademicoId <= 0) {
-            throw new IllegalArgumentException("El departamento académico no puede estar vacío.");
+            throw new IllegalArgumentException("El departamento académico es inválido.");
         }
 
         this.departamentoAcademicoId = departamentoAcademicoId;

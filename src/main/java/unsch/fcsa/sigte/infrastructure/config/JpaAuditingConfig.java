@@ -13,7 +13,7 @@ import java.util.Optional;
 public class JpaAuditingConfig {
 
     @Bean
-    public AuditorAware<Long> auditorProvider(CurrentUserPort currentUserPort) {
-        return () -> Optional.ofNullable(currentUserPort.getCurrentUserId());
+    public AuditorAware<String> auditorProvider(CurrentUserPort currentUserPort) {
+        return () -> Optional.ofNullable(currentUserPort.getCurrentUser());
     }
 }

@@ -8,9 +8,9 @@ CREATE TABLE maestros.escuela (
     plantilla_memorando TEXT,
     plantilla_resolucion TEXT,
     estado INT NOT NULL DEFAULT 1,
-    creado_por BIGINT NOT NULL DEFAULT 1,
+    creado_por VARCHAR(100) NOT NULL DEFAULT 'admin',
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    actualizado_por BIGINT NOT NULL DEFAULT 1,
+    actualizado_por VARCHAR(100) NOT NULL DEFAULT 'admin',
     fecha_actualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     eliminado BOOLEAN NOT NULL DEFAULT FALSE,
 

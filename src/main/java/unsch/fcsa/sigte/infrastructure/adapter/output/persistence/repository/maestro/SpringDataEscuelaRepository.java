@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface SpringDataEscuelaRepository extends JpaRepository<EscuelaEntity, Long> {
     boolean existsByAbreviaturaAndEliminadoFalse(String abreviatura);
-    boolean existsByCodigoAndEliminadoFalse(Integer codigo);
+    boolean existsByCodigo(Integer codigo);
     List<EscuelaEntity> findByEliminadoFalse();
 }

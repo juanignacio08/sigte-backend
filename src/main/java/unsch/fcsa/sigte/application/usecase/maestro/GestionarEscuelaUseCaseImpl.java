@@ -1,5 +1,7 @@
 package unsch.fcsa.sigte.application.usecase.maestro;
 
+import org.springframework.transaction.annotation.Transactional;
+import unsch.fcsa.sigte.application.command.maestro.EscuelaCommand;
 import unsch.fcsa.sigte.domain.exception.DuplicateKeyException;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
 import unsch.fcsa.sigte.domain.model.maestro.EscuelaProfesional;
@@ -23,46 +25,60 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
     }
 
     @Override
-    public EscuelaProfesional crearEscuela(Long departamentoId, Integer codigo, String abreviatura, String denominacion, String plantillaMemo, String plantillaRes) {
-        if (escuelaProfesionalRepositoryPort.existePorCodigo(codigo)) {
-            throw new DuplicateKeyException("Escuela", "codigo", codigo);
+    @Transactional
+    public EscuelaProfesional crearEscuela(EscuelaCommand command) {
+        if (escuelaProfesionalRepositoryPort.existePorCodigo(command.codigo())) {
+            throw new DuplicateKeyException("Escuela", "codigo", command.codigo());
         }
 
-        if (escuelaProfesionalRepositoryPort.existePorAbreviatura(abreviatura)) {
-            throw new DuplicateKeyException("Escuela", "abreviatura", abreviatura);
+        if (escuelaProfesionalRepositoryPort.existePorAbreviatura(command.abreviatura())) {
+            throw new DuplicateKeyException("Escuela", "abreviatura", command.abreviatura());
         }
 
-        if (!departamentoRepositoryPort.existePorId(departamentoId)) {
-            throw new ResourceNotFoundException("Departamento",  "id", departamentoId);
+        if (!departamentoRepositoryPort.existePorId(command.departamentoId())) {
+            throw new ResourceNotFoundException("Departamento",  "id", command.departamentoId());
         }
 
         EscuelaProfesional escuelaProfesional = new EscuelaProfesional(
-                departamentoId, codigo, abreviatura, denominacion, plantillaMemo, plantillaRes
+                command.departamentoId(),
+                command.codigo(),
+                command.abreviatura(),
+                command.denominacion(),
+                command.plantillaMemo(),
+                command.plantillaRes()
         );
 
         return escuelaProfesionalRepositoryPort.guardar(escuelaProfesional);
     }
 
     @Override
-    public EscuelaProfesional modificarEscuela(Long id, Long departamentoId, Integer codigo, String abreviatura, String denominacion, String plantillaMemo, String plantillaRes) {
-        EscuelaProfesional existente = obtenerPorId(id);
+    @Transactional
+    public EscuelaProfesional modificarEscuela(EscuelaCommand command) {
+        EscuelaProfesional existente = obtenerPorId(command.id());
 
-        if (!existente.getAbreviatura().equalsIgnoreCase(abreviatura) &&
-                escuelaProfesionalRepositoryPort.existePorAbreviatura(abreviatura)) {
-            throw new DuplicateKeyException("Escuela", "abreviatura", abreviatura);
+        if (!existente.getAbreviatura().equalsIgnoreCase(command.abreviatura()) &&
+                escuelaProfesionalRepositoryPort.existePorAbreviatura(command.abreviatura())) {
+            throw new DuplicateKeyException("Escuela", "abreviatura", command.abreviatura());
         }
 
-        if (!existente.getCodigo().equals(codigo) &&
-                escuelaProfesionalRepositoryPort.existePorCodigo(codigo)) {
-            throw new DuplicateKeyException("Escuela", "codigo", codigo);
+        if (!existente.getCodigo().equals(command.codigo()) &&
+                escuelaProfesionalRepositoryPort.existePorCodigo(command.codigo())) {
+            throw new DuplicateKeyException("Escuela", "codigo", command.codigo());
         }
 
-        if (!existente.getDepartamentoAcademicoId().equals(departamentoId) &&
-                !departamentoRepositoryPort.existePorId(departamentoId)) {
-            throw new ResourceNotFoundException("Departamento",  "id", departamentoId);
+        if (!existente.getDepartamentoAcademicoId().equals(command.departamentoId()) &&
+                !departamentoRepositoryPort.existePorId(command.departamentoId())) {
+            throw new ResourceNotFoundException("Departamento",  "id", command.departamentoId());
         }
 
-        existente.actualizarDatos(departamentoId, codigo, abreviatura, denominacion, plantillaMemo, plantillaRes);
+        existente.actualizarDatos(
+                command.departamentoId(),
+                command.codigo(),
+                command.abreviatura(),
+                command.denominacion(),
+                command.plantillaMemo(),
+                command.plantillaRes()
+        );
 
         return escuelaProfesionalRepositoryPort.guardar(existente);
     }
@@ -78,8 +94,28 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
     }
 
     @Override
-    public List<EscuelaProfesional> listarTodos() {
+    public List<EscuelaProfesional> listarTodosPorFacultad(Long facultadId) {
         return escuelaProfesionalRepositoryPort.listarTodos();
+    }
+
+    @Override
+    public List<EscuelaProfesional> listarActivosPorFacultad(Long facultadId) {
+        return List.of();
+    }
+
+    @Override
+    public List<EscuelaProfesional> listarTodosPorDepartamento(Long departamentoId) {
+        return List.of();
+    }
+
+    @Override
+    public EscuelaProfesional activarEscuela(Long id) {
+        return null;
+    }
+
+    @Override
+    public EscuelaProfesional desactivarEscuela(Long id) {
+        return null;
     }
 
     @Override

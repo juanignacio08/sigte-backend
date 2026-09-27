@@ -120,8 +120,9 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
     }
 
     @Override
-    public List<EscuelaProfesional> listarActivosPorFacultad(Long facultadId) {
-        return List.of();
+    public List<EscuelaProfesionalProjection> listarActivosPorFacultad(Long facultadId) {
+        return escuelaProfesionalRepositoryPort.listarTodosPorFacultad(facultadId).stream()
+                .filter(e -> e.getEstado().equals(1)).toList();
     }
 
     @Override

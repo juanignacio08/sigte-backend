@@ -12,7 +12,7 @@ public interface GestionarEscuelaUseCase {
     EscuelaProfesional obtenerPorId(Long id);
     EscuelaProfesionalProjection obtenerDetallePorId(Long id);
     List<EscuelaProfesionalProjection> listarTodosPorFacultad(Long facultadId);
-    List<EscuelaProfesional> listarActivosPorFacultad(Long facultadId);
+    List<EscuelaProfesionalProjection> listarActivosPorFacultad(Long facultadId);
     List<EscuelaProfesional> listarTodosPorDepartamento(Long departamentoId);
     EscuelaProfesional activarEscuela(Long id);
     EscuelaProfesional desactivarEscuela(Long id);

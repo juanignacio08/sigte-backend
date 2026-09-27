@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import unsch.fcsa.sigte.application.command.maestro.EscuelaCommand;
 import unsch.fcsa.sigte.application.port.out.maestro.projections.EscuelaProfesionalProjection;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.ResponseDTO;
-import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.maestro.DepartamentoResponse;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.maestro.EscuelaProfesionalRequest;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.maestro.EscuelaProfesionalResponse;
 import unsch.fcsa.sigte.domain.model.maestro.EscuelaProfesional;
@@ -107,22 +106,29 @@ public class EscuelaController {
         return ResponseEntity.ok(responseDTO);
     }
 
-    @DeleteMapping("eliminar/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        gestionarEscuelaUseCase.eliminarEscuela(id);
-        return ResponseEntity.noContent().build();
+    @PutMapping("activar/{id}")
+    public ResponseEntity<ResponseDTO<Object>> activar(@PathVariable Long id) {
+        EscuelaProfesional dominio = gestionarEscuelaUseCase.activarEscuela(id);
+
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(mapper.toResponse(dominio), "Escuela Profesional activado!", "201");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
-    private EscuelaProfesionalResponse toResponse(EscuelaProfesional domain) {
-        return new EscuelaProfesionalResponse(
-                domain.getId(),
-                DepartamentoResponse.builder().id(domain.getDepartamentoAcademicoId()).build(),
-                domain.getCodigo(),
-                domain.getAbreviatura(),
-                domain.getDenominacion(),
-                domain.getPlantillaMemorando(),
-                domain.getPlantillaResolucion(),
-                domain.getEstado()
-        );
+    @PutMapping("desactivar/{id}")
+    public ResponseEntity<ResponseDTO<Object>> desactivar(@PathVariable Long id) {
+        EscuelaProfesional dominio = gestionarEscuelaUseCase.desactivarEscuela(id);
+
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(mapper.toResponse(dominio), "Escuela Profesional desactivado!", "201");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<ResponseDTO<Object>> eliminar(@PathVariable Long id) {
+        gestionarEscuelaUseCase.eliminarEscuela(id);
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(null, "Escuela Profesional eliminado!", "200");
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
 }

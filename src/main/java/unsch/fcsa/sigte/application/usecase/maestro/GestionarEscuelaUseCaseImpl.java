@@ -137,19 +137,43 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
     }
 
     @Override
+    @Transactional
     public EscuelaProfesional activarEscuela(Long id) {
-        return null;
+        log.info("Activar Escuela Profesional por ID: {}", id);
+
+        EscuelaProfesional escuelaProfesional = obtenerPorId(id);
+        if (escuelaProfesional.getEstado().equals(1)) {
+            return escuelaProfesional;
+        }
+
+        escuelaProfesional.activar();
+
+        return escuelaProfesionalRepositoryPort.guardar(escuelaProfesional);
     }
 
     @Override
+    @Transactional
     public EscuelaProfesional desactivarEscuela(Long id) {
-        return null;
+        log.info("Desactivar Escuela Profesional por ID: {}", id);
+
+        EscuelaProfesional escuelaProfesional = obtenerPorId(id);
+        if (escuelaProfesional.getEstado().equals(0)) {
+            return escuelaProfesional;
+        }
+
+        escuelaProfesional.desactivar();
+
+        return escuelaProfesionalRepositoryPort.guardar(escuelaProfesional);
     }
 
     @Override
+    @Transactional
     public void eliminarEscuela(Long id) {
+        log.info("Eliminar Escuela Profesional por ID: {}", id);
+
         EscuelaProfesional escuela = obtenerPorId(id);
         escuela.marcarComoEliminado();
+
         escuelaProfesionalRepositoryPort.guardar(escuela);
     }
 }

@@ -116,18 +116,24 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
 
     @Override
     public List<EscuelaProfesionalProjection> listarTodosPorFacultad(Long facultadId) {
+        log.info("Lista de escuelas de una facultad. [ FACULTAD : {} ]", facultadId);
+
         return escuelaProfesionalRepositoryPort.listarTodosPorFacultad(facultadId);
     }
 
     @Override
     public List<EscuelaProfesionalProjection> listarActivosPorFacultad(Long facultadId) {
+        log.info("Lista de escuelas activas de una facultad. [ FACULTAD : {} ]", facultadId);
+
         return escuelaProfesionalRepositoryPort.listarTodosPorFacultad(facultadId).stream()
                 .filter(e -> e.getEstado().equals(1)).toList();
     }
 
     @Override
-    public List<EscuelaProfesional> listarTodosPorDepartamento(Long departamentoId) {
-        return List.of();
+    public List<EscuelaProfesional> listarPorDepartamento(Long departamentoId) {
+        log.info("Lista de escuelas de un departamento académico. [ DEPARTAMENTO : {} ]", departamentoId);
+
+        return escuelaProfesionalRepositoryPort.listarPorDepartamento(departamentoId);
     }
 
     @Override

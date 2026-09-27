@@ -14,6 +14,8 @@ public interface SpringDataEscuelaRepository extends JpaRepository<EscuelaEntity
     boolean existsByCodigo(Integer codigo);
     List<EscuelaEntity> findByEliminadoFalse();
 
+    List<EscuelaEntity> findByDepartamento_IdAndEliminadoFalse(Long departamentId);
+
     @Query("""
             SELECT e.id AS id, 
             e.codigo AS codigo, 

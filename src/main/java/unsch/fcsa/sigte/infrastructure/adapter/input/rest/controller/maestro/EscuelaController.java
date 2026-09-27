@@ -96,6 +96,17 @@ public class EscuelaController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @GetMapping("/listarPorDepartamento/{departamentoId}")
+    public ResponseEntity<ResponseDTO<Object>> listarPorDepartamento(@PathVariable Long departamentoId) {
+        List<EscuelaProfesionalResponse> lista = gestionarEscuelaUseCase.listarPorDepartamento(departamentoId).stream()
+                .map(mapper::toResponse)
+                .toList();
+
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(lista, "Lista de escuelas profesionales de un Departamento Académico", "200");
+
+        return ResponseEntity.ok(responseDTO);
+    }
+
     @DeleteMapping("eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         gestionarEscuelaUseCase.eliminarEscuela(id);

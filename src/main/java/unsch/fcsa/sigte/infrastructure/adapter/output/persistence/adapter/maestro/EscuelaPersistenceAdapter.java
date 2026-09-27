@@ -43,13 +43,15 @@ public class EscuelaPersistenceAdapter implements EscuelaProfesionalRepositoryPo
     }
 
     @Override
-    public Optional<EscuelaProfesional> buscarPorCodigo(Integer codigo) {
-        return Optional.empty();
+    public List<EscuelaProfesionalProjection> listarTodosPorFacultad(Long facultadId) {
+        return repository.getDetailByFacultyId(facultadId);
     }
 
     @Override
-    public List<EscuelaProfesionalProjection> listarTodosPorFacultad(Long facultadId) {
-        return repository.getDetailByFacultyId(facultadId);
+    public List<EscuelaProfesional> listarPorDepartamento(Long departamentoId) {
+        return repository.findByDepartamento_IdAndEliminadoFalse(departamentoId).stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 
     @Override

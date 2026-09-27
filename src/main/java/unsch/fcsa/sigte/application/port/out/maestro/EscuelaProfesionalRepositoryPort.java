@@ -10,8 +10,8 @@ public interface EscuelaProfesionalRepositoryPort {
     EscuelaProfesional guardar(EscuelaProfesional escuelaProfesional);
     Optional<EscuelaProfesional> buscarPorId(Long id);
     Optional<EscuelaProfesionalProjection> obtenerDetallerPorId(Long id);
-    Optional<EscuelaProfesional> buscarPorCodigo(Integer codigo);
     List<EscuelaProfesionalProjection> listarTodosPorFacultad(Long facultadId);
+    List<EscuelaProfesional> listarPorDepartamento(Long departamentoId);
     boolean existePorAbreviatura(String abreviatura);
     boolean existePorCodigo(Integer codigo);
 }

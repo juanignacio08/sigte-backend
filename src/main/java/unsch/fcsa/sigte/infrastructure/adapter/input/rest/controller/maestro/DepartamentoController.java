@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import unsch.fcsa.sigte.application.command.maestro.DepartamentoCommand;
+import unsch.fcsa.sigte.application.port.out.maestro.dtos.DepartamentoDetalle;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.ResponseDTO;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.maestro.DepartamentoRequest;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.maestro.DepartamentoResponse;
@@ -77,10 +78,10 @@ public class DepartamentoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseDTO<Object>> obtenerPorId(@PathVariable Long id) {
-        DepartamentoAcademico dominio = departamentoUseCase.obtenerPorId(id);
+    public ResponseEntity<ResponseDTO<Object>> obtenerADetallePorId(@PathVariable Long id) {
+        DepartamentoDetalle dominio = departamentoUseCase.obtenerADetallePorId(id);
 
-        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(mapper.toResponse(dominio), "Departamento Académico encontrado!", "200");
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(mapper.fromDetalleToResponse(dominio), "Departamento Académico encontrado!", "200");
 
         return ResponseEntity.ok(responseDTO);
     }

@@ -21,8 +21,8 @@ public class UseCaseConfig {
     }
 
     @Bean
-    public GestionarDepartamentoUseCase gestionarDepartamentoUseCase(DepartamentoRepositoryPort departamentoRepositoryPort, FacultadRepositoryPort facultadRepositoryPort) {
-        return new GestionarDepartamentoUseCaseImpl(departamentoRepositoryPort,  facultadRepositoryPort);
+    public GestionarDepartamentoUseCase gestionarDepartamentoUseCase(DepartamentoRepositoryPort departamentoRepositoryPort, FacultadRepositoryPort facultadRepositoryPort, EscuelaProfesionalRepositoryPort escuelaProfesionalRepositoryPort) {
+        return new GestionarDepartamentoUseCaseImpl(departamentoRepositoryPort, facultadRepositoryPort, escuelaProfesionalRepositoryPort);
     }
 
     @Bean

@@ -3,7 +3,7 @@ package unsch.fcsa.sigte.infrastructure.adapter.output.persistence.repository.ma
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import unsch.fcsa.sigte.application.port.out.maestro.projections.EscuelaProfesionalProjection;
+import unsch.fcsa.sigte.application.port.out.maestro.dtos.EscuelaProfesionalProjection;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.maestro.EscuelaEntity;
 
 import java.util.List;

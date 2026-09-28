@@ -3,7 +3,7 @@ package unsch.fcsa.sigte.application.usecase.maestro;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import unsch.fcsa.sigte.application.command.maestro.EscuelaCommand;
-import unsch.fcsa.sigte.application.port.out.maestro.projections.EscuelaProfesionalProjection;
+import unsch.fcsa.sigte.application.port.out.maestro.dtos.EscuelaProfesionalProjection;
 import unsch.fcsa.sigte.domain.exception.DuplicateKeyException;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
 import unsch.fcsa.sigte.domain.model.maestro.EscuelaProfesional;

@@ -1,6 +1,6 @@
 package unsch.fcsa.sigte.domain.model.maestro;
 
-public class    DepartamentoAcademico {
+public class DepartamentoAcademico {
 
     private Long id;
     private Long facultadId;

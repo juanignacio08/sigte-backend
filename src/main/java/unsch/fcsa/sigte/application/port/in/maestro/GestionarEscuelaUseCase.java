@@ -1,7 +1,7 @@
 package unsch.fcsa.sigte.application.port.in.maestro;
 
 import unsch.fcsa.sigte.application.command.maestro.EscuelaCommand;
-import unsch.fcsa.sigte.application.port.out.maestro.projections.EscuelaProfesionalProjection;
+import unsch.fcsa.sigte.application.port.out.maestro.dtos.EscuelaProfesionalProjection;
 import unsch.fcsa.sigte.domain.model.maestro.EscuelaProfesional;
 
 import java.util.List;

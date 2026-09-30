@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Ignorar configuraciones locales con credenciales reales
+src/main/resources/application.yaml
+.env

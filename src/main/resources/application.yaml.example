@@ -8,14 +8,14 @@ spring:
     name: sigte
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/bd_sigte
-    username: postgres
-    password: 983603412Juan
+    url: jdbc:postgresql://localhost:5432/nombre_bd
+    username: tu_usuario
+    password: tu_contrasena
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: validate # Flyway controlará la creación/modificación del esquema, JPA solo valida
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
@@ -36,4 +36,4 @@ spring:
 
 app:
   storage:
-    location: ./storage # Se creará una carpeta llamada 'storage' en la raíz de tu proyecto
+    location: ./storage

@@ -61,7 +61,7 @@ public class EscuelaPersistenceAdapter implements EscuelaProfesionalRepositoryPo
 
     @Override
     public boolean existePorCodigo(Integer codigo) {
-        return repository.existsByCodigo(codigo);
+        return repository.existsByCodigoAndEliminadoFalse(codigo);
     }
 
 }

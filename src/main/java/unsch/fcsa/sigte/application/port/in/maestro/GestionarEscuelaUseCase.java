@@ -1,5 +1,6 @@
 package unsch.fcsa.sigte.application.port.in.maestro;
 
+import org.springframework.web.multipart.MultipartFile;
 import unsch.fcsa.sigte.application.command.maestro.EscuelaCommand;
 import unsch.fcsa.sigte.application.port.out.maestro.dtos.EscuelaProfesionalProjection;
 import unsch.fcsa.sigte.domain.model.maestro.EscuelaProfesional;
@@ -7,8 +8,8 @@ import unsch.fcsa.sigte.domain.model.maestro.EscuelaProfesional;
 import java.util.List;
 
 public interface GestionarEscuelaUseCase {
-    EscuelaProfesional crearEscuela(EscuelaCommand command);
-    EscuelaProfesional modificarEscuela(EscuelaCommand command);
+    EscuelaProfesional crearEscuela(EscuelaCommand command, MultipartFile plantillaMemo, MultipartFile plantillaRes);
+    EscuelaProfesional modificarEscuela(EscuelaCommand command, MultipartFile plantillaMemo, MultipartFile plantillaRes);
     EscuelaProfesional obtenerPorId(Long id);
     EscuelaProfesionalProjection obtenerDetallePorId(Long id);
     List<EscuelaProfesionalProjection> listarTodosPorFacultad(Long facultadId);

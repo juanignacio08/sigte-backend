@@ -5,26 +5,20 @@ public record EscuelaCommand(
         Long departamentoId,
         Integer codigo,
         String abreviatura,
-        String denominacion,
-        String plantillaMemo,
-        String plantillaRes
+        String denominacion
 ) {
     public static EscuelaCommand create(
             Long departamentoId,
             Integer codigo,
             String abreviatura,
-            String denominacion,
-            String plantillaMemo,
-            String plantillaRes
+            String denominacion
     ) {
         return new EscuelaCommand(
                 null,
                 departamentoId,
                 codigo,
                 abreviatura,
-                denominacion,
-                plantillaMemo,
-                plantillaRes
+                denominacion
         );
     }
 
@@ -33,18 +27,14 @@ public record EscuelaCommand(
             Long departamentoId,
             Integer codigo,
             String abreviatura,
-            String denominacion,
-            String plantillaMemo,
-            String plantillaRes
+            String denominacion
     ) {
         return new EscuelaCommand(
                 id,
                 departamentoId,
                 codigo,
                 abreviatura,
-                denominacion,
-                plantillaMemo,
-                plantillaRes
+                denominacion
         );
     }
 }

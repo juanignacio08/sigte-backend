@@ -22,6 +22,7 @@ public class EscuelaProfesionalMapperExpose {
                 .denominacion(domain.getDenominacion())
                 .plantillaMemo(domain.getPlantillaMemorando())
                 .plantillaRes(domain.getPlantillaResolucion())
+                .estado(domain.getEstado())
                 .build();
     }
 
@@ -39,6 +40,7 @@ public class EscuelaProfesionalMapperExpose {
                 .denominacion(domain.getDenominacion())
                 .plantillaMemo(domain.getPlantillaMemorando())
                 .plantillaRes(domain.getPlantillaResolucion())
+                .estado(domain.getEstado())
                 .build();
     }
 

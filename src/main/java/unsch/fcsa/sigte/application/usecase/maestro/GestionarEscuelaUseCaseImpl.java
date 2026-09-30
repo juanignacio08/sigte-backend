@@ -2,8 +2,10 @@ package unsch.fcsa.sigte.application.usecase.maestro;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import unsch.fcsa.sigte.application.command.maestro.EscuelaCommand;
 import unsch.fcsa.sigte.application.port.out.maestro.dtos.EscuelaProfesionalProjection;
+import unsch.fcsa.sigte.application.port.out.storage.StoragePort;
 import unsch.fcsa.sigte.domain.exception.DuplicateKeyException;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
 import unsch.fcsa.sigte.domain.model.maestro.EscuelaProfesional;
@@ -18,18 +20,21 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
 
     private final EscuelaProfesionalRepositoryPort escuelaProfesionalRepositoryPort;
     private final DepartamentoRepositoryPort departamentoRepositoryPort;
+    private final StoragePort storagePort;
 
     public GestionarEscuelaUseCaseImpl(
             EscuelaProfesionalRepositoryPort escuelaProfesionalRepositoryPort,
-            DepartamentoRepositoryPort departamentoRepositoryPort
+            DepartamentoRepositoryPort departamentoRepositoryPort,
+            StoragePort storagePort
     ) {
         this.escuelaProfesionalRepositoryPort = escuelaProfesionalRepositoryPort;
         this.departamentoRepositoryPort = departamentoRepositoryPort;
+        this.storagePort = storagePort;
     }
 
     @Override
     @Transactional
-    public EscuelaProfesional crearEscuela(EscuelaCommand command) {
+    public EscuelaProfesional crearEscuela(EscuelaCommand command, MultipartFile plantillaMemo, MultipartFile plantillaRes) {
         log.info("Iniciando el registro de una escuela: {}", command.denominacion());
 
         if (escuelaProfesionalRepositoryPort.existePorCodigo(command.codigo())) {
@@ -44,21 +49,42 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
             throw new ResourceNotFoundException("Departamento",  "id", command.departamentoId());
         }
 
-        EscuelaProfesional escuelaProfesional = new EscuelaProfesional(
-                command.departamentoId(),
-                command.codigo(),
-                command.abreviatura(),
-                command.denominacion(),
-                command.plantillaMemo(),
-                command.plantillaRes()
-        );
+        // Guardar archivos físicamente en disco
+        String rutaMemo = (plantillaMemo != null && !plantillaMemo.isEmpty())
+                ? storagePort.guardarArchivo(plantillaMemo, "plantillas/memorandos")
+                : null;
 
-        return escuelaProfesionalRepositoryPort.guardar(escuelaProfesional);
+        String rutaRes = (plantillaRes != null && !plantillaRes.isEmpty())
+                ? storagePort.guardarArchivo(plantillaRes, "plantillas/resoluciones")
+                : null;
+
+        try {
+            // Crear entidad de Dominio con las rutas asignadas
+            EscuelaProfesional escuelaProfesional = new EscuelaProfesional(
+                    command.departamentoId(),
+                    command.codigo(),
+                    command.abreviatura(),
+                    command.denominacion(),
+                    rutaMemo,
+                    rutaRes
+            );
+
+            return escuelaProfesionalRepositoryPort.guardar(escuelaProfesional);
+
+        } catch (Exception ex) {
+            // ⚠️ ROLLBACK MANUAL DEL DISCO: Si falla la BD, limpiamos los archivos recién creados
+            log.error("Error al guardar la escuela en BD. Revirtiendo archivos físicos subidos...", ex);
+            if (rutaMemo != null) storagePort.eliminarArchivo(rutaMemo);
+            if (rutaRes  != null) storagePort.eliminarArchivo(rutaRes);
+
+            // Re-lanzamos la excepción para que Spring ejecute el Rollback de la BD
+            throw ex;
+        }
     }
 
     @Override
     @Transactional
-    public EscuelaProfesional modificarEscuela(EscuelaCommand command) {
+    public EscuelaProfesional modificarEscuela(EscuelaCommand command, MultipartFile plantillaMemo, MultipartFile plantillaRes) {
         log.info("Actualizando un recurso. [ ESCUELA : {} ]", command.id());
 
         EscuelaProfesional existente = obtenerPorId(command.id());
@@ -78,16 +104,43 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
             throw new ResourceNotFoundException("Departamento",  "id", command.departamentoId());
         }
 
-        existente.actualizarDatos(
-                command.departamentoId(),
-                command.codigo(),
-                command.abreviatura(),
-                command.denominacion(),
-                command.plantillaMemo(),
-                command.plantillaRes()
-        );
+        String rutaMemoFinal = existente.getPlantillaMemorando();
+        if (plantillaMemo != null && !plantillaMemo.isEmpty()) {
+            // Borrar el archivo viejo si existía
+            storagePort.eliminarArchivo(existente.getPlantillaMemorando());
+            // Guardar el nuevo
+            rutaMemoFinal = storagePort.guardarArchivo(plantillaMemo, "plantillas/memorandos");
+        }
 
-        return escuelaProfesionalRepositoryPort.guardar(existente);
+        String rutaResFinal = existente.getPlantillaResolucion();
+        if (plantillaRes != null && !plantillaRes.isEmpty()) {
+            // Borrar el archivo viejo si existía
+            storagePort.eliminarArchivo(existente.getPlantillaResolucion());
+            // Guardar el nuevo
+            rutaResFinal = storagePort.guardarArchivo(plantillaRes, "plantillas/resoluciones");
+        }
+
+        try {
+            existente.actualizarDatos(
+                    command.departamentoId(),
+                    command.codigo(),
+                    command.abreviatura(),
+                    command.denominacion(),
+                    rutaMemoFinal,
+                    rutaResFinal
+            );
+
+            return escuelaProfesionalRepositoryPort.guardar(existente);
+
+        } catch (Exception ex) {
+            // ⚠️ ROLLBACK MANUAL DEL DISCO: Si falla la BD, limpiamos los archivos recién creados
+            log.error("Error al guardar la escuela en BD. Revirtiendo archivos físicos subidos...", ex);
+            if (rutaMemoFinal != null) storagePort.eliminarArchivo(rutaMemoFinal);
+            if (rutaResFinal  != null) storagePort.eliminarArchivo(rutaResFinal);
+
+            // Re-lanzamos la excepción para que Spring ejecute el Rollback de la BD
+            throw ex;
+        }
     }
 
     @Override
@@ -174,6 +227,13 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
         EscuelaProfesional escuela = obtenerPorId(id);
         escuela.marcarComoEliminado();
 
+        String rutaMemoFinal = escuela.getPlantillaMemorando();
+        String rutaResFinal = escuela.getPlantillaResolucion();
+
         escuelaProfesionalRepositoryPort.guardar(escuela);
+
+        if (rutaMemoFinal != null) storagePort.eliminarArchivo(rutaMemoFinal);
+        if (rutaResFinal  != null) storagePort.eliminarArchivo(rutaResFinal);
+
     }
 }

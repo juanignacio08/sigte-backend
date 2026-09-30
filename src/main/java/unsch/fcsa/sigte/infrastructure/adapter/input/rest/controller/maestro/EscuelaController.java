@@ -1,11 +1,15 @@
 package unsch.fcsa.sigte.infrastructure.adapter.input.rest.controller.maestro;
 
 import jakarta.validation.Valid;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import unsch.fcsa.sigte.application.command.maestro.EscuelaCommand;
 import unsch.fcsa.sigte.application.port.out.maestro.dtos.EscuelaProfesionalProjection;
+import unsch.fcsa.sigte.application.port.out.storage.StoragePort;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.ResponseDTO;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.maestro.EscuelaProfesionalRequest;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.maestro.EscuelaProfesionalResponse;
@@ -21,45 +25,49 @@ import java.util.List;
 public class EscuelaController {
 
     private final GestionarEscuelaUseCase gestionarEscuelaUseCase;
+    private final StoragePort storagePort;
 
     private final EscuelaProfesionalMapperExpose mapper;
 
-    public EscuelaController(GestionarEscuelaUseCase gestionarEscuelaUseCase, EscuelaProfesionalMapperExpose mapper) {
+    public EscuelaController(GestionarEscuelaUseCase gestionarEscuelaUseCase, EscuelaProfesionalMapperExpose mapper, StoragePort storagePort) {
         this.gestionarEscuelaUseCase = gestionarEscuelaUseCase;
         this.mapper = mapper;
+        this.storagePort = storagePort;
     }
 
-    @PostMapping("guardar")
-    public ResponseEntity<ResponseDTO<Object>> crear(@RequestBody @Valid EscuelaProfesionalRequest request) {
+    @PostMapping(
+            value = "/guardar",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<ResponseDTO<Object>> crear(@ModelAttribute @Valid EscuelaProfesionalRequest request) {
         EscuelaCommand command = EscuelaCommand.create(
                 request.departamentoId(),
                 request.codigo(),
                 request.abreviatura(),
-                request.denominacion(),
-                request.plantillaMemo(),
-                request.plantillaRes()
+                request.denominacion()
         );
 
-        EscuelaProfesional creado = gestionarEscuelaUseCase.crearEscuela(command);
+        EscuelaProfesional creado = gestionarEscuelaUseCase.crearEscuela(command, request.plantillaMemo(), request.plantillaRes());
 
         ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(mapper.toResponse(creado), "Escuela Profesional registrado!", "201");
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
-    @PutMapping("modificar")
-    public ResponseEntity<ResponseDTO<Object>> modificar(@RequestBody @Valid EscuelaProfesionalRequest request) {
+    @PutMapping(
+            value = "/modificar",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<ResponseDTO<Object>> modificar(@ModelAttribute @Valid EscuelaProfesionalRequest request) {
         EscuelaCommand command = EscuelaCommand.update(
                 request.id(),
                 request.departamentoId(),
                 request.codigo(),
                 request.abreviatura(),
-                request.denominacion(),
-                request.plantillaMemo(),
-                request.plantillaRes()
+                request.denominacion()
         );
 
-        EscuelaProfesional creado = gestionarEscuelaUseCase.modificarEscuela(command);
+        EscuelaProfesional creado = gestionarEscuelaUseCase.modificarEscuela(command, request.plantillaMemo(), request.plantillaRes());
 
         ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(mapper.toResponse(creado), "Escuela Profesional actualizada!", "201");
 
@@ -129,6 +137,22 @@ public class EscuelaController {
         gestionarEscuelaUseCase.eliminarEscuela(id);
         ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(null, "Escuela Profesional eliminado!", "200");
         return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @GetMapping("/plantillas/descargar")
+    public ResponseEntity<Resource> descargarPlantilla(@RequestParam("ruta") String ruta) {
+        Resource recurso = storagePort.cargarComoRecurso(ruta);
+
+        // MimeType para documentos Word (.docx)
+        String contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+        // Extraer el nombre original del archivo desde la ruta
+        String filename = recurso.getFilename();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .body(recurso);
     }
 
 }

@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.springframework.web.multipart.MultipartFile;
 
 public record EscuelaProfesionalRequest(
         @Min(value = 1, message = "El id no puede ser menor a 1.")
@@ -24,7 +25,7 @@ public record EscuelaProfesionalRequest(
         @Size(max = 200, message = "La denominación no debe superar los 200 caracteres")
         String denominacion,
 
-        String plantillaMemo,
-        String plantillaRes
+        MultipartFile plantillaMemo,
+        MultipartFile plantillaRes
 ) {
 }

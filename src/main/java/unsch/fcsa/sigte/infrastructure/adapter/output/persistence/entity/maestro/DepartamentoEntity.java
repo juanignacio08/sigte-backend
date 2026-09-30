@@ -27,7 +27,7 @@ public class DepartamentoEntity {
     @Column(name = "facultad_id", nullable = false)
     private Long facultadId;
 
-    @Column(nullable = false, length = 10, unique = true)
+    @Column(nullable = false, length = 10)
     private String abreviatura;
 
     @Column(nullable = false, length = 200)
@@ -38,7 +38,7 @@ public class DepartamentoEntity {
 
     @CreatedBy
     @Column(name = "creado_por", nullable = false, updatable = false)
-    private Long creadoPor;
+    private String creadoPor;
 
     @CreatedDate
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
@@ -46,7 +46,7 @@ public class DepartamentoEntity {
 
     @LastModifiedBy
     @Column(name = "actualizado_por", nullable = false)
-    private Long actualizadoPor;
+    private String actualizadoPor;
 
     @LastModifiedDate
     @Column(name = "fecha_actualizacion", nullable = false)

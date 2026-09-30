@@ -1,7 +1,9 @@
 package unsch.fcsa.sigte.infrastructure.adapter.output.persistence.adapter.maestro;
 
 import org.springframework.stereotype.Component;
-import unsch.fcsa.sigte.application.port.out.maestro.projections.DepartamentoConTotalEscuelasView;
+import unsch.fcsa.sigte.application.port.out.maestro.dtos.DepartamentoConTotalEscuelasView;
+import unsch.fcsa.sigte.application.port.out.maestro.dtos.DepartamentoDetalle;
+import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
 import unsch.fcsa.sigte.domain.model.maestro.DepartamentoAcademico;
 import unsch.fcsa.sigte.application.port.out.maestro.DepartamentoRepositoryPort;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.maestro.DepartamentoEntity;
@@ -34,7 +36,7 @@ public class DepartamentoPersistenceAdapter implements DepartamentoRepositoryPor
     public Optional<DepartamentoAcademico> buscarPorId(Long id) {
         return repository.findById(id)
                 .filter(entity -> !entity.getEliminado())
-                .map(this::toDomain);
+                .map(mapper::toDomain);
     }
 
     @Override
@@ -59,14 +61,4 @@ public class DepartamentoPersistenceAdapter implements DepartamentoRepositoryPor
         return repository.existsByIdAndEliminadoFalse(id);
     }
 
-    private DepartamentoAcademico toDomain(DepartamentoEntity entity) {
-        return new DepartamentoAcademico(
-                entity.getId(),
-                entity.getFacultadId(),
-                entity.getAbreviatura(),
-                entity.getDenominacion(),
-                entity.getEstado(),
-                entity.getEliminado()
-        );
-    }
 }

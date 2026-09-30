@@ -3,13 +3,16 @@ package unsch.fcsa.sigte.application.usecase.maestro;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import unsch.fcsa.sigte.application.command.maestro.DepartamentoCommand;
+import unsch.fcsa.sigte.application.port.out.maestro.EscuelaProfesionalRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.maestro.FacultadRepositoryPort;
-import unsch.fcsa.sigte.application.port.out.maestro.projections.DepartamentoConTotalEscuelasView;
+import unsch.fcsa.sigte.application.port.out.maestro.dtos.DepartamentoConTotalEscuelasView;
+import unsch.fcsa.sigte.application.port.out.maestro.dtos.DepartamentoDetalle;
 import unsch.fcsa.sigte.domain.exception.DuplicateKeyException;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
 import unsch.fcsa.sigte.domain.model.maestro.DepartamentoAcademico;
 import unsch.fcsa.sigte.application.port.in.maestro.GestionarDepartamentoUseCase;
 import unsch.fcsa.sigte.application.port.out.maestro.DepartamentoRepositoryPort;
+import unsch.fcsa.sigte.domain.model.maestro.EscuelaProfesional;
 
 import java.util.List;
 
@@ -18,10 +21,16 @@ public class GestionarDepartamentoUseCaseImpl implements GestionarDepartamentoUs
 
     private final DepartamentoRepositoryPort departamentoRepositoryPort;
     private final FacultadRepositoryPort facultadRepositoryPort;
+    private final EscuelaProfesionalRepositoryPort escuelaProfesionalRepositoryPort;
 
-    public GestionarDepartamentoUseCaseImpl(DepartamentoRepositoryPort departamentoRepositoryPort, FacultadRepositoryPort facultadRepositoryPort) {
+    public GestionarDepartamentoUseCaseImpl(
+            DepartamentoRepositoryPort departamentoRepositoryPort,
+            FacultadRepositoryPort facultadRepositoryPort,
+            EscuelaProfesionalRepositoryPort escuelaProfesionalRepositoryPort
+    ) {
         this.departamentoRepositoryPort = departamentoRepositoryPort;
         this.facultadRepositoryPort = facultadRepositoryPort;
+        this.escuelaProfesionalRepositoryPort = escuelaProfesionalRepositoryPort;
     }
 
     @Override
@@ -86,6 +95,29 @@ public class GestionarDepartamentoUseCaseImpl implements GestionarDepartamentoUs
 
         return departamentoRepositoryPort.buscarPorId(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Departamento", "id", id));
+    }
+
+    @Override
+    public DepartamentoDetalle obtenerADetallePorId(Long id) {
+        log.info("Obteniendo el departamento a detalle por ID: {}", id);
+
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("ID invalido [ DEPARTAMENTO ]");
+        }
+
+        DepartamentoAcademico departamentoAcademico = departamentoRepositoryPort.buscarPorId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Departamento", "id", id));
+
+        List<EscuelaProfesional> escuelas = escuelaProfesionalRepositoryPort.listarPorDepartamento(id);
+
+        return new DepartamentoDetalle(
+                departamentoAcademico.getId(),
+                departamentoAcademico.getFacultadId(),
+                departamentoAcademico.getAbreviatura(),
+                departamentoAcademico.getDenominacion(),
+                departamentoAcademico.getEstado(),
+                escuelas
+        );
     }
 
     @Override

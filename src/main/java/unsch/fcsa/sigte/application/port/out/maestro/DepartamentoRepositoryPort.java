@@ -1,6 +1,6 @@
 package unsch.fcsa.sigte.application.port.out.maestro;
 
-import unsch.fcsa.sigte.application.port.out.maestro.projections.DepartamentoConTotalEscuelasView;
+import unsch.fcsa.sigte.application.port.out.maestro.dtos.DepartamentoConTotalEscuelasView;
 import unsch.fcsa.sigte.domain.model.maestro.DepartamentoAcademico;
 
 import java.util.List;

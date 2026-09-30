@@ -84,7 +84,7 @@ public class EscuelaProfesional {
 
     private void setDepartamentoAcademicoId(Long departamentoAcademicoId) {
         if (departamentoAcademicoId == null || departamentoAcademicoId <= 0) {
-            throw new IllegalArgumentException("El departamento académico no puede estar vacío.");
+            throw new IllegalArgumentException("El departamento académico es inválido.");
         }
 
         this.departamentoAcademicoId = departamentoAcademicoId;
@@ -121,13 +121,17 @@ public class EscuelaProfesional {
     }
 
     private void setPlantillaMemorando(String plantillaMemorando) {
-        if (plantillaMemorando != null && !plantillaMemorando.trim().isEmpty()) {
+        if (plantillaMemorando == null || plantillaMemorando.trim().isEmpty()) {
+            this.plantillaMemorando = null;
+        } else {
             this.plantillaMemorando = PathSanitizer.sanitizeRelativePath(plantillaMemorando.trim());
         }
     }
 
     private void setPlantillaResolucion(String plantillaResolucion) {
-        if (plantillaResolucion != null && !plantillaResolucion.trim().isEmpty()) {
+        if (plantillaResolucion == null || plantillaResolucion.trim().isEmpty()) {
+            this.plantillaResolucion = null;
+        } else {
             this.plantillaResolucion = PathSanitizer.sanitizeRelativePath(plantillaResolucion.trim());
         }
     }

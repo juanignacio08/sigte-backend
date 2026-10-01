@@ -113,9 +113,9 @@ public class EscuelaProfesional {
             throw new IllegalArgumentException("La denominación no puede estar vacía.");
         }
 
-        if (denominacion.length() > 200) {
-            throw new IllegalArgumentException("La denominación no puede superar los 200 caracteres.");
-        }
+            if (denominacion.length() > 200) {
+                throw new IllegalArgumentException("La denominación no puede superar los 200 caracteres.");
+            }
 
         this.denominacion = denominacion.trim();
     }

@@ -14,6 +14,7 @@ public class JpaAuditingConfig {
 
     @Bean
     public AuditorAware<String> auditorProvider(CurrentUserPort currentUserPort) {
-        return () -> Optional.ofNullable(currentUserPort.getCurrentUser());
+        return () -> Optional.ofNullable(currentUserPort.getCurrentUser())
+                .or(() -> Optional.of("system"));
     }
 }

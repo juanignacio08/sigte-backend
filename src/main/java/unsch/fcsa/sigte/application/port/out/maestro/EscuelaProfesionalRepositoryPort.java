@@ -14,4 +14,5 @@ public interface EscuelaProfesionalRepositoryPort {
     List<EscuelaProfesional> listarPorDepartamento(Long departamentoId);
     boolean existePorAbreviatura(String abreviatura);
     boolean existePorCodigo(Integer codigo);
+    boolean existePorId(Long id);
 }

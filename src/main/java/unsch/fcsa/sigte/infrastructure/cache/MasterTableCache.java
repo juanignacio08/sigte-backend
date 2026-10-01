@@ -54,6 +54,10 @@ public class MasterTableCache {
         return cacheByCode.get(code);
     }
 
+    public boolean existsItem(String code) {
+        return cacheByCode.containsKey(code);
+    }
+
     public List<MasterEntity> getItemsByTableCode(String tableCode) {
         return cacheByTable.getOrDefault(tableCode, Collections.emptyList());
     }

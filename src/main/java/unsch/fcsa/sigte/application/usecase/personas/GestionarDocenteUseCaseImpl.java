@@ -81,19 +81,33 @@ public class GestionarDocenteUseCaseImpl implements GestionarDocenteUseCase {
             throw new BusinessRuleException("El ID del docente es obligatorio para actualizar.");
         }
 
-        Docente docente = docenteRepositoryPort.obtenerPorId(command.id())
-                .orElseThrow(() -> new ResourceNotFoundException("Docente", "id", command.id()));
+        log.info("Actualizando los datos de un docente. [ DOCENTE : {} ]", command.nombres());
+
+        Docente docente = obtenerPorId(command.id());
 
         validarCodigosMaestros(command.tipoDocumentoCodigo(), command.generoCodigo());
 
-        if (docenteRepositoryPort.existePorCorreoInstitucionalYIdDistinto(command.correoInstitucional(), command.id())) {
+        if (!docente.getCorreoInstitucional().equalsIgnoreCase(command.correoInstitucional())
+                && docenteRepositoryPort.existePorCorreoInstitucional(command.correoInstitucional())) {
             throw new DuplicateKeyException("Docente", "correoInstitucional", command.correoInstitucional());
         }
 
         if (command.tipoDocumentoCodigo() != null && command.numeroDocumento() != null) {
-            if (docenteRepositoryPort.existePorDocumentoYIdDistinto(command.tipoDocumentoCodigo(), command.numeroDocumento(), command.id())) {
+            if ((!docente.getTipoDocumentoCodigo().equals(command.tipoDocumentoCodigo()) ||
+                    !docente.getNumeroDocumento().equals(command.numeroDocumento())) &&
+                    docenteRepositoryPort.existePorDocumento(command.tipoDocumentoCodigo(), command.numeroDocumento())) {
                 throw new DuplicateKeyException("Docente", "documento", command.tipoDocumentoCodigo() + "-" + command.numeroDocumento());
             }
+        }
+
+        if (!docente.getDepartamentoAcademicoId().equals(command.departamentoAcademicoId()) &&
+                !departamentoRepositoryPort.existePorId(command.departamentoAcademicoId())) {
+            throw new ResourceNotFoundException("Departamento",  "id", command.departamentoAcademicoId());
+        }
+
+        if (!docente.getEscuelaId().equals(command.escuelaId()) &&
+                !escuelaProfesionalRepositoryPort.existePorId(command.escuelaId())) {
+            throw new ResourceNotFoundException("Escuela",  "id", command.escuelaId());
         }
 
         docente.actualizarDatos(
@@ -144,6 +158,14 @@ public class GestionarDocenteUseCaseImpl implements GestionarDocenteUseCase {
             docente.marcarComoEliminado();
             docenteRepositoryPort.guardar(docente);
         }
+    }
+
+    @Override
+    public Docente obtenerPorId(Long id) {
+        if (id == null || id <= 0) { throw new BusinessRuleException("ID incorrecto. [ DOCENTE ]."); }
+
+        return docenteRepositoryPort.obtenerPorId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Docente", "id", id));
     }
 
     private void validarCodigosMaestros(String tipoDocumentoCodigo, String generoCodigo) {

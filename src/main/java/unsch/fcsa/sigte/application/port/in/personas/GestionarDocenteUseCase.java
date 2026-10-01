@@ -9,4 +9,5 @@ public interface GestionarDocenteUseCase {
     void activar(Long id);
     void desactivar(Long id);
     void eliminar(Long id);
+    Docente obtenerPorId(Long id);
 }

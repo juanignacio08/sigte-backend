@@ -28,7 +28,7 @@ public class DocentePersistenceAdapter implements DocenteRepositoryPort {
 
     @Override
     public Optional<Docente> obtenerPorId(Long id) {
-        return Optional.empty();
+        return docenteRepository.findByIdAndEliminadoFalse(id).map(mapper::toDomain);
     }
 
     @Override
@@ -37,18 +37,8 @@ public class DocentePersistenceAdapter implements DocenteRepositoryPort {
     }
 
     @Override
-    public boolean existePorCorreoInstitucionalYIdDistinto(String correo, Long id) {
-        return false;
-    }
-
-    @Override
     public boolean existePorDocumento(String tipoDocumentoCodigo, String numeroDocumento) {
         return docenteRepository.existsByTipoDocumentoCodigoAndNumeroDocumento(tipoDocumentoCodigo, numeroDocumento);
-    }
-
-    @Override
-    public boolean existePorDocumentoYIdDistinto(String tipoDocumentoCodigo, String numeroDocumento, Long id) {
-        return false;
     }
 
     @Override

@@ -10,9 +10,7 @@ public interface DocenteRepositoryPort {
     Optional<Docente> obtenerPorId(Long id);
     //Optional<DocenteDetalleView> obtenerDetallePorId(Long id);
     boolean existePorCorreoInstitucional(String correo);
-    boolean existePorCorreoInstitucionalYIdDistinto(String correo, Long id);
     boolean existePorDocumento(String tipoDocumentoCodigo, String numeroDocumento);
-    boolean existePorDocumentoYIdDistinto(String tipoDocumentoCodigo, String numeroDocumento, Long id);
 
     //List<DocenteDetalleView> listarPaginado(DocenteFiltroQuery filtro, int page, int size);
     long contarPaginado(DocenteFiltro filtro);

@@ -46,7 +46,7 @@ public class Maestro {
 
     public void actualizarDatos(String denominacion, Boolean esSistema) {
         setDenominacion(denominacion);
-        esSistema = esSistema == null || esSistema;
+        this.esSistema = esSistema == null || esSistema;
     }
 
     private void setCodigoTabla(String codigoTabla) {

@@ -79,10 +79,7 @@ CREATE TABLE maestros.maestro (
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     actualizado_por VARCHAR(100) NOT NULL DEFAULT 'admin',
     fecha_actualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    eliminado BOOLEAN NOT NULL DEFAULT FALSE,
-
-    CONSTRAINT uk_maestro_tabla_item UNIQUE (codigo_tabla, codigo_item),
-    CONSTRAINT uk_maestro_codigo UNIQUE (codigo)
+    eliminado BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE INDEX idx_maestro_codigo_tabla ON maestros.maestro(codigo_tabla);

@@ -13,5 +13,6 @@ public interface MaestroRepositoryPort {
     List<Maestro> getItemsActivesByTable(String tableCode);
     void delete(Maestro maestro);
     boolean existsByCode(String code);
+    Maestro getItemByCode(String code);
     Optional<Maestro> getByCode(String code);
 }

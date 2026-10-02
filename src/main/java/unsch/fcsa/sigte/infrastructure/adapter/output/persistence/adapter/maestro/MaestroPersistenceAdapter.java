@@ -105,7 +105,12 @@ public class MaestroPersistenceAdapter implements MaestroRepositoryPort {
 
     @Override
     public boolean existsByCode(String code) {
-        return masterTableCache.getItem(code) != null;
+        return masterTableCache.existsItem(code);
+    }
+
+    @Override
+    public Maestro getItemByCode(String code) {
+        return mapper.toDomain(masterTableCache.getItem(code));
     }
 
     @Override

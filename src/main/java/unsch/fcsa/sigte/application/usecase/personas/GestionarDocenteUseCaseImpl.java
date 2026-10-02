@@ -2,12 +2,15 @@ package unsch.fcsa.sigte.application.usecase.personas;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
+import unsch.fcsa.sigte.application.command.PageResult;
 import unsch.fcsa.sigte.application.command.personas.DocenteCommand;
 import unsch.fcsa.sigte.application.port.in.personas.GestionarDocenteUseCase;
 import unsch.fcsa.sigte.application.port.out.maestro.DepartamentoRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.maestro.EscuelaProfesionalRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.maestro.MaestroRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.personas.DocenteRepositoryPort;
+import unsch.fcsa.sigte.application.port.out.personas.dto.DocenteDetalleView;
+import unsch.fcsa.sigte.application.port.out.personas.dto.DocenteFiltro;
 import unsch.fcsa.sigte.domain.exception.BusinessRuleException;
 import unsch.fcsa.sigte.domain.exception.DuplicateKeyException;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
@@ -125,6 +128,12 @@ public class GestionarDocenteUseCaseImpl implements GestionarDocenteUseCase {
         );
 
         return docenteRepositoryPort.guardar(docente);
+    }
+
+    @Override
+    public PageResult<DocenteDetalleView> listarPorFiltros(DocenteFiltro filtro, int page, int size) {
+        log.info("Busqueda de docentes por filtros.");
+        return docenteRepositoryPort.listarPaginado(filtro, page, size);
     }
 
     @Override

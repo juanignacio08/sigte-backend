@@ -11,10 +11,13 @@ import java.util.List;
 @AllArgsConstructor
 public class PaginatedResponseDTO {
 
+    private List<?> data;
     private Long totalItems;
     private Integer totalPages;
     private Integer currentPage;
-    private List<?> data;
+    private Integer size;
+    private boolean isFirst;
+    private boolean isLast;
     private String message;
     private String status;
     private String code;

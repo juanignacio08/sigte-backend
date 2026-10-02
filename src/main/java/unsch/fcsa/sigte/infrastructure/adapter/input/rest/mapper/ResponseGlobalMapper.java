@@ -1,6 +1,6 @@
 package unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper;
 
-import org.springframework.data.domain.Page;
+import unsch.fcsa.sigte.application.command.PageResult;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.PaginatedResponseDTO;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.ResponseDTO;
 
@@ -18,26 +18,33 @@ public class ResponseGlobalMapper {
                 .build();
     }
 
-    public static PaginatedResponseDTO buildPaginated(Page<?> pageable, String message) {
+    public static PaginatedResponseDTO buildPaginated(PageResult<?> pageable, String message) {
         return PaginatedResponseDTO.builder()
-                .data(pageable.getContent())
+                .data(pageable.content())
+                .totalItems(pageable.totalElements())
+                .totalPages(pageable.totalPages())
+                .currentPage(pageable.page())
+                .size(pageable.size())
+                .isFirst(pageable.isFirst())
+                .isLast(pageable.isLast())
+                .message(message)
                 .status(SUCCESS)
                 .code("200")
-                .message(message)
-                .currentPage(pageable.getNumber())
-                .totalItems(pageable.getTotalElements())
-                .totalPages(pageable.getTotalPages())
                 .build();
     }
 
-    public static PaginatedResponseDTO buildPaginated(Page<?> pageable, List<?> similarSource) {
+    public static PaginatedResponseDTO buildPaginated(PageResult<?> pageable, List<?> similarSource, String message) {
         return PaginatedResponseDTO.builder()
                 .data(similarSource)
+                .totalItems(pageable.totalElements())
+                .totalPages(pageable.totalPages())
+                .currentPage(pageable.page())
+                .size(pageable.size())
+                .isFirst(pageable.isFirst())
+                .isLast(pageable.isLast())
+                .message(message)
                 .status(SUCCESS)
                 .code("200")
-                .currentPage(pageable.getNumber())
-                .totalItems(pageable.getTotalElements())
-                .totalPages(pageable.getTotalPages())
                 .build();
     }
 

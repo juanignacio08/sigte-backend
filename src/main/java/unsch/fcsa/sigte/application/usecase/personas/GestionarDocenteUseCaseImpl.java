@@ -128,36 +128,41 @@ public class GestionarDocenteUseCaseImpl implements GestionarDocenteUseCase {
     }
 
     @Override
-    public void activar(Long id) {
-        Docente docente = docenteRepositoryPort.obtenerPorId(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Docente", "id", id));
+    @Transactional
+    public Docente activar(Long id) {
+        log.info("Activar Docente por ID: {}", id);
 
-        if (docente.getEstado() == 0) {
-            docente.activar();
-            docenteRepositoryPort.guardar(docente);
+        Docente docente = obtenerPorId(id);
+        if (docente.getEstado().equals(1)) {
+            return docente;
         }
+
+        docente.activar();
+        return docenteRepositoryPort.guardar(docente);
     }
 
     @Override
-    public void desactivar(Long id) {
-        Docente docente = docenteRepositoryPort.obtenerPorId(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Docente", "id", id));
+    @Transactional
+    public Docente desactivar(Long id) {
+        log.info("Desactivar Docente por ID: {}", id);
 
-        if (docente.getEstado() == 1) {
-            docente.desactivar();
-            docenteRepositoryPort.guardar(docente);
+        Docente docente = obtenerPorId(id);
+        if (docente.getEstado().equals(0)) {
+            return docente;
         }
+
+        docente.desactivar();
+        return docenteRepositoryPort.guardar(docente);
     }
 
     @Override
+    @Transactional
     public void eliminar(Long id) {
-        Docente docente = docenteRepositoryPort.obtenerPorId(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Docente", "id", id));
+        log.info("Eliminando a un Docente por ID: {}", id);
 
-        if (!docente.isEliminado()) {
-            docente.marcarComoEliminado();
-            docenteRepositoryPort.guardar(docente);
-        }
+        Docente docente = obtenerPorId(id);
+        docente.marcarComoEliminado();
+        docenteRepositoryPort.guardar(docente);
     }
 
     @Override

@@ -33,7 +33,7 @@ public class DocentePersistenceAdapter implements DocenteRepositoryPort {
 
     @Override
     public boolean existePorCorreoInstitucional(String correo) {
-        return false;
+        return docenteRepository.existsByCorreoInstitucional(correo);
     }
 
     @Override

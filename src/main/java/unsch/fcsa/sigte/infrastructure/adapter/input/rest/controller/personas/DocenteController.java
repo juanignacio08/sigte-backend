@@ -9,6 +9,7 @@ import unsch.fcsa.sigte.application.command.PageResult;
 import unsch.fcsa.sigte.application.port.in.personas.GestionarDocenteUseCase;
 import unsch.fcsa.sigte.application.port.out.personas.dto.DocenteDetalleView;
 import unsch.fcsa.sigte.application.port.out.personas.dto.DocenteFiltro;
+import unsch.fcsa.sigte.application.port.out.personas.dto.DocenteMetricasProjection;
 import unsch.fcsa.sigte.domain.model.personas.Docente;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.PaginatedResponseDTO;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.ResponseDTO;
@@ -58,6 +59,28 @@ public class DocenteController {
         return ResponseEntity.ok(ResponseGlobalMapper.buildPaginated(result, list, "Listado de Docentes"));
     }
 
+    @GetMapping("metricas/{facultadId}")
+    public ResponseEntity<ResponseDTO<Object>> getMetricas(@PathVariable Long facultadId) {
+        DocenteMetricasProjection projection = gestionarDocenteUseCase.obtenerMetricasPorFacultad(facultadId);
+        return ResponseEntity.ok(ResponseGlobalMapper.build(restMapper.toMetrics(projection), "Metricas por Facultad", "200"));
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<ResponseDTO<Object>> getById(@PathVariable Long id) {
+        Docente domain = gestionarDocenteUseCase.obtenerPorId(id);
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(restMapper.toResponse(domain), "Docente obtenido!", "200");
+        return ResponseEntity.ok(responseDTO);
+    }
+
+    @GetMapping("obtenerPorNumDocumento")
+    public ResponseEntity<ResponseDTO<Object>> getById(
+            @RequestParam String tipoDocumento,
+            @RequestParam String numeroDocumento
+    ) {
+        Docente domain = gestionarDocenteUseCase.obtenerPorNumDocumento(tipoDocumento, numeroDocumento);
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(restMapper.toResponse(domain), "Docente obtenido!", "200");
+        return ResponseEntity.ok(responseDTO);
+    }
 
     @PutMapping("activar/{id}")
     public ResponseEntity<ResponseDTO<Object>> activar(@PathVariable Long id) {

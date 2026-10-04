@@ -11,6 +11,7 @@ import unsch.fcsa.sigte.application.port.out.maestro.MaestroRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.personas.DocenteRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.personas.dto.DocenteDetalleView;
 import unsch.fcsa.sigte.application.port.out.personas.dto.DocenteFiltro;
+import unsch.fcsa.sigte.application.port.out.personas.dto.DocenteMetricasProjection;
 import unsch.fcsa.sigte.domain.exception.BusinessRuleException;
 import unsch.fcsa.sigte.domain.exception.DuplicateKeyException;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
@@ -61,6 +62,12 @@ public class GestionarDocenteUseCaseImpl implements GestionarDocenteUseCase {
             throw new ResourceNotFoundException("Escuela",  "id", command.escuelaId());
         }
 
+        if (command.codigo() != null && !command.codigo().isBlank()) {
+            if (docenteRepositoryPort.existePorCodigo(command.codigo())) {
+                throw new DuplicateKeyException("Docente", "codigo", command.codigo());
+            }
+        }
+
         Docente nuevoDocente = new Docente(
                 command.codigo(),
                 command.escuelaId(),
@@ -96,7 +103,7 @@ public class GestionarDocenteUseCaseImpl implements GestionarDocenteUseCase {
         }
 
         if (command.tipoDocumentoCodigo() != null && command.numeroDocumento() != null) {
-            if ((!docente.getTipoDocumentoCodigo().equals(command.tipoDocumentoCodigo()) ||
+            if (docente.getTipoDocumentoCodigo() != null && (!docente.getTipoDocumentoCodigo().equals(command.tipoDocumentoCodigo()) ||
                     !docente.getNumeroDocumento().equals(command.numeroDocumento())) &&
                     docenteRepositoryPort.existePorDocumento(command.tipoDocumentoCodigo(), command.numeroDocumento())) {
                 throw new DuplicateKeyException("Docente", "documento", command.tipoDocumentoCodigo() + "-" + command.numeroDocumento());
@@ -137,6 +144,12 @@ public class GestionarDocenteUseCaseImpl implements GestionarDocenteUseCase {
     }
 
     @Override
+    public DocenteMetricasProjection obtenerMetricasPorFacultad(Long facultadId) {
+        log.info("Obteniendo metricas de los docentes de una facultad. [ FACULTAD : {} ]", facultadId);
+        return docenteRepositoryPort.obtenerMetricasPorFacultadId(facultadId);
+    }
+
+    @Override
     @Transactional
     public Docente activar(Long id) {
         log.info("Activar Docente por ID: {}", id);
@@ -172,6 +185,13 @@ public class GestionarDocenteUseCaseImpl implements GestionarDocenteUseCase {
         Docente docente = obtenerPorId(id);
         docente.marcarComoEliminado();
         docenteRepositoryPort.guardar(docente);
+    }
+
+    @Override
+    public Docente obtenerPorNumDocumento(String tipoDocumento, String numDocumento) {
+        log.info("Obteniendo docente por num documento: {}", numDocumento);
+        return docenteRepositoryPort.obtenerPorNumDocumento(tipoDocumento, numDocumento)
+                .orElseThrow(() -> new ResourceNotFoundException("Docente", "numero de documento", numDocumento));
     }
 
     @Override

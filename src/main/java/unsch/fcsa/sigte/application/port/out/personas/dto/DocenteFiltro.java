@@ -1,6 +1,7 @@
 package unsch.fcsa.sigte.application.port.out.personas.dto;
 
 public record DocenteFiltro(
+        Long facultadId,
         Long departamentoAcademicoId,
         Long escuelaId,
         Integer estado,

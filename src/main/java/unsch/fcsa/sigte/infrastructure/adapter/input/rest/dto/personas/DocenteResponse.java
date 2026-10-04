@@ -22,5 +22,6 @@ public record DocenteResponse(
         String generoCodigo,
         String generoDenominacion,
         String telefono,
-        Integer estado
+        Integer estado,
+        Boolean eliminado
 ) {}

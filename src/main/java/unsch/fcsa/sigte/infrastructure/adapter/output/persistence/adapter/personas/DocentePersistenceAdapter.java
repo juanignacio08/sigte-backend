@@ -11,6 +11,7 @@ import unsch.fcsa.sigte.application.command.PageResult;
 import unsch.fcsa.sigte.application.port.out.personas.DocenteRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.personas.dto.DocenteDetalleView;
 import unsch.fcsa.sigte.application.port.out.personas.dto.DocenteFiltro;
+import unsch.fcsa.sigte.application.port.out.personas.dto.DocenteMetricasProjection;
 import unsch.fcsa.sigte.domain.model.personas.Docente;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.personas.DocenteEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.mapper.personas.DocentePersistenceMapper;
@@ -41,6 +42,11 @@ public class DocentePersistenceAdapter implements DocenteRepositoryPort {
     }
 
     @Override
+    public Optional<Docente> obtenerPorNumDocumento(String tipoDocumento, String numDocumento) {
+        return docenteRepository.findByTipoDocumentoCodigoAndNumeroDocumento(tipoDocumento, numDocumento).map(mapper::toDomain);
+    }
+
+    @Override
     public boolean existePorCorreoInstitucional(String correo) {
         return docenteRepository.existsByCorreoInstitucional(correo);
     }
@@ -48,6 +54,11 @@ public class DocentePersistenceAdapter implements DocenteRepositoryPort {
     @Override
     public boolean existePorDocumento(String tipoDocumentoCodigo, String numeroDocumento) {
         return docenteRepository.existsByTipoDocumentoCodigoAndNumeroDocumento(tipoDocumentoCodigo, numeroDocumento);
+    }
+
+    @Override
+    public boolean existePorCodigo(String codigo) {
+        return docenteRepository.existsByCodigoAndEliminadoFalse(codigo);
     }
 
     @Override
@@ -69,5 +80,10 @@ public class DocentePersistenceAdapter implements DocenteRepositoryPort {
                 docentePage.isFirst(),
                 docentePage.isLast()
         );
+    }
+
+    @Override
+    public DocenteMetricasProjection obtenerMetricasPorFacultadId(Long facultadId) {
+        return docenteRepository.obtenerResumenConteo(facultadId);
     }
 }

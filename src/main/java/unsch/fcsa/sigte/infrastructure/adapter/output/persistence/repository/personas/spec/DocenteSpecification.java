@@ -15,6 +15,10 @@ public class DocenteSpecification {
 
             predicates.add(cb.equal(root.get("eliminado"), false));
 
+            if (filtro.facultadId() != null && filtro.facultadId() > 0) {
+                predicates.add(cb.equal(root.get("departamentoAcademico").get("facultadId"), filtro.facultadId()));
+            }
+
             if (filtro.departamentoAcademicoId() != null && filtro.departamentoAcademicoId() > 0) {
                 predicates.add(cb.equal(root.get("departamentoAcademico").get("id"), filtro.departamentoAcademicoId()));
             }

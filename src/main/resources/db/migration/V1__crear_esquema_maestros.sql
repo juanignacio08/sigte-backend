@@ -99,3 +99,13 @@ VALUES
     ('001', '001', '001001', 'DNI', TRUE),
     ('001', '002', '001002', 'CARNET DE EXTRANJERÍA', TRUE),
     ('001', '003', '001003', 'PASAPORTE', FALSE);
+
+-- AGRUPADOR 2: GENERO
+INSERT INTO maestros.maestro (codigo_tabla, codigo_item, codigo, denominacion, es_sistema)
+VALUES ('002', '000', '002000', 'GENERO', TRUE);
+
+-- Ítems del Agrupador 002
+INSERT INTO maestros.maestro (codigo_tabla, codigo_item, codigo, denominacion, es_sistema)
+VALUES
+    ('002', '001', '002001', 'MASCULINO', TRUE),
+    ('002', '002', '002002', 'FEMENINO', TRUE);

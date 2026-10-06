@@ -7,9 +7,11 @@ import unsch.fcsa.sigte.application.port.in.maestro.GestionarEscuelaUseCase;
 import unsch.fcsa.sigte.application.port.in.maestro.GestionarFacultadUseCase;
 import unsch.fcsa.sigte.application.port.in.maestro.GestionarMaestrosUseCase;
 import unsch.fcsa.sigte.application.port.in.personas.GestionarDocenteUseCase;
+import unsch.fcsa.sigte.application.port.in.personas.GestionarEstudianteUseCase;
 import unsch.fcsa.sigte.application.port.out.maestro.FacultadRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.maestro.MaestroRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.personas.DocenteRepositoryPort;
+import unsch.fcsa.sigte.application.port.out.personas.EstudianteRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.storage.StoragePort;
 import unsch.fcsa.sigte.application.usecase.maestro.GestionarDepartamentoUseCaseImpl;
 import unsch.fcsa.sigte.application.usecase.maestro.GestionarEscuelaUseCaseImpl;
@@ -18,6 +20,7 @@ import unsch.fcsa.sigte.application.port.out.maestro.EscuelaProfesionalRepositor
 import unsch.fcsa.sigte.application.usecase.maestro.GestionarFacultadUseCaseImpl;
 import unsch.fcsa.sigte.application.usecase.maestro.GestionarMaestroUseCaseImpl;
 import unsch.fcsa.sigte.application.usecase.personas.GestionarDocenteUseCaseImpl;
+import unsch.fcsa.sigte.application.usecase.personas.GestionarEstudianteUseCaseImpl;
 
 @Configuration
 public class UseCaseConfig {
@@ -63,6 +66,13 @@ public class UseCaseConfig {
                 escuelaProfesionalRepositoryPort,
                 maestroRepositoryPort
         );
+    }
+
+    @Bean
+    public GestionarEstudianteUseCase gestionarEstudianteUseCase(
+            EstudianteRepositoryPort estudianteRepositoryPort,
+            EscuelaProfesionalRepositoryPort escuelaProfesionalRepositoryPort) {
+        return new GestionarEstudianteUseCaseImpl(estudianteRepositoryPort, escuelaProfesionalRepositoryPort);
     }
 
 }

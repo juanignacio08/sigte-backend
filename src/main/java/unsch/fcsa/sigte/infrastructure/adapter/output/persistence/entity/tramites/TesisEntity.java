@@ -11,9 +11,7 @@ import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.maestro
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "tesis", schema = "tramites")
@@ -69,10 +67,10 @@ public class TesisEntity {
 
     @OneToMany(mappedBy = "tesis", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<TesisAutorEntity> autores = new ArrayList<>();
+    private Set<TesisAutorEntity> autores = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "tesis", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<ExpedienteTesisEntity> expedientes = new ArrayList<>();
+    private Set<ExpedienteTesisEntity> expedientes = new LinkedHashSet<>();
 
 }

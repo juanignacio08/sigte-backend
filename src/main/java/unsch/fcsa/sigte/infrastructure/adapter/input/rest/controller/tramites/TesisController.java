@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import unsch.fcsa.sigte.application.command.files.ArchivoSubida;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarTesisUseCase;
+import unsch.fcsa.sigte.application.port.out.tramites.dto.TesisDetalleView;
 import unsch.fcsa.sigte.domain.model.tramites.Tesis;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.ResponseDTO;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.RegistrarTesisRequest;
@@ -16,6 +17,7 @@ import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.file.MultipartF
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.tramites.TesisRestMapper;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/tesis")
@@ -44,5 +46,12 @@ public class TesisController {
         );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseDTO<Object>> obtenerPorId(@PathVariable UUID id) {
+        TesisDetalleView detalle = gestionarTesisUseCase.obtenerPorId(id);
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(restMapper.toResponseDetail(detalle), "Detalle de tesis obtenido correctamente", "200");
+        return ResponseEntity.ok(responseDTO);
     }
 }

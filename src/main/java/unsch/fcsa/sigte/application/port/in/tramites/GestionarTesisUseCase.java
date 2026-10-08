@@ -13,6 +13,6 @@ import java.util.UUID;
 public interface GestionarTesisUseCase {
     Tesis registrarProyecto(TesisCommand command, List<ArchivoSubida> files);
     //Tesis editarProyecto(TesisCommand command);
-    //TesisDetalleView obtenerPorId(UUID id);
+    TesisDetalleView obtenerPorId(UUID id);
     //PageResult<TesisDetalleView> listarPorFiltros(TesisFiltro filtro, int page, int size);
 }

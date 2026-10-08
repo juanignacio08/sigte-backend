@@ -9,6 +9,7 @@ import unsch.fcsa.sigte.application.port.out.maestro.EscuelaProfesionalRepositor
 import unsch.fcsa.sigte.application.port.out.personas.EstudianteRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.storage.StoragePort;
 import unsch.fcsa.sigte.application.port.out.tramites.TesisRepositoryPort;
+import unsch.fcsa.sigte.application.port.out.tramites.dto.TesisDetalleView;
 import unsch.fcsa.sigte.domain.exception.BusinessRuleException;
 import unsch.fcsa.sigte.domain.exception.DuplicateKeyException;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
@@ -19,10 +20,7 @@ import unsch.fcsa.sigte.domain.model.tramites.TesisAutor;
 import unsch.fcsa.sigte.domain.util.TablaMaestraCodigos;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
@@ -133,6 +131,17 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
             throw ex;
         }
 
+    }
+
+    @Override
+    public TesisDetalleView obtenerPorId(UUID id) {
+        log.info("Obteniendo una tesis por su id: {}", id);
+
+        TesisDetalleView detalle = tesisRepositoryPort.obtenerDetallePorId(id);
+        if (detalle == null) {
+            throw new ResourceNotFoundException("Tesis", "id", id);
+        }
+        return detalle;
     }
 
     private void validarListaEstudiantes(List<Long> estudiantesIds) {

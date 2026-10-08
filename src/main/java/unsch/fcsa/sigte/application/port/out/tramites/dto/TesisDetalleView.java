@@ -17,13 +17,15 @@ public record TesisDetalleView(
         ExpedienteView expedienteActivo
 ) {
     public record AutorView(
+            Long id,
             Long estudianteId,
-            String codigoEstudiante,
             String numeroDocumento,
             String nombres,
             String primerApellido,
             String segundoApellido,
-            String correoInstitucional
+            String correoInstitucional,
+            OffsetDateTime fechaAsociacion,
+            Integer estado
     ) {}
 
     public record ExpedienteView(
@@ -32,6 +34,7 @@ public record TesisDetalleView(
             String etapaCodigo,
             String etapaDenominacion,
             Integer numeroRevision,
-            OffsetDateTime fechaIngreso
+            OffsetDateTime fechaIngreso,
+            Integer estado
     ) {}
 }

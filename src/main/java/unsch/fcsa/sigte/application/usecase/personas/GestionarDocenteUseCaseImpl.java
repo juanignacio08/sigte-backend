@@ -10,7 +10,7 @@ import unsch.fcsa.sigte.application.port.out.maestro.EscuelaProfesionalRepositor
 import unsch.fcsa.sigte.application.port.out.maestro.MaestroRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.personas.DocenteRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.personas.dto.DocenteDetalleView;
-import unsch.fcsa.sigte.application.port.out.personas.dto.DocenteFiltro;
+import unsch.fcsa.sigte.application.command.personas.DocenteFiltro;
 import unsch.fcsa.sigte.application.port.out.personas.dto.DocenteMetricasProjection;
 import unsch.fcsa.sigte.domain.exception.BusinessRuleException;
 import unsch.fcsa.sigte.domain.exception.DuplicateKeyException;

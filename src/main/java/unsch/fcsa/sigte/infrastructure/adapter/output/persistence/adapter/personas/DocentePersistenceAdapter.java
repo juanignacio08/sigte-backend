@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import unsch.fcsa.sigte.application.command.PageResult;
 import unsch.fcsa.sigte.application.port.out.personas.DocenteRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.personas.dto.DocenteDetalleView;
-import unsch.fcsa.sigte.application.port.out.personas.dto.DocenteFiltro;
+import unsch.fcsa.sigte.application.command.personas.DocenteFiltro;
 import unsch.fcsa.sigte.application.port.out.personas.dto.DocenteMetricasProjection;
 import unsch.fcsa.sigte.domain.model.personas.Docente;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.personas.DocenteEntity;

@@ -2,7 +2,7 @@ package unsch.fcsa.sigte.infrastructure.adapter.output.persistence.repository.pe
 
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
-import unsch.fcsa.sigte.application.port.out.personas.dto.DocenteFiltro;
+import unsch.fcsa.sigte.application.command.personas.DocenteFiltro;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.personas.DocenteEntity;
 
 import java.util.ArrayList;

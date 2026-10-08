@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import unsch.fcsa.sigte.application.command.PageResult;
 import unsch.fcsa.sigte.application.port.in.personas.GestionarEstudianteUseCase;
 import unsch.fcsa.sigte.application.port.out.personas.dto.EstudianteDetalleView;
-import unsch.fcsa.sigte.application.port.out.personas.dto.EstudianteFiltro;
+import unsch.fcsa.sigte.application.command.personas.EstudianteFiltro;
 import unsch.fcsa.sigte.domain.model.personas.Estudiante;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.PaginatedResponseDTO;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.ResponseDTO;

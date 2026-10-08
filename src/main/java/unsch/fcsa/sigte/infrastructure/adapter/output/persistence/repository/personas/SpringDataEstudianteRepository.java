@@ -28,6 +28,8 @@ public interface SpringDataEstudianteRepository extends JpaRepository<Estudiante
 
     Optional<EstudianteEntity> findByIdEqualsAndEliminadoFalse(Long id);
 
+    boolean existsByIdAndEliminadoFalse(Long id);
+
     boolean existsByCodigoAndEliminadoFalse(String codigo);
 
     boolean existsByNumeroDocumentoAndEliminadoFalse(String numeroDocumento);

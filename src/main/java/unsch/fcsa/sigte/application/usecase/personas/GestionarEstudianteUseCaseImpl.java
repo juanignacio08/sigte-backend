@@ -8,7 +8,7 @@ import unsch.fcsa.sigte.application.port.in.personas.GestionarEstudianteUseCase;
 import unsch.fcsa.sigte.application.port.out.maestro.EscuelaProfesionalRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.personas.EstudianteRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.personas.dto.EstudianteDetalleView;
-import unsch.fcsa.sigte.application.port.out.personas.dto.EstudianteFiltro;
+import unsch.fcsa.sigte.application.command.personas.EstudianteFiltro;
 import unsch.fcsa.sigte.domain.exception.BusinessRuleException;
 import unsch.fcsa.sigte.domain.exception.DuplicateKeyException;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;

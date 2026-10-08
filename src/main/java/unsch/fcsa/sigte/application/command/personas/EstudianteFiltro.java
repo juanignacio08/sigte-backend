@@ -1,4 +1,4 @@
-package unsch.fcsa.sigte.application.port.out.personas.dto;
+package unsch.fcsa.sigte.application.command.personas;
 
 public record EstudianteFiltro(
         Long facultadId,

@@ -2,8 +2,10 @@ package unsch.fcsa.sigte.application.usecase.tramites;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
+import unsch.fcsa.sigte.application.command.PageResult;
 import unsch.fcsa.sigte.application.command.files.ArchivoSubida;
 import unsch.fcsa.sigte.application.command.tramites.TesisCommand;
+import unsch.fcsa.sigte.application.command.tramites.TesisFiltro;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarTesisUseCase;
 import unsch.fcsa.sigte.application.port.out.maestro.EscuelaProfesionalRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.personas.EstudianteRepositoryPort;
@@ -142,6 +144,13 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
             throw new ResourceNotFoundException("Tesis", "id", id);
         }
         return detalle;
+    }
+
+    @Override
+    public PageResult<TesisDetalleView> listarPorFiltros(TesisFiltro filtro, int page, int size) {
+        log.info("Listando tesis por un filtro");
+
+        return tesisRepositoryPort.listarPorFiltros(filtro, page, size);
     }
 
     private void validarListaEstudiantes(List<Long> estudiantesIds) {

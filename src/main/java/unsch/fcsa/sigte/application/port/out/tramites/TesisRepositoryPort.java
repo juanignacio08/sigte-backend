@@ -13,7 +13,7 @@ public interface TesisRepositoryPort {
     Tesis guardar(Tesis tesis);
     //Optional<Tesis> obtenerPorId(UUID id);
     TesisDetalleView obtenerDetallePorId(UUID id);
-    //PageResult<TesisDetalleView> listarPorFiltros(TesisFiltro filtro, int page, int size);
+    PageResult<TesisDetalleView> listarPorFiltros(TesisFiltro filtro, int page, int size);
     boolean existeExpedientePorNumero(String numeroExpediente);
     boolean estudianteTieneTesisActiva(Long estudianteId);
     //boolean estudianteTieneTesisActivaExcluyendo(Long estudianteId, UUID tesisIdActual);

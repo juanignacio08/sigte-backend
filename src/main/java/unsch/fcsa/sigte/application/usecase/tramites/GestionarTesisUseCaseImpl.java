@@ -91,7 +91,7 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
                 null,
                 command.numeroExpediente(),
                 command.etapaTesis() != null ? command.etapaTesis() : TablaMaestraCodigos.ETAPA_TESIS_PROYECTO, // PROYECTO DE TESIS
-                1,
+                command.numeroRevision() != null ? command.numeroRevision() : 1,
                 OffsetDateTime.now(),
                 1,
                 false

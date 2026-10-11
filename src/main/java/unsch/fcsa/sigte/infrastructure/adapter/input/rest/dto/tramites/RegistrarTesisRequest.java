@@ -26,6 +26,8 @@ public record RegistrarTesisRequest(
         @Size(min = 6, max = 6, message = "El código de la etapa de tesis debe tener exactamente 6 caracteres")
         String etapaTesisCodigo,
 
+        Integer numeroRevision,
+
         @NotEmpty(message = "Debe proporcionar al menos un archivo pdf")
         @Size(min = 1, max = 5, message = "Se aceptan entre 1 a 5 archivos pdfs")
         List<MultipartFile> archivosPdfs

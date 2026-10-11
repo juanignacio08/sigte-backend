@@ -9,14 +9,16 @@ public record TesisCommand(
         String titulo,
         List<Long> estudiantesIds,
         String numeroExpediente,
-        String etapaTesis
+        String etapaTesis,
+        Integer numeroRevision
 ) {
     public static TesisCommand create(
             Long escuelaId,
             String titulo,
             List<Long> estudiantesIds,
             String numeroExpediente,
-            String etapaTesis
+            String etapaTesis,
+            Integer numeroRevision
     ) {
         return new TesisCommand(
                 null,
@@ -24,7 +26,8 @@ public record TesisCommand(
                 titulo,
                 estudiantesIds,
                 numeroExpediente,
-                etapaTesis
+                etapaTesis,
+                numeroRevision
         );
     }
 
@@ -33,7 +36,8 @@ public record TesisCommand(
             Long escuelaId,
             String titulo,
             List<Long> estudiantesIds,
-            String etapaTesis
+            String etapaTesis,
+            Integer numeroRevision
     ) {
         return new TesisCommand(
                 id,
@@ -41,7 +45,8 @@ public record TesisCommand(
                 titulo,
                 estudiantesIds,
                 null,
-                etapaTesis
+                etapaTesis,
+                numeroRevision
         );
     }
 }

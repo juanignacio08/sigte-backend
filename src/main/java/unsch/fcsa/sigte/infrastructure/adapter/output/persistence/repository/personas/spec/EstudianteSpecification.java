@@ -1,5 +1,6 @@
 package unsch.fcsa.sigte.infrastructure.adapter.output.persistence.repository.personas.spec;
 
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import unsch.fcsa.sigte.application.command.personas.EstudianteFiltro;
@@ -52,14 +53,25 @@ public class EstudianteSpecification {
                 predicates.add(cb.equal(root.get("generoCodigo"), filtro.generoCodigo().trim()));
             }
 
-            // Búsqueda por Nombre o Apellido Paterno o Apellido Materno
+            // Búsqueda por Nombre Completo (nombres + primerApellido + segundoApellido)
             if (filtro.nombre() != null && !filtro.nombre().isBlank()) {
-                String pattern = "%" + filtro.nombre().trim().toLowerCase() + "%";
-                Predicate nombreLike = cb.like(cb.lower(root.get("nombres")), pattern);
-                Predicate primerApellidoLike = cb.like(cb.lower(root.get("primerApellido")), pattern);
-                Predicate segundoApellidoLike = cb.like(cb.lower(root.get("segundoApellido")), pattern);
+                String pattern = "%" + filtro.nombre().trim().toLowerCase().replaceAll("\\s+", " ") + "%";
 
-                predicates.add(cb.or(nombreLike, primerApellidoLike, segundoApellidoLike));
+                // Normalizamos nulos a cadena vacía y todo a minúsculas
+                Expression<String> nombres = cb.lower(cb.coalesce(root.get("nombres"), ""));
+                Expression<String> primerApellido = cb.lower(cb.coalesce(root.get("primerApellido"), ""));
+                Expression<String> segundoApellido = cb.lower(cb.coalesce(root.get("segundoApellido"), ""));
+
+                // JPA estándar: concat solo acepta 2 argumentos → anidamos
+                Expression<String> nombreCompleto = cb.concat(
+                        cb.concat(
+                                cb.concat(nombres, " "),
+                                primerApellido
+                        ),
+                        cb.concat(" ", segundoApellido)
+                );
+
+                predicates.add(cb.like(nombreCompleto, pattern));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));

@@ -1,5 +1,6 @@
 package unsch.fcsa.sigte.infrastructure.adapter.output.persistence.repository.tramites.spec;
 
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
@@ -41,19 +42,39 @@ public class TesisSpecification {
             }
 
             if (filtro.textoBusqueda() != null && !filtro.textoBusqueda().isBlank()) {
-                String pattern = "%" + filtro.textoBusqueda().trim().toLowerCase() + "%";
+                String pattern = "%" + filtro.textoBusqueda().trim().toLowerCase()
+                        .replaceAll("\\s+", " ") + "%";
 
+                // Búsqueda por título de la tesis
                 Predicate tituloLike = cb.like(cb.lower(root.get("titulo")), pattern);
 
+                // Joins hacia autores -> estudiante
                 Join<TesisEntity, TesisAutorEntity> autoresJoin = root.join("autores", JoinType.LEFT);
                 Join<TesisAutorEntity, EstudianteEntity> estudianteJoin = autoresJoin.join("estudiante", JoinType.LEFT);
 
-                Predicate docLike = cb.like(cb.lower(estudianteJoin.get("numeroDocumento")), pattern);
-                Predicate nombresLike = cb.like(cb.lower(estudianteJoin.get("nombres")), pattern);
-                Predicate apePatLike = cb.like(cb.lower(estudianteJoin.get("primerApellido")), pattern);
-                Predicate apeMatLike = cb.like(cb.lower(estudianteJoin.get("segundoApellido")), pattern);
+                // Número de documento del estudiante
+                Predicate docLike = cb.like(
+                        cb.lower(cb.coalesce(estudianteJoin.get("numeroDocumento"), "")),
+                        pattern
+                );
 
-                predicates.add(cb.or(tituloLike, docLike, nombresLike, apePatLike, apeMatLike));
+                // Nombre completo concatenado (nombres + primerApellido + segundoApellido)
+                Expression<String> nombres = cb.lower(cb.coalesce(estudianteJoin.get("nombres"), ""));
+                Expression<String> primerApellido = cb.lower(cb.coalesce(estudianteJoin.get("primerApellido"), ""));
+                Expression<String> segundoApellido = cb.lower(cb.coalesce(estudianteJoin.get("segundoApellido"), ""));
+
+                Expression<String> nombreCompleto = cb.concat(
+                        cb.concat(
+                                cb.concat(nombres, " "),
+                                primerApellido
+                        ),
+                        cb.concat(" ", segundoApellido)
+                );
+
+                Predicate nombreCompletoLike = cb.like(nombreCompleto, pattern);
+
+                // OR entre título, documento y nombre completo
+                predicates.add(cb.or(tituloLike, docLike, nombreCompletoLike));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));

@@ -2,7 +2,7 @@ package unsch.fcsa.sigte.application.usecase.maestro;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
+import unsch.fcsa.sigte.application.command.files.ArchivoSubida;
 import unsch.fcsa.sigte.application.command.maestro.EscuelaCommand;
 import unsch.fcsa.sigte.application.port.out.maestro.dtos.EscuelaProfesionalProjection;
 import unsch.fcsa.sigte.application.port.out.storage.StoragePort;
@@ -34,7 +34,7 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
 
     @Override
     @Transactional
-    public EscuelaProfesional crearEscuela(EscuelaCommand command, MultipartFile plantillaMemo, MultipartFile plantillaRes) {
+    public EscuelaProfesional crearEscuela(EscuelaCommand command, ArchivoSubida plantillaMemo, ArchivoSubida plantillaRes) {
         log.info("Iniciando el registro de una escuela: {}", command.denominacion());
 
         if (escuelaProfesionalRepositoryPort.existePorCodigo(command.codigo())) {
@@ -49,16 +49,17 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
             throw new ResourceNotFoundException("Departamento",  "id", command.departamentoId());
         }
 
-        // Guardar archivos físicamente en disco
-        String rutaMemo = (plantillaMemo != null && !plantillaMemo.isEmpty())
-                ? storagePort.guardarArchivo(plantillaMemo, "plantillas/memorandos")
-                : null;
-
-        String rutaRes = (plantillaRes != null && !plantillaRes.isEmpty())
-                ? storagePort.guardarArchivo(plantillaRes, "plantillas/resoluciones")
-                : null;
+        String rutaMemo = null;
+        String rutaRes  = null;
 
         try {
+            if (plantillaMemo != null) {
+                rutaMemo = storagePort.guardarArchivo(plantillaMemo, "plantillas/memorandos");
+            }
+            if (plantillaRes != null) {
+                rutaRes = storagePort.guardarArchivo(plantillaRes, "plantillas/resoluciones");
+            }
+
             // Crear entidad de Dominio con las rutas asignadas
             EscuelaProfesional escuelaProfesional = new EscuelaProfesional(
                     command.departamentoId(),
@@ -72,19 +73,16 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
             return escuelaProfesionalRepositoryPort.guardar(escuelaProfesional);
 
         } catch (Exception ex) {
-            // ⚠️ ROLLBACK MANUAL DEL DISCO: Si falla la BD, limpiamos los archivos recién creados
-            log.error("Error al guardar la escuela en BD. Revirtiendo archivos físicos subidos...", ex);
+            log.error("Error al crear la escuela. Revirtiendo archivos físicos subidos...", ex);
             if (rutaMemo != null) storagePort.eliminarArchivo(rutaMemo);
             if (rutaRes  != null) storagePort.eliminarArchivo(rutaRes);
-
-            // Re-lanzamos la excepción para que Spring ejecute el Rollback de la BD
             throw ex;
         }
     }
 
     @Override
     @Transactional
-    public EscuelaProfesional modificarEscuela(EscuelaCommand command, MultipartFile plantillaMemo, MultipartFile plantillaRes) {
+    public EscuelaProfesional modificarEscuela(EscuelaCommand command, ArchivoSubida plantillaMemo, ArchivoSubida plantillaRes) {
         log.info("Actualizando un recurso. [ ESCUELA : {} ]", command.id());
 
         EscuelaProfesional existente = obtenerPorId(command.id());
@@ -104,23 +102,26 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
             throw new ResourceNotFoundException("Departamento",  "id", command.departamentoId());
         }
 
-        String rutaMemoFinal = existente.getPlantillaMemorando();
-        if (plantillaMemo != null && !plantillaMemo.isEmpty()) {
-            // Borrar el archivo viejo si existía
-            storagePort.eliminarArchivo(existente.getPlantillaMemorando());
-            // Guardar el nuevo
-            rutaMemoFinal = storagePort.guardarArchivo(plantillaMemo, "plantillas/memorandos");
-        }
+        String rutaMemoVieja = existente.getPlantillaMemorando();
+        String rutaResVieja  = existente.getPlantillaResolucion();
 
-        String rutaResFinal = existente.getPlantillaResolucion();
-        if (plantillaRes != null && !plantillaRes.isEmpty()) {
-            // Borrar el archivo viejo si existía
-            storagePort.eliminarArchivo(existente.getPlantillaResolucion());
-            // Guardar el nuevo
-            rutaResFinal = storagePort.guardarArchivo(plantillaRes, "plantillas/resoluciones");
-        }
+        String rutaMemoFinal = rutaMemoVieja;
+        String rutaResFinal  = rutaResVieja;
+
+        String rutaMemoNueva = null;
+        String rutaResNueva  = null;
 
         try {
+            if (plantillaMemo != null) {
+                rutaMemoNueva = storagePort.guardarArchivo(plantillaMemo, "plantillas/memorandos");
+                rutaMemoFinal = rutaMemoNueva;
+            }
+
+            if (plantillaRes != null) {
+                rutaResNueva = storagePort.guardarArchivo(plantillaRes, "plantillas/resoluciones");
+                rutaResFinal = rutaResNueva;
+            }
+
             existente.actualizarDatos(
                     command.departamentoId(),
                     command.codigo(),
@@ -130,15 +131,19 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
                     rutaResFinal
             );
 
-            return escuelaProfesionalRepositoryPort.guardar(existente);
+            EscuelaProfesional guardada = escuelaProfesionalRepositoryPort.guardar(existente);
+
+            if (rutaMemoNueva != null && rutaMemoVieja != null) {
+                storagePort.eliminarTrasCommit(rutaMemoVieja);
+            }
+            if (rutaResNueva != null && rutaResVieja != null) {
+                storagePort.eliminarTrasCommit(rutaResVieja);
+            }
+            return guardada;
 
         } catch (Exception ex) {
-            // ⚠️ ROLLBACK MANUAL DEL DISCO: Si falla la BD, limpiamos los archivos recién creados
-            log.error("Error al guardar la escuela en BD. Revirtiendo archivos físicos subidos...", ex);
-            if (rutaMemoFinal != null) storagePort.eliminarArchivo(rutaMemoFinal);
-            if (rutaResFinal  != null) storagePort.eliminarArchivo(rutaResFinal);
-
-            // Re-lanzamos la excepción para que Spring ejecute el Rollback de la BD
+            if (rutaMemoNueva != null) storagePort.eliminarArchivo(rutaMemoNueva);
+            if (rutaResNueva  != null) storagePort.eliminarArchivo(rutaResNueva);
             throw ex;
         }
     }

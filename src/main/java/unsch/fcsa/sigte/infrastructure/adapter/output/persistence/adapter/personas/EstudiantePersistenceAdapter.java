@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import unsch.fcsa.sigte.application.command.PageResult;
 import unsch.fcsa.sigte.application.port.out.personas.EstudianteRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.personas.dto.EstudianteDetalleView;
-import unsch.fcsa.sigte.application.port.out.personas.dto.EstudianteFiltro;
+import unsch.fcsa.sigte.application.command.personas.EstudianteFiltro;
 import unsch.fcsa.sigte.domain.model.personas.Estudiante;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.personas.EstudianteEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.mapper.personas.EstudiantePersistenceMapper;
@@ -45,6 +45,11 @@ public class EstudiantePersistenceAdapter implements EstudianteRepositoryPort {
         return estudianteRepository.findByIdAndEliminadoFalse(id)
                 .map(mapper::toEstudianteDetalleView)
                 .orElse(null);
+    }
+
+    @Override
+    public boolean existePorId(Long id) {
+        return estudianteRepository.existsByIdAndEliminadoFalse(id);
     }
 
     @Override

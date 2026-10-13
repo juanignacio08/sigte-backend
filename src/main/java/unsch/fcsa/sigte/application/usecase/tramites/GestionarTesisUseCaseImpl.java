@@ -103,7 +103,7 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
             for (ArchivoSubida archivo : files) {
                 String rutaPdf = storagePort.guardarArchivoPdf(
                         archivo,
-                        "expedientes/".concat(command.escuelaId().toString())
+                        "expedientes"
                 );
 
                 ExpedienteArchivo expedienteArchivo = new ExpedienteArchivo(

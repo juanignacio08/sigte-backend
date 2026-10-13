@@ -4,8 +4,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.tramites.ExpedienteTesisEntity;
 
+import java.util.List;
+import java.util.UUID;
+
 @Repository
 public interface SpringDataExpedienteTesisRepository extends JpaRepository<ExpedienteTesisEntity, Long> {
     boolean existsByNumeroExpedienteAndEliminadoFalse(String numeroExpediente);
-
+    boolean existsByNumeroExpedienteAndEstadoAndEliminadoFalse(String numeroExpediente, Integer estado);
+    List<ExpedienteTesisEntity> findByTesisIdAndEliminadoFalse(UUID tesisId);
 }

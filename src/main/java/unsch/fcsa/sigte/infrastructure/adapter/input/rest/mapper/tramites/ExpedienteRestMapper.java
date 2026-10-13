@@ -2,6 +2,7 @@ package unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.tramites;
 
 import org.springframework.stereotype.Component;
 import unsch.fcsa.sigte.application.command.tramites.RegistrarExpedienteCommand;
+import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteDetalleView;
 import unsch.fcsa.sigte.domain.model.tramites.ExpedienteTesis;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.ExpedienteResponse;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.RegistrarExpedienteRequest;
@@ -30,4 +31,20 @@ public class ExpedienteRestMapper {
                 .estado(domain.getEstado())
                 .build();
     }
+
+    public ExpedienteResponse toResponseWithMasterTable(ExpedienteDetalleView domain) {
+        if (domain == null) return null;
+
+        return ExpedienteResponse.builder()
+                .id(domain.id())
+                .tesisId(domain.tesisId())
+                .numeroExpediente(domain.numeroExpediente())
+                .etapaCodigo(domain.etapaCodigo())
+                .etapaDenominacion(domain.etapaDenominacion())
+                .numRevision(domain.numeroRevision())
+                .fechaAsociacion(domain.fechaIngreso())
+                .estado(domain.estado())
+                .build();
+    }
+
 }

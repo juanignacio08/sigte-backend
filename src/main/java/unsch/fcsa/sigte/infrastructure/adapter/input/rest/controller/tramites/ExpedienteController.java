@@ -9,12 +9,14 @@ import unsch.fcsa.sigte.application.command.files.ArchivoSubida;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarExpedienteUseCase;
 import unsch.fcsa.sigte.domain.model.tramites.ExpedienteTesis;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.ResponseDTO;
+import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.ExpedienteResponse;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.RegistrarExpedienteRequest;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.ResponseGlobalMapper;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.file.MultipartFileMapper;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.tramites.ExpedienteRestMapper;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/expediente")
@@ -46,6 +48,16 @@ public class ExpedienteController {
         );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseDTO<Object>> obtenerPorId(@PathVariable UUID id) {
+        List<ExpedienteResponse> list = gestionarExpedienteUseCase.listarPorTesis(id).stream()
+                .map(expedienteRestMapper::toResponseWithMasterTable)
+                .toList();
+
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(list, "Lista de expedientes de una tesis", "200");
+        return ResponseEntity.ok(responseDTO);
     }
 
 }

@@ -6,6 +6,7 @@ import unsch.fcsa.sigte.application.port.in.tramites.GestionarExpedienteUseCase;
 import unsch.fcsa.sigte.application.port.out.storage.StoragePort;
 import unsch.fcsa.sigte.application.port.out.tramites.ExpedienteRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.tramites.TesisRepositoryPort;
+import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteDetalleView;
 import unsch.fcsa.sigte.domain.exception.BusinessRuleException;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
 import unsch.fcsa.sigte.domain.model.tramites.ExpedienteArchivo;
@@ -14,6 +15,7 @@ import unsch.fcsa.sigte.domain.model.tramites.ExpedienteTesis;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCase {
 
@@ -39,6 +41,11 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
         // 2. Validar unicidad de número de expediente activo
         if (expedienteRepositoryPort.existeNumeroExpedienteActivo(command.numeroExpediente())) {
             throw new BusinessRuleException("Ya existe un expediente activo con el número: '" + command.numeroExpediente() + "'");
+        }
+
+        // 3. Validar que no exista un expediente activo con el mismo numero de revision en una misma etapa
+        if (expedienteRepositoryPort.existeExpedientePorEtapaYNumeroRevisionActivo(command.etapaCodigo(), command.numeroRevision())) {
+            throw new BusinessRuleException("Ya existe un expediente con la misma etapa y número de revisión");
         }
 
         if (archivos == null || archivos.isEmpty()) {
@@ -99,5 +106,10 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
             }
             throw e;
         }
+    }
+
+    @Override
+    public List<ExpedienteDetalleView> listarPorTesis(UUID tesisId) {
+        return expedienteRepositoryPort.listarPorTesisId(tesisId);
     }
 }

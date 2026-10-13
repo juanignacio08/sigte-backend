@@ -13,6 +13,6 @@ public interface GestionarExpedienteUseCase {
     ExpedienteTesis registrar(RegistrarExpedienteCommand command, List<ArchivoSubida> archivos);
     //ExpedienteDetalleView actualizar(ActualizarExpedienteCommand command);
     //void darDeBaja(Long id, String motivo);
-    //List<ExpedienteDetalleView> listarPorTesis(UUID tesisId);
+    List<ExpedienteDetalleView> listarPorTesis(UUID tesisId);
     //ExpedienteDetalleView obtenerPorId(Long id);
 }

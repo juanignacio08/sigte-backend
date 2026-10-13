@@ -5,14 +5,22 @@ import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteArchivoDetal
 import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteDetalleView;
 import unsch.fcsa.sigte.domain.model.tramites.ExpedienteArchivo;
 import unsch.fcsa.sigte.domain.model.tramites.ExpedienteTesis;
+import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.adapter.maestro.MaestroPersistenceAdapter;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.tramites.ExpedienteArchivoEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.tramites.ExpedienteTesisEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.tramites.TesisEntity;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
 public class ExpedientePersistenceMapper {
+
+    private final MaestroPersistenceAdapter adapter;
+
+    public ExpedientePersistenceMapper(MaestroPersistenceAdapter adapter) {
+        this.adapter = adapter;
+    }
 
     public ExpedienteTesisEntity toEntity(ExpedienteTesis domain) {
         if (domain == null) return null;
@@ -82,10 +90,32 @@ public class ExpedientePersistenceMapper {
         return domain;
     }
 
+    public ExpedienteDetalleView toDetalleViewWithMasterTable(ExpedienteTesisEntity entity) {
+        if (entity == null) return null;
+
+        String etapa = adapter.getItemByCode(entity.getEtapaCodigo()) != null ?
+                adapter.getItemByCode(entity.getEtapaCodigo()).getDenominacion() : "NO REGISTRADO";
+
+        return new ExpedienteDetalleView(
+                entity.getId(),
+                entity.getTesis().getId(),
+                entity.getNumeroExpediente(),
+                entity.getEtapaCodigo(),
+                etapa,
+                entity.getNumeroRevision(),
+                entity.getFechaIngreso(),
+                entity.getEstado(),
+                null
+        );
+    }
+
     public ExpedienteDetalleView toDetalleView(ExpedienteTesisEntity entity) {
         if (entity == null) return null;
 
-        var archivosView = entity.getArchivos().stream().map(a ->
+        String etapa = adapter.getItemByCode(entity.getEtapaCodigo()) != null ?
+                adapter.getItemByCode(entity.getEtapaCodigo()).getDenominacion() : "NO REGISTRADO";
+
+        List<ExpedienteArchivoDetalleView> archivosView = entity.getArchivos().stream().map(a ->
                 new ExpedienteArchivoDetalleView(a.getId(), a.getNombreArchivo(), a.getArchivoUrl(), a.getTamanioBytes())
         ).collect(Collectors.toList());
 
@@ -94,6 +124,7 @@ public class ExpedientePersistenceMapper {
                 entity.getTesis().getId(),
                 entity.getNumeroExpediente(),
                 entity.getEtapaCodigo(),
+                etapa,
                 entity.getNumeroRevision(),
                 entity.getFechaIngreso(),
                 entity.getEstado(),

@@ -9,6 +9,7 @@ public record ExpedienteDetalleView(
         UUID tesisId,
         String numeroExpediente,
         String etapaCodigo,
+        String etapaDenominacion,
         Integer numeroRevision,
         OffsetDateTime fechaIngreso,
         Integer estado,

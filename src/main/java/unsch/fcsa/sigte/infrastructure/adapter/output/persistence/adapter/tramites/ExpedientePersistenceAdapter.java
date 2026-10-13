@@ -14,6 +14,7 @@ import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.repository.tra
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -40,7 +41,19 @@ public class ExpedientePersistenceAdapter implements ExpedienteRepositoryPort {
     }
 
     @Override
+    public List<ExpedienteDetalleView> listarPorTesisId(UUID tesisId) {
+        return expedienteRepository.findByTesisIdAndEliminadoFalse(tesisId).stream()
+                .map(mapper::toDetalleViewWithMasterTable)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public boolean existeNumeroExpedienteActivo(String numeroExpediente) {
         return expedienteRepository.existsByNumeroExpedienteAndEstadoAndEliminadoFalse(numeroExpediente, 1);
+    }
+
+    @Override
+    public boolean existeExpedientePorEtapaYNumeroRevisionActivo(String etapaCodigo, Integer numeroRevision) {
+        return expedienteRepository.existsByEtapaCodigoAndNumeroRevisionAndEstadoAndEliminadoFalse(etapaCodigo, numeroRevision, 1);
     }
 }

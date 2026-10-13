@@ -2,8 +2,10 @@ package unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
+import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteArchivoDetalleView;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Builder
@@ -16,5 +18,6 @@ public record ExpedienteResponse(
         String etapaDenominacion,
         Integer numRevision,
         OffsetDateTime fechaAsociacion,
-        Integer estado
+        Integer estado,
+        List<ExpedienteArchivoDetalleView> archivos
 ) {}

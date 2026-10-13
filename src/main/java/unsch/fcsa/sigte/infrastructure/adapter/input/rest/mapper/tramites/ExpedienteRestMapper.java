@@ -47,4 +47,20 @@ public class ExpedienteRestMapper {
                 .build();
     }
 
+    public ExpedienteResponse toResponseDetail(ExpedienteDetalleView domain) {
+        if (domain == null) return null;
+
+        return ExpedienteResponse.builder()
+                .id(domain.id())
+                .tesisId(domain.tesisId())
+                .numeroExpediente(domain.numeroExpediente())
+                .etapaCodigo(domain.etapaCodigo())
+                .etapaDenominacion(domain.etapaDenominacion())
+                .numRevision(domain.numeroRevision())
+                .fechaAsociacion(domain.fechaIngreso())
+                .estado(domain.estado())
+                .archivos(domain.archivos())
+                .build();
+    }
+
 }

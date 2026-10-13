@@ -112,4 +112,10 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
     public List<ExpedienteDetalleView> listarPorTesis(UUID tesisId) {
         return expedienteRepositoryPort.listarPorTesisId(tesisId);
     }
+
+    @Override
+    public ExpedienteDetalleView obtenerPorId(Long id) {
+        return expedienteRepositoryPort.obtenerDetallePorId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Expediente", "id", id));
+    }
 }

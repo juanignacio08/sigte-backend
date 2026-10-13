@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import unsch.fcsa.sigte.application.command.files.ArchivoSubida;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarExpedienteUseCase;
+import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteDetalleView;
 import unsch.fcsa.sigte.domain.model.tramites.ExpedienteTesis;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.ResponseDTO;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.ExpedienteResponse;
@@ -50,13 +51,21 @@ public class ExpedienteController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ResponseDTO<Object>> obtenerPorId(@PathVariable UUID id) {
+    @GetMapping("/listarPorTesis/{id}")
+    public ResponseEntity<ResponseDTO<Object>> obtenerListaPorTesis(@PathVariable UUID id) {
         List<ExpedienteResponse> list = gestionarExpedienteUseCase.listarPorTesis(id).stream()
                 .map(expedienteRestMapper::toResponseWithMasterTable)
                 .toList();
 
         ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(list, "Lista de expedientes de una tesis", "200");
+        return ResponseEntity.ok(responseDTO);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseDTO<Object>> obtenerPorId(@PathVariable Long id) {
+        ExpedienteDetalleView domain = gestionarExpedienteUseCase.obtenerPorId(id);
+        ExpedienteResponse response = expedienteRestMapper.toResponseDetail(domain);
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(response, "Expediente a detalle", "200");
         return ResponseEntity.ok(responseDTO);
     }
 

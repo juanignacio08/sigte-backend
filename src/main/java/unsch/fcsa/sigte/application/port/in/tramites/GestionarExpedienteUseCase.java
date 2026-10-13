@@ -14,5 +14,5 @@ public interface GestionarExpedienteUseCase {
     //ExpedienteDetalleView actualizar(ActualizarExpedienteCommand command);
     //void darDeBaja(Long id, String motivo);
     List<ExpedienteDetalleView> listarPorTesis(UUID tesisId);
-    //ExpedienteDetalleView obtenerPorId(Long id);
+    ExpedienteDetalleView obtenerPorId(Long id);
 }

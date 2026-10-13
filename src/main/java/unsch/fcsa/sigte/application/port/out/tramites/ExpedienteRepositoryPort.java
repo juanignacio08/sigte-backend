@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface ExpedienteRepositoryPort {
     ExpedienteTesis guardar(ExpedienteTesis expediente);
     //Optional<ExpedienteTesis> buscarPorId(Long id);
-    //Optional<ExpedienteDetalleView> obtenerDetallePorId(Long id);
+    Optional<ExpedienteDetalleView> obtenerDetallePorId(Long id);
     List<ExpedienteDetalleView> listarPorTesisId(UUID tesisId);
     boolean existeNumeroExpedienteActivo(String numeroExpediente);
     boolean existeExpedientePorEtapaYNumeroRevisionActivo(String etapaCodigo, Integer numeroRevision);

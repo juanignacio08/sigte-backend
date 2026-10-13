@@ -41,6 +41,12 @@ public class ExpedientePersistenceAdapter implements ExpedienteRepositoryPort {
     }
 
     @Override
+    public Optional<ExpedienteDetalleView> obtenerDetallePorId(Long id) {
+        return expedienteRepository.findByIdAndEliminadoFalse(id)
+                .map(mapper::toDetalleView);
+    }
+
+    @Override
     public List<ExpedienteDetalleView> listarPorTesisId(UUID tesisId) {
         return expedienteRepository.findByTesisIdAndEliminadoFalse(tesisId).stream()
                 .map(mapper::toDetalleViewWithMasterTable)

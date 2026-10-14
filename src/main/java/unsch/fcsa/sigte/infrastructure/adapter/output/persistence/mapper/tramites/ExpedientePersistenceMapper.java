@@ -3,7 +3,6 @@ package unsch.fcsa.sigte.infrastructure.adapter.output.persistence.mapper.tramit
 import org.springframework.stereotype.Component;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteArchivoDetalleView;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteDetalleView;
-import unsch.fcsa.sigte.domain.model.tramites.ExpedienteArchivo;
 import unsch.fcsa.sigte.domain.model.tramites.ExpedienteTesis;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.adapter.maestro.MaestroPersistenceAdapter;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.tramites.ExpedienteArchivoEntity;
@@ -61,7 +60,7 @@ public class ExpedientePersistenceMapper {
     public ExpedienteTesis toDomain(ExpedienteTesisEntity entity) {
         if (entity == null) return null;
 
-        ExpedienteTesis domain = new ExpedienteTesis(
+        return new ExpedienteTesis(
                 entity.getId(),
                 entity.getTesis().getId(),
                 entity.getNumeroExpediente(),
@@ -71,23 +70,6 @@ public class ExpedientePersistenceMapper {
                 entity.getEstado(),
                 entity.getEliminado()
         );
-
-        if (entity.getArchivos() != null) {
-            var archivosDomain = entity.getArchivos().stream().map(a ->
-                    new ExpedienteArchivo(
-                            a.getId(),
-                            entity.getId(),
-                            a.getNombreArchivo(),
-                            a.getArchivoUrl(),
-                            a.getTamanioBytes(),
-                            a.getEstado(),
-                            a.getEliminado()
-                    )
-            ).collect(Collectors.toList());
-            domain.setArchivos(archivosDomain);
-        }
-
-        return domain;
     }
 
     public ExpedienteDetalleView toDetalleViewWithMasterTable(ExpedienteTesisEntity entity) {

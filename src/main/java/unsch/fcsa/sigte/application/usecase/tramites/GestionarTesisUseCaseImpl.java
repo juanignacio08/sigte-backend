@@ -63,12 +63,10 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
             }
         }
 
-        if (files == null || files.isEmpty()) {
-            throw new BusinessRuleException("Debe adjuntar al menos un archivo PDF al expediente.");
-        }
-
-        if (files.size() > 5) {
-            throw new BusinessRuleException("No puede adjuntar más de 5 archivos PDF por expediente.");
+        if (files != null && !files.isEmpty()) {
+            if (files.size() > 5) {
+                throw new BusinessRuleException("No puede adjuntar más de 5 archivos PDF por expediente.");
+            }
         }
 
         Tesis tesis = new Tesis(

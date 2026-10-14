@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,6 +23,8 @@ public record RegistrarExpedienteRequest(
 
         @NotNull(message = "El número de revisión es obligatorio")
         Integer numeroRevision,
+
+        OffsetDateTime fechaRegistro,
 
         @NotNull(message = "Debe adjuntar al menos un archivo PDF")
         @Size(min = 1, max = 5, message = "Puede adjuntar entre 1 y 5 archivos PDF")

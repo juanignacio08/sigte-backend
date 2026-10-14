@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public interface GestionarExpedienteUseCase {
     ExpedienteTesis registrar(RegistrarExpedienteCommand command, List<ArchivoSubida> archivos);
-    //ExpedienteDetalleView actualizar(ActualizarExpedienteCommand command);
+    ExpedienteTesis actualizar(ActualizarExpedienteCommand command, List<ArchivoSubida> nuevosArchivos);
     //void darDeBaja(Long id, String motivo);
     List<ExpedienteDetalleView> listarPorTesis(UUID tesisId);
     ExpedienteDetalleView obtenerPorId(Long id);

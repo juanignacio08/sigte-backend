@@ -18,4 +18,6 @@ public interface SpringDataExpedienteTesisRepository extends JpaRepository<Exped
 
     @EntityGraph(attributePaths = {"archivos"})
     Optional<ExpedienteTesisEntity> findByIdAndEliminadoFalse(Long id);
+
+    Optional<ExpedienteTesisEntity> findByIdEqualsAndEliminadoFalse(Long id);
 }

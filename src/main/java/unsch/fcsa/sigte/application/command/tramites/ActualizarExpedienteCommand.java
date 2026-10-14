@@ -1,15 +1,15 @@
 package unsch.fcsa.sigte.application.command.tramites;
 
-import unsch.fcsa.sigte.application.command.files.ArchivoSubida;
-
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public record ActualizarExpedienteCommand(
         Long id,
         String numeroExpediente,
         String etapaCodigo,
-        List<Long> idsArchivosAEliminar,
-        List<ArchivoSubida> nuevosArchivos
+        Integer numeroRevision,
+        OffsetDateTime fechaIngreso,
+        List<Long> idsArchivosAEliminar
 ) {
     public ActualizarExpedienteCommand {
         if (id == null) {
@@ -20,6 +20,9 @@ public record ActualizarExpedienteCommand(
         }
         if (etapaCodigo == null || etapaCodigo.isBlank()) {
             throw new IllegalArgumentException("El código de etapa es obligatorio.");
+        }
+        if (numeroRevision == null || numeroRevision < 1) {
+            throw new IllegalArgumentException("El número de revision es obligatorio.");
         }
     }
 }

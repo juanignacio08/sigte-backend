@@ -1,6 +1,9 @@
 package unsch.fcsa.sigte.application.usecase.tramites;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import unsch.fcsa.sigte.application.command.files.ArchivoSubida;
+import unsch.fcsa.sigte.application.command.tramites.ActualizarExpedienteCommand;
 import unsch.fcsa.sigte.application.command.tramites.RegistrarExpedienteCommand;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarExpedienteUseCase;
 import unsch.fcsa.sigte.application.port.out.storage.StoragePort;
@@ -17,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCase {
 
     private final ExpedienteRepositoryPort expedienteRepositoryPort;
@@ -33,6 +37,7 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
 
     @Override
     public ExpedienteTesis registrar(RegistrarExpedienteCommand command, List<ArchivoSubida> archivos) {
+        log.info("Registrando un nuevo expediente para una tesis. [ TESIS : {} ]", command.toString());
         // 1. Validar que la tesis exista
         if (!tesisRepositoryPort.existePorId(command.tesisId())) {
             throw new ResourceNotFoundException("Tesis", "id", command.tesisId().toString());
@@ -43,7 +48,7 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
             throw new BusinessRuleException("Ya existe un expediente activo con el número: '" + command.numeroExpediente() + "'");
         }
 
-        // 3. Validar que no exista un expediente activo con el mismo numero de revision en una misma etapa
+        // 3. Validar que no exista un expediente activo con el mismo número de revision en una misma etapa
         if (expedienteRepositoryPort.existeExpedientePorEtapaYNumeroRevisionActivo(command.etapaCodigo(), command.numeroRevision())) {
             throw new BusinessRuleException("Ya existe un expediente con la misma etapa y número de revisión");
         }
@@ -64,7 +69,7 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
                     command.numeroExpediente(),
                     command.etapaCodigo(),
                     command.numeroRevision(),
-                    OffsetDateTime.now(),
+                    command.fechaIngreso() != null ? command.fechaIngreso() : OffsetDateTime.now(),
                     1,
                     false
             );
@@ -109,12 +114,92 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
     }
 
     @Override
+    @Transactional
+    public ExpedienteTesis actualizar(ActualizarExpedienteCommand command, List<ArchivoSubida> nuevosArchivos) {
+        log.info("Actualizando un expediente. [ EXPEDIENTE : {} ]", command.id());
+        ExpedienteTesis expediente = expedienteRepositoryPort.buscarPorId(command.id())
+                .orElseThrow(() -> new ResourceNotFoundException("ExpedienteTesis", "id", command.id().toString()));
+
+        // TODO: Verificar si existen revisiones formales asociadas (revisionRepositoryPort.existsByExpedienteTesisId(id))
+        // Si ya fue notificado/revisado, bloquear la edición.
+
+        // Validar si cambió el número de expediente y ya existe otro activo
+        if (!expediente.getNumeroExpediente().equals(command.numeroExpediente())) {
+            if (expedienteRepositoryPort.existeNumeroExpedienteActivo(command.numeroExpediente())) {
+                throw new BusinessRuleException("Ya existe un expediente activo con el número: '" + command.numeroExpediente() + "'");
+            }
+        }
+
+        if (!expediente.getEtapaCodigo().equals(command.etapaCodigo())
+                || !expediente.getNumeroRevision().equals(command.numeroRevision())) {
+            if (expedienteRepositoryPort.existeExpedientePorEtapaYNumeroRevisionActivo(command.etapaCodigo(), command.numeroRevision())) {
+                throw new BusinessRuleException("Ya existe un expediente con la misma etapa y número de revisión");
+            }
+        }
+
+        // Procedemos a actualizar campos básicos (aquí requerirías métodos setters limpios o reconstrucción en dominio)
+        expediente.actualizarDatos(
+                command.numeroRevision(),
+                command.etapaCodigo(),
+                command.fechaIngreso()
+        );
+
+        // Para efectos prácticos, manejamos la colección de archivos
+        List<String> nuevosArchivosRutas = new ArrayList<>();
+        try {
+            // Eliminar archivos seleccionados
+            if (command.idsArchivosAEliminar() != null && !command.idsArchivosAEliminar().isEmpty()) {
+                expediente.getArchivos().removeIf(archivo -> {
+                    if (command.idsArchivosAEliminar().contains(archivo.getId())) {
+                        storagePort.eliminarTrasCommit(archivo.getArchivoUrl());
+                        return true;
+                    }
+                    return false;
+                });
+            }
+
+            // Agregar nuevos archivos si los hay
+            if (nuevosArchivos != null && !nuevosArchivos.isEmpty()) {
+                int totalArchivosFuturo = expediente.getArchivos().size() + nuevosArchivos.size();
+                if (totalArchivosFuturo < 1 || totalArchivosFuturo > 5) {
+                    throw new BusinessRuleException("El expediente debe tener entre 1 y 5 archivos PDF en total.");
+                }
+
+                for (ArchivoSubida archivo : nuevosArchivos) {
+                    if (!archivo.esPdf()) {
+                        throw new BusinessRuleException("Solo se permiten archivos PDF.");
+                    }
+                    String rutaRelativa = storagePort.guardarArchivoPdf(archivo, "expedientes");
+                    nuevosArchivosRutas.add(rutaRelativa);
+
+                    ExpedienteArchivo nuevoArchivo = new ExpedienteArchivo(
+                            null, expediente.getId(), archivo.nombreOriginal(), rutaRelativa, archivo.tamanioBytes(), 1, false
+                    );
+                    expediente.getArchivos().add(nuevoArchivo);
+                }
+            }
+
+            return expedienteRepositoryPort.guardar(expediente);
+
+        } catch (Exception e) {
+            for (String ruta : nuevosArchivosRutas) {
+                if (ruta != null) {
+                    storagePort.eliminarArchivo(ruta);
+                }
+            }
+            throw e;
+        }
+    }
+
+    @Override
     public List<ExpedienteDetalleView> listarPorTesis(UUID tesisId) {
+        log.info("Listando expedientes de una tesis. {}", tesisId.toString());
         return expedienteRepositoryPort.listarPorTesisId(tesisId);
     }
 
     @Override
     public ExpedienteDetalleView obtenerPorId(Long id) {
+        log.info("Obteniendo a detalle un expediente. [ EXPEDIENTE : {} ]", id.toString());
         return expedienteRepositoryPort.obtenerDetallePorId(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Expediente", "id", id));
     }

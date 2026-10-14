@@ -32,6 +32,18 @@ public class ExpedienteTesis {
         this.eliminado = eliminado != null && eliminado;
     }
 
+    public void actualizarDatos(
+            Integer numeroRevision,
+            String etapaCodigo,
+            OffsetDateTime fechaIngreso
+    ) {
+        this.numeroRevision = numeroRevision != null ? numeroRevision : 1;
+        setEtapaCodigo(etapaCodigo);
+        if (fechaIngreso != null) {
+            this.fechaIngreso = fechaIngreso;
+        }
+    }
+
     private void setNumeroExpediente(String numeroExpediente) {
         if (numeroExpediente == null || numeroExpediente.isBlank()) {
             throw new BusinessRuleException("El número de expediente es obligatorio.");

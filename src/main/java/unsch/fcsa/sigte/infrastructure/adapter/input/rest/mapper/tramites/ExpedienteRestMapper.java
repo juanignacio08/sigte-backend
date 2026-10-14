@@ -1,9 +1,11 @@
 package unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.tramites;
 
 import org.springframework.stereotype.Component;
+import unsch.fcsa.sigte.application.command.tramites.ActualizarExpedienteCommand;
 import unsch.fcsa.sigte.application.command.tramites.RegistrarExpedienteCommand;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteDetalleView;
 import unsch.fcsa.sigte.domain.model.tramites.ExpedienteTesis;
+import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.ActualizarExpedienteRequest;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.ExpedienteResponse;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.RegistrarExpedienteRequest;
 
@@ -14,7 +16,19 @@ public class ExpedienteRestMapper {
                 request.tesisId(),
                 request.numeroExpediente(),
                 request.etapaCodigo(),
-                request.numeroRevision()
+                request.numeroRevision(),
+                request.fechaRegistro()
+        );
+    }
+
+    public ActualizarExpedienteCommand toUpdate(Long id, ActualizarExpedienteRequest request) {
+        return new ActualizarExpedienteCommand(
+                id,
+                request.numeroExpediente(),
+                request.etapaCodigo(),
+                request.numeroRevision(),
+                request.fechaIngreso(),
+                request.idsArchivosAEliminar()
         );
     }
 

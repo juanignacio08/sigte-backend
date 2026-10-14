@@ -1,15 +1,14 @@
 package unsch.fcsa.sigte.application.command.tramites;
 
-import unsch.fcsa.sigte.application.command.files.ArchivoSubida;
-
-import java.util.List;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public record RegistrarExpedienteCommand(
         UUID tesisId,
         String numeroExpediente,
         String etapaCodigo,
-        Integer numeroRevision
+        Integer numeroRevision,
+        OffsetDateTime fechaIngreso
 ) {
     public RegistrarExpedienteCommand {
         if (tesisId == null) {

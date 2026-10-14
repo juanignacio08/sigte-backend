@@ -95,4 +95,31 @@ public class ExpedienteController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @PutMapping("/activar/{id}")
+    public ResponseEntity<ResponseDTO<Object>> activar(
+            @PathVariable Long id
+    ) {
+        gestionarExpedienteUseCase.activar(id);
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(null, "Expediente activado!", "200");
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @PutMapping("/desactivar")
+    public ResponseEntity<ResponseDTO<Object>> desactivar(
+            @RequestParam Long id,
+            @RequestParam String motivo
+    ) {
+        gestionarExpedienteUseCase.desactivar(id, motivo);
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(null, "Expediente desactivado!", "200");
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponseDTO<Object>> eliminar(
+            @PathVariable Long id
+    ) {
+        gestionarExpedienteUseCase.eliminar(id);
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(null, "Expediente eliminado!", "200");
+        return ResponseEntity.ok().body(responseDTO);
+    }
 }

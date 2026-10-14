@@ -12,7 +12,9 @@ import java.util.UUID;
 public interface GestionarExpedienteUseCase {
     ExpedienteTesis registrar(RegistrarExpedienteCommand command, List<ArchivoSubida> archivos);
     ExpedienteTesis actualizar(ActualizarExpedienteCommand command, List<ArchivoSubida> nuevosArchivos);
-    //void darDeBaja(Long id, String motivo);
+    void activar(Long id);
+    void desactivar(Long id, String motivo);
+    void eliminar(Long id);
     List<ExpedienteDetalleView> listarPorTesis(UUID tesisId);
     ExpedienteDetalleView obtenerPorId(Long id);
 }

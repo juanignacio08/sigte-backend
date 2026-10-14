@@ -35,6 +35,7 @@ public class ExpedientePersistenceMapper {
                 .etapaCodigo(domain.getEtapaCodigo())
                 .numeroRevision(domain.getNumeroRevision())
                 .fechaIngreso(domain.getFechaIngreso())
+                .motivoBaja(domain.getMotivoBaja())
                 .estado(domain.getEstado())
                 .eliminado(domain.isEliminado())
                 .build();
@@ -68,7 +69,8 @@ public class ExpedientePersistenceMapper {
                 entity.getNumeroRevision(),
                 entity.getFechaIngreso(),
                 entity.getEstado(),
-                entity.getEliminado()
+                entity.getEliminado(),
+                entity.getMotivoBaja()
         );
     }
 

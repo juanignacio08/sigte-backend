@@ -55,7 +55,7 @@ public class TesisPersistenceMapper {
                         ExpedienteTesis exp = new ExpedienteTesis(
                                 e.getId(), entity.getId(), e.getNumeroExpediente(),
                                 e.getEtapaCodigo(), e.getNumeroRevision(),
-                                e.getFechaIngreso(), e.getEstado(), e.getEliminado());
+                                e.getFechaIngreso(), e.getEstado(), e.getEliminado(), e.getMotivoBaja());
 
                         if (e.getArchivos() != null) {
                             List<ExpedienteArchivo> archivos = e.getArchivos().stream()

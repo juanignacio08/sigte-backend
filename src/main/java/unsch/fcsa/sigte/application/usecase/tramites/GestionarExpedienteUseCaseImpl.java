@@ -71,7 +71,8 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
                     command.numeroRevision(),
                     command.fechaIngreso() != null ? command.fechaIngreso() : OffsetDateTime.now(),
                     1,
-                    false
+                    false,
+                    null
             );
 
             List<ExpedienteArchivo> archivosDominio = new ArrayList<>();
@@ -189,6 +190,59 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
             }
             throw e;
         }
+    }
+
+    @Override
+    public void activar(Long id) {
+        log.info("Activando un expediente. [ EXPEDIENTE : {} ]", id);
+        ExpedienteTesis expediente = expedienteRepositoryPort.buscarPorId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("ExpedienteTesis", "id", id.toString()));
+
+        if (!expediente.getEstado().equals(1)) {
+            expediente.activar();
+
+            expedienteRepositoryPort.guardar(expediente);
+        }
+    }
+
+    @Override
+    public void desactivar(Long id, String motivo) {
+        log.info("Desactivando expediente [ EXPEDIENTE : {} ]", id);
+        ExpedienteTesis expediente = expedienteRepositoryPort.buscarPorId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("ExpedienteTesis", "id", id.toString()));
+
+        if (!expediente.getEstado().equals(0)) {
+            expediente.desactivar(motivo);
+
+            expedienteRepositoryPort.guardar(expediente);
+        }
+    }
+
+    @Override
+    public void eliminar(Long id) {
+        log.info("Eliminando un expediente. [ EXPEDIENTE : {} ]", id);
+
+        // TODO: Validar que el expediente no tenga revisiones formales asociadas antes de permitir borrarlo.
+        // if (revisionRepositoryPort.existsByExpedienteTesisId(id)) {
+        //     throw new BusinessRuleException("No se puede eliminar un expediente que ya cuenta con revisiones.");
+        // }
+
+        ExpedienteTesis expediente = expedienteRepositoryPort.buscarPorId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("ExpedienteTesis", "id", id.toString()));
+
+        if (expediente.getArchivos() != null && !expediente.getArchivos().isEmpty()) {
+            for (ExpedienteArchivo archivo : expediente.getArchivos()) {
+                try {
+                    storagePort.eliminarArchivo(archivo.getArchivoUrl());
+                } catch (Exception e) {
+                    log.warn("Error al eliminar archivo. [{}]", archivo.getArchivoUrl());
+                }
+            }
+        }
+
+        expediente.getArchivos().clear();
+
+        expedienteRepositoryPort.eliminarExpediente(expediente);
     }
 
     @Override

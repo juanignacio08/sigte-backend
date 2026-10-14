@@ -92,7 +92,8 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
                 command.numeroRevision() != null ? command.numeroRevision() : 1,
                 OffsetDateTime.now(),
                 1,
-                false
+                false,
+                null
         );
 
         List<ExpedienteArchivo> listaArchivos = new ArrayList<>();

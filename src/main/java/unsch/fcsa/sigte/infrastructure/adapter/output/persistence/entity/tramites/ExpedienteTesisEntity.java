@@ -42,6 +42,9 @@ public class ExpedienteTesisEntity {
     @Column(name = "fecha_ingreso", nullable = false)
     private OffsetDateTime fechaIngreso;
 
+    @Column(name = "motivo_baja", length = 250)
+    private String motivoBaja;
+
     @Column(nullable = false)
     private Integer estado;
 

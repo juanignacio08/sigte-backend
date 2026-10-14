@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import unsch.fcsa.sigte.application.port.out.tramites.ExpedienteRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteDetalleView;
+import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
 import unsch.fcsa.sigte.domain.model.tramites.ExpedienteTesis;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.tramites.ExpedienteTesisEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.mapper.tramites.ExpedientePersistenceMapper;
@@ -61,5 +62,13 @@ public class ExpedientePersistenceAdapter implements ExpedienteRepositoryPort {
     @Override
     public boolean existeExpedientePorEtapaYNumeroRevisionActivo(String etapaCodigo, Integer numeroRevision) {
         return expedienteRepository.existsByEtapaCodigoAndNumeroRevisionAndEstadoAndEliminadoFalse(etapaCodigo, numeroRevision, 1);
+    }
+
+    @Override
+    public void eliminarExpediente(ExpedienteTesis expediente) {
+        ExpedienteTesisEntity entity = expedienteRepository.findById(expediente.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("ExpedienteTesis", "id", expediente.getId().toString()));
+
+        expedienteRepository.delete(entity);
     }
 }

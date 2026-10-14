@@ -89,7 +89,7 @@ CREATE TABLE tramites.expediente_tesis (
     etapa_codigo VARCHAR(6) NOT NULL,
     numero_revision INT NOT NULL DEFAULT 1,
     fecha_ingreso TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
+    motivo_baja VARCHAR(250),
     estado INT NOT NULL DEFAULT 1,
     creado_por VARCHAR(100) NOT NULL DEFAULT 'admin',
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,

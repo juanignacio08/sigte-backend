@@ -25,5 +25,4 @@ public record ActualizarExpedienteRequest(
         List<Long> idsArchivosAEliminar,
 
         List<MultipartFile> nuevosArchivos
-) {
-}
+) {}

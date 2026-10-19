@@ -49,7 +49,7 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
         }
 
         // 3. Validar que no exista un expediente activo con el mismo número de revision en una misma etapa
-        if (expedienteRepositoryPort.existeExpedientePorEtapaYNumeroRevisionActivo(command.etapaCodigo(), command.numeroRevision())) {
+        if (expedienteRepositoryPort.existeExpedientePorEtapaYNumeroRevisionActivo(command.tesisId(), command.etapaCodigo(), command.numeroRevision())) {
             throw new BusinessRuleException("Ya existe un expediente con la misma etapa y número de revisión");
         }
 
@@ -116,7 +116,7 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
 
     @Override
     @Transactional
-    public ExpedienteTesis actualizar(ActualizarExpedienteCommand command, List<ArchivoSubida> nuevosArchivos) {
+    public ExpedienteTesis actualizar(ActualizarExpedienteCommand command) {
         log.info("Actualizando un expediente. [ EXPEDIENTE : {} ]", command.id());
         ExpedienteTesis expediente = expedienteRepositoryPort.buscarPorId(command.id())
                 .orElseThrow(() -> new ResourceNotFoundException("ExpedienteTesis", "id", command.id().toString()));
@@ -133,63 +133,20 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
 
         if (!expediente.getEtapaCodigo().equals(command.etapaCodigo())
                 || !expediente.getNumeroRevision().equals(command.numeroRevision())) {
-            if (expedienteRepositoryPort.existeExpedientePorEtapaYNumeroRevisionActivo(command.etapaCodigo(), command.numeroRevision())) {
+            if (expedienteRepositoryPort.existeExpedientePorEtapaYNumeroRevisionActivo(expediente.getTesisId(), command.etapaCodigo(), command.numeroRevision())) {
                 throw new BusinessRuleException("Ya existe un expediente con la misma etapa y número de revisión");
             }
         }
 
         // Procedemos a actualizar campos básicos (aquí requerirías métodos setters limpios o reconstrucción en dominio)
         expediente.actualizarDatos(
+                command.numeroExpediente(),
                 command.numeroRevision(),
                 command.etapaCodigo(),
                 command.fechaIngreso()
         );
 
-        // Para efectos prácticos, manejamos la colección de archivos
-        List<String> nuevosArchivosRutas = new ArrayList<>();
-        try {
-            // Eliminar archivos seleccionados
-            if (command.idsArchivosAEliminar() != null && !command.idsArchivosAEliminar().isEmpty()) {
-                expediente.getArchivos().removeIf(archivo -> {
-                    if (command.idsArchivosAEliminar().contains(archivo.getId())) {
-                        storagePort.eliminarTrasCommit(archivo.getArchivoUrl());
-                        return true;
-                    }
-                    return false;
-                });
-            }
-
-            // Agregar nuevos archivos si los hay
-            if (nuevosArchivos != null && !nuevosArchivos.isEmpty()) {
-                int totalArchivosFuturo = expediente.getArchivos().size() + nuevosArchivos.size();
-                if (totalArchivosFuturo < 1 || totalArchivosFuturo > 5) {
-                    throw new BusinessRuleException("El expediente debe tener entre 1 y 5 archivos PDF en total.");
-                }
-
-                for (ArchivoSubida archivo : nuevosArchivos) {
-                    if (!archivo.esPdf()) {
-                        throw new BusinessRuleException("Solo se permiten archivos PDF.");
-                    }
-                    String rutaRelativa = storagePort.guardarArchivoPdf(archivo, "expedientes");
-                    nuevosArchivosRutas.add(rutaRelativa);
-
-                    ExpedienteArchivo nuevoArchivo = new ExpedienteArchivo(
-                            null, expediente.getId(), archivo.nombreOriginal(), rutaRelativa, archivo.tamanioBytes(), 1, false
-                    );
-                    expediente.getArchivos().add(nuevoArchivo);
-                }
-            }
-
-            return expedienteRepositoryPort.guardar(expediente);
-
-        } catch (Exception e) {
-            for (String ruta : nuevosArchivosRutas) {
-                if (ruta != null) {
-                    storagePort.eliminarArchivo(ruta);
-                }
-            }
-            throw e;
-        }
+        return expedienteRepositoryPort.guardar(expediente);
     }
 
     @Override

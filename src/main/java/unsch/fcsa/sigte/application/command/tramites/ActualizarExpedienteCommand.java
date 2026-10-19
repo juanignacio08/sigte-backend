@@ -8,8 +8,7 @@ public record ActualizarExpedienteCommand(
         String numeroExpediente,
         String etapaCodigo,
         Integer numeroRevision,
-        OffsetDateTime fechaIngreso,
-        List<Long> idsArchivosAEliminar
+        OffsetDateTime fechaIngreso
 ) {
     public ActualizarExpedienteCommand {
         if (id == null) {

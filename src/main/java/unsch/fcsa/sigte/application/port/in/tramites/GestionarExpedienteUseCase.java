@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public interface GestionarExpedienteUseCase {
     ExpedienteTesis registrar(RegistrarExpedienteCommand command, List<ArchivoSubida> archivos);
-    ExpedienteTesis actualizar(ActualizarExpedienteCommand command, List<ArchivoSubida> nuevosArchivos);
+    ExpedienteTesis actualizar(ActualizarExpedienteCommand command);
     void activar(Long id);
     void desactivar(Long id, String motivo);
     void eliminar(Long id);

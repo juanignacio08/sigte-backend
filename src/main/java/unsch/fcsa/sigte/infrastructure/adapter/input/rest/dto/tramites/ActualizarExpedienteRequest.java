@@ -3,10 +3,8 @@ package unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.OffsetDateTime;
-import java.util.List;
 
 public record ActualizarExpedienteRequest(
         @NotBlank(message = "El número de expediente es obligatorio")
@@ -20,9 +18,5 @@ public record ActualizarExpedienteRequest(
         @NotNull(message = "El número de revisión es obligatorio")
         Integer numeroRevision,
 
-        OffsetDateTime fechaIngreso,
-
-        List<Long> idsArchivosAEliminar,
-
-        List<MultipartFile> nuevosArchivos
+        OffsetDateTime fechaIngreso
 ) {}

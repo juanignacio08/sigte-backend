@@ -60,8 +60,8 @@ public class ExpedientePersistenceAdapter implements ExpedienteRepositoryPort {
     }
 
     @Override
-    public boolean existeExpedientePorEtapaYNumeroRevisionActivo(String etapaCodigo, Integer numeroRevision) {
-        return expedienteRepository.existsByEtapaCodigoAndNumeroRevisionAndEstadoAndEliminadoFalse(etapaCodigo, numeroRevision, 1);
+    public boolean existeExpedientePorEtapaYNumeroRevisionActivo(UUID id, String etapaCodigo, Integer numeroRevision) {
+        return expedienteRepository.existsByTesis_IdAndEtapaCodigoAndNumeroRevisionAndEstadoAndEliminadoFalse(id, etapaCodigo, numeroRevision, 1);
     }
 
     @Override

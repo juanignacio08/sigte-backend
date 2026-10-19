@@ -13,6 +13,6 @@ public interface ExpedienteRepositoryPort {
     Optional<ExpedienteDetalleView> obtenerDetallePorId(Long id);
     List<ExpedienteDetalleView> listarPorTesisId(UUID tesisId);
     boolean existeNumeroExpedienteActivo(String numeroExpediente);
-    boolean existeExpedientePorEtapaYNumeroRevisionActivo(String etapaCodigo, Integer numeroRevision);
+    boolean existeExpedientePorEtapaYNumeroRevisionActivo(UUID id, String etapaCodigo, Integer numeroRevision);
     void eliminarExpediente(ExpedienteTesis expediente);
 }

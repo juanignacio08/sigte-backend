@@ -35,10 +35,12 @@ public class ExpedienteTesis {
     }
 
     public void actualizarDatos(
+            String numeroExpediente,
             Integer numeroRevision,
             String etapaCodigo,
             OffsetDateTime fechaIngreso
     ) {
+        setNumeroExpediente(numeroExpediente);
         this.numeroRevision = numeroRevision != null ? numeroRevision : 1;
         setEtapaCodigo(etapaCodigo);
         if (fechaIngreso != null) {

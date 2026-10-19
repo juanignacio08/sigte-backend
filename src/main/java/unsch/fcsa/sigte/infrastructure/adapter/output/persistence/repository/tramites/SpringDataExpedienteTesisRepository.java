@@ -13,7 +13,7 @@ import java.util.UUID;
 public interface SpringDataExpedienteTesisRepository extends JpaRepository<ExpedienteTesisEntity, Long> {
     boolean existsByNumeroExpedienteAndEliminadoFalse(String numeroExpediente);
     boolean existsByNumeroExpedienteAndEstadoAndEliminadoFalse(String numeroExpediente, Integer estado);
-    boolean existsByEtapaCodigoAndNumeroRevisionAndEstadoAndEliminadoFalse(String etapaCodigo, Integer numeroRevision, Integer estado);
+    boolean existsByTesis_IdAndEtapaCodigoAndNumeroRevisionAndEstadoAndEliminadoFalse(UUID id, String etapaCodigo, Integer numeroRevision, Integer estado);
     List<ExpedienteTesisEntity> findByTesisIdAndEliminadoFalse(UUID tesisId);
 
     @EntityGraph(attributePaths = {"archivos"})

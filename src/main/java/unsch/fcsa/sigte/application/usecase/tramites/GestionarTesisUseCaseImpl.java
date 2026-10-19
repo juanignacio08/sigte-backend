@@ -90,7 +90,7 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
                 command.numeroExpediente(),
                 command.etapaTesis() != null ? command.etapaTesis() : TablaMaestraCodigos.ETAPA_TESIS_PROYECTO, // PROYECTO DE TESIS
                 command.numeroRevision() != null ? command.numeroRevision() : 1,
-                OffsetDateTime.now(),
+                command.fechaIngreso(),
                 1,
                 false,
                 null
@@ -99,7 +99,7 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
         List<ExpedienteArchivo> listaArchivos = new ArrayList<>();
 
         try {
-            for (ArchivoSubida archivo : files) {
+            for (ArchivoSubida archivo : Objects.requireNonNull(files)) {
                 String rutaPdf = storagePort.guardarArchivoPdf(
                         archivo,
                         "expedientes"

@@ -1,5 +1,6 @@
 package unsch.fcsa.sigte.application.command.tramites;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,6 +11,7 @@ public record TesisCommand(
         List<Long> estudiantesIds,
         String numeroExpediente,
         String etapaTesis,
+        OffsetDateTime fechaIngreso,
         Integer numeroRevision
 ) {
     public static TesisCommand create(
@@ -18,6 +20,7 @@ public record TesisCommand(
             List<Long> estudiantesIds,
             String numeroExpediente,
             String etapaTesis,
+            OffsetDateTime fechaIngreso,
             Integer numeroRevision
     ) {
         return new TesisCommand(
@@ -27,6 +30,7 @@ public record TesisCommand(
                 estudiantesIds,
                 numeroExpediente,
                 etapaTesis,
+                fechaIngreso,
                 numeroRevision
         );
     }
@@ -37,6 +41,7 @@ public record TesisCommand(
             String titulo,
             List<Long> estudiantesIds,
             String etapaTesis,
+            OffsetDateTime fechaIngreso,
             Integer numeroRevision
     ) {
         return new TesisCommand(
@@ -46,6 +51,7 @@ public record TesisCommand(
                 estudiantesIds,
                 null,
                 etapaTesis,
+                fechaIngreso,
                 numeroRevision
         );
     }

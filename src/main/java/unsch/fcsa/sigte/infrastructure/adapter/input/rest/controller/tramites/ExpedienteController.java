@@ -17,7 +17,6 @@ import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.ResponseGlobalM
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.file.MultipartFileMapper;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.tramites.ExpedienteRestMapper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,20 +52,11 @@ public class ExpedienteController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
-    @PutMapping(
-            value = "/{id}",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+    @PutMapping("/{id}")
     public ResponseEntity<ResponseDTO<Object>> editar(
-            @PathVariable Long id,
-            @Valid @ModelAttribute ActualizarExpedienteRequest request
+            @PathVariable Long id, @RequestBody @Valid ActualizarExpedienteRequest request
     ) {
-        List<ArchivoSubida> archivos = new ArrayList<>();
-        if (request.nuevosArchivos() != null && !request.nuevosArchivos().isEmpty()) {
-            archivos = multipartFileMapper.toArchivosSubida(request.nuevosArchivos());
-        }
-
-        ExpedienteTesis expedienteTesis = gestionarExpedienteUseCase.actualizar(expedienteRestMapper.toUpdate(id, request), archivos);
+        ExpedienteTesis expedienteTesis = gestionarExpedienteUseCase.actualizar(expedienteRestMapper.toUpdate(id, request));
 
         ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(
                 expedienteRestMapper.toResponse(expedienteTesis),

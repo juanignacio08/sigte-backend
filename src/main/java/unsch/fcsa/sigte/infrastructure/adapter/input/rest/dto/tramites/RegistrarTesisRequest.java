@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public record RegistrarTesisRequest(
@@ -27,6 +28,8 @@ public record RegistrarTesisRequest(
         String etapaTesisCodigo,
 
         Integer numeroRevision,
+
+        OffsetDateTime fechaIngreso,
 
         @NotEmpty(message = "Debe proporcionar al menos un archivo pdf")
         @Size(min = 1, max = 5, message = "Se aceptan entre 1 a 5 archivos pdfs")

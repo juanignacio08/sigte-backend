@@ -27,8 +27,7 @@ public class ExpedienteRestMapper {
                 request.numeroExpediente(),
                 request.etapaCodigo(),
                 request.numeroRevision(),
-                request.fechaIngreso(),
-                request.idsArchivosAEliminar()
+                request.fechaIngreso()
         );
     }
 

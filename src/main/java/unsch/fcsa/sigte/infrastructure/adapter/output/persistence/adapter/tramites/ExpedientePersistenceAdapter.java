@@ -65,9 +65,9 @@ public class ExpedientePersistenceAdapter implements ExpedienteRepositoryPort {
     }
 
     @Override
-    public void eliminarExpediente(ExpedienteTesis expediente) {
-        ExpedienteTesisEntity entity = expedienteRepository.findById(expediente.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("ExpedienteTesis", "id", expediente.getId().toString()));
+    public void eliminarExpediente(ExpedienteDetalleView expediente) {
+        ExpedienteTesisEntity entity = expedienteRepository.findById(expediente.id())
+                .orElseThrow(() -> new ResourceNotFoundException("ExpedienteTesis", "id", expediente.id().toString()));
 
         expedienteRepository.delete(entity);
     }

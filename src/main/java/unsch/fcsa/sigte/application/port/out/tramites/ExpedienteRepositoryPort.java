@@ -14,5 +14,5 @@ public interface ExpedienteRepositoryPort {
     List<ExpedienteDetalleView> listarPorTesisId(UUID tesisId);
     boolean existeNumeroExpedienteActivo(String numeroExpediente);
     boolean existeExpedientePorEtapaYNumeroRevisionActivo(UUID id, String etapaCodigo, Integer numeroRevision);
-    void eliminarExpediente(ExpedienteTesis expediente);
+    void eliminarExpediente(ExpedienteDetalleView expediente);
 }

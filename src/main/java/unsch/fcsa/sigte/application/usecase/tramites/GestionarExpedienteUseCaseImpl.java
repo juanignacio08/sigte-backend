@@ -9,6 +9,7 @@ import unsch.fcsa.sigte.application.port.in.tramites.GestionarExpedienteUseCase;
 import unsch.fcsa.sigte.application.port.out.storage.StoragePort;
 import unsch.fcsa.sigte.application.port.out.tramites.ExpedienteRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.tramites.TesisRepositoryPort;
+import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteArchivoDetalleView;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteDetalleView;
 import unsch.fcsa.sigte.domain.exception.BusinessRuleException;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
@@ -184,20 +185,22 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
         //     throw new BusinessRuleException("No se puede eliminar un expediente que ya cuenta con revisiones.");
         // }
 
-        ExpedienteTesis expediente = expedienteRepositoryPort.buscarPorId(id)
+        ExpedienteDetalleView expediente = expedienteRepositoryPort.obtenerDetallePorId(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ExpedienteTesis", "id", id.toString()));
 
-        if (expediente.getArchivos() != null && !expediente.getArchivos().isEmpty()) {
-            for (ExpedienteArchivo archivo : expediente.getArchivos()) {
+        if (expediente.archivos() != null && !expediente.archivos().isEmpty()) {
+            for (ExpedienteArchivoDetalleView archivo : expediente.archivos()) {
                 try {
-                    storagePort.eliminarArchivo(archivo.getArchivoUrl());
+                    storagePort.eliminarArchivo(archivo.archivoUrl());
                 } catch (Exception e) {
-                    log.warn("Error al eliminar archivo. [{}]", archivo.getArchivoUrl());
+                    log.warn("Error al eliminar archivo. [{}]", archivo.archivoUrl(), e);
                 }
             }
         }
 
-        expediente.getArchivos().clear();
+        if (expediente.archivos() != null) {
+            expediente.archivos().clear();
+        }
 
         expedienteRepositoryPort.eliminarExpediente(expediente);
     }

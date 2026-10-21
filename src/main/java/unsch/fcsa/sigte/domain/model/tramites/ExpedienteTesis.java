@@ -14,6 +14,7 @@ public class ExpedienteTesis {
     private String etapaCodigo;
     private Integer numeroRevision;
     private OffsetDateTime fechaIngreso;
+    private String motivoBaja;
     private Integer estado;
     private Boolean eliminado;
 
@@ -21,7 +22,7 @@ public class ExpedienteTesis {
 
     public ExpedienteTesis(Long id, java.util.UUID tesisId, String numeroExpediente, String etapaCodigo,
                            Integer numeroRevision, OffsetDateTime fechaIngreso,
-                           Integer estado, Boolean eliminado) {
+                           Integer estado, Boolean eliminado, String motivoBaja) {
         this.id = id;
         this.tesisId = tesisId;
         setNumeroExpediente(numeroExpediente);
@@ -30,6 +31,36 @@ public class ExpedienteTesis {
         this.fechaIngreso = fechaIngreso != null ? fechaIngreso : OffsetDateTime.now();
         this.estado = estado != null ? estado : 1;
         this.eliminado = eliminado != null && eliminado;
+        this.motivoBaja = motivoBaja;
+    }
+
+    public void actualizarDatos(
+            String numeroExpediente,
+            Integer numeroRevision,
+            String etapaCodigo,
+            OffsetDateTime fechaIngreso
+    ) {
+        setNumeroExpediente(numeroExpediente);
+        this.numeroRevision = numeroRevision != null ? numeroRevision : 1;
+        setEtapaCodigo(etapaCodigo);
+        if (fechaIngreso != null) {
+            this.fechaIngreso = fechaIngreso;
+        }
+    }
+
+    public void activar() {
+        this.motivoBaja = "Se volvio a activar";
+        this.estado = 1;
+    }
+
+    public void desactivar(String motivoBaja) {
+        this.motivoBaja = motivoBaja;
+        this.estado = 0;
+    }
+
+    public void marcarComoEliminado() {
+        this.eliminado = true;
+        this.estado = 0;
     }
 
     private void setNumeroExpediente(String numeroExpediente) {
@@ -60,6 +91,7 @@ public class ExpedienteTesis {
     public String getEtapaCodigo() { return etapaCodigo; }
     public Integer getNumeroRevision() { return numeroRevision; }
     public OffsetDateTime getFechaIngreso() { return fechaIngreso; }
+    public String getMotivoBaja() { return motivoBaja; }
     public Integer getEstado() { return estado; }
     public Boolean isEliminado() { return eliminado; }
     public List<ExpedienteArchivo> getArchivos() { return archivos; }

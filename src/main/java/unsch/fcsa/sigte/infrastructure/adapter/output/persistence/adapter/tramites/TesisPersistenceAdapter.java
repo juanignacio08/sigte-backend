@@ -76,4 +76,9 @@ public class TesisPersistenceAdapter implements TesisRepositoryPort {
     public boolean estudianteTieneTesisActiva(Long estudianteId) {
         return tesisAutorRepository.existsByEstudiante_IdAndEliminadoFalse(estudianteId);
     }
+
+    @Override
+    public boolean existePorId(UUID id) {
+        return tesisRepository.existsById(id);
+    }
 }

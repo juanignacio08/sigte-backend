@@ -22,6 +22,7 @@ public class TesisRestMapper {
                 request.estudiantesIds(),
                 request.numeroExpediente(),
                 request.etapaTesisCodigo(),
+                request.fechaIngreso(),
                 request.numeroRevision()
         );
     }

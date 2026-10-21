@@ -63,12 +63,10 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
             }
         }
 
-        if (files == null || files.isEmpty()) {
-            throw new BusinessRuleException("Debe adjuntar al menos un archivo PDF al expediente.");
-        }
-
-        if (files.size() > 5) {
-            throw new BusinessRuleException("No puede adjuntar más de 5 archivos PDF por expediente.");
+        if (files != null && !files.isEmpty()) {
+            if (files.size() > 5) {
+                throw new BusinessRuleException("No puede adjuntar más de 5 archivos PDF por expediente.");
+            }
         }
 
         Tesis tesis = new Tesis(
@@ -92,18 +90,19 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
                 command.numeroExpediente(),
                 command.etapaTesis() != null ? command.etapaTesis() : TablaMaestraCodigos.ETAPA_TESIS_PROYECTO, // PROYECTO DE TESIS
                 command.numeroRevision() != null ? command.numeroRevision() : 1,
-                OffsetDateTime.now(),
+                command.fechaIngreso(),
                 1,
-                false
+                false,
+                null
         );
 
         List<ExpedienteArchivo> listaArchivos = new ArrayList<>();
 
         try {
-            for (ArchivoSubida archivo : files) {
+            for (ArchivoSubida archivo : Objects.requireNonNull(files)) {
                 String rutaPdf = storagePort.guardarArchivoPdf(
                         archivo,
-                        "expedientes/".concat(command.escuelaId().toString())
+                        "expedientes"
                 );
 
                 ExpedienteArchivo expedienteArchivo = new ExpedienteArchivo(

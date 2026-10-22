@@ -41,7 +41,7 @@ public class ExpedienteController {
 
         List<ArchivoSubida> archivos = multipartFileMapper.toArchivosSubida(request.archivos());
 
-        ExpedienteTesis expedienteTesis = gestionarExpedienteUseCase.registrar(expedienteRestMapper.toCreate(request), archivos);
+        ExpedienteTesis expedienteTesis = gestionarExpedienteUseCase.registrar(expedienteRestMapper.toCreate(request), archivos, true);
 
         ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(
                 expedienteRestMapper.toResponse(expedienteTesis),

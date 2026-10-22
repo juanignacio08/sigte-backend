@@ -19,14 +19,14 @@ public interface SpringDataTesisRepository extends JpaRepository<TesisEntity, UU
 
     @Override
     @Nonnull
-    @EntityGraph(attributePaths = {"escuela", "autores", "autores.estudiante", "expedientes"})
+    @EntityGraph(attributePaths = {"escuela", "autores", "autores.estudiante"})
     Page<TesisEntity> findAll(
             Specification<TesisEntity> spec,
             @NonNull Pageable pageable
     );
 
-    @EntityGraph(attributePaths = {"escuela", "autores", "autores.estudiante", "expedientes"})
+    @EntityGraph(attributePaths = {"escuela", "autores", "autores.estudiante"})
     Optional<TesisEntity> findByIdAndEliminadoFalse(UUID id);
 
-    boolean existsById(UUID id);
+    boolean existsById(@NonNull UUID id);
 }

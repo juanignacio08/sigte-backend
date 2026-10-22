@@ -13,8 +13,7 @@ public record TesisDetalleView(
         String estadoCodigo,
         String estadoDenominacion,
         OffsetDateTime fechaRegistro,
-        List<AutorView> autores,
-        ExpedienteView expedienteActivo
+        List<AutorView> autores
 ) {
     public record AutorView(
             Long id,

@@ -39,12 +39,12 @@ public class TesisRestMapper {
         }
 
         TesisResponse.ExpedienteTesisResponse expedienteTesis = null;
-        if (domain.getExpedientes() != null && !domain.getExpedientes().isEmpty()) {
+        /*if (domain.getExpedientes() != null && !domain.getExpedientes().isEmpty()) {
             expedienteTesis = domain.getExpedientes().stream()
                     .max(Comparator.comparing(ExpedienteTesis::getFechaIngreso))
                     .map(this::toExpedienteTesisResponse)
                     .orElse(null);
-        }
+        }*/
 
         return TesisResponse.builder()
                 .id(domain.getId())
@@ -54,7 +54,7 @@ public class TesisRestMapper {
                 .estadoCodigo(domain.getEstadoCodigo())
                 .fechaRegistro(domain.getFechaRegistro())
                 .autores(autores)
-                .expedienteActivo(expedienteTesis)
+                //.expedienteActivo(expedienteTesis)
                 .build();
     }
 
@@ -69,7 +69,7 @@ public class TesisRestMapper {
                     .toList();
         }
 
-        TesisResponse.ExpedienteTesisResponse expedienteTesis = toExpedienteTesisResponseDetail(domain.expedienteActivo());
+        //TesisResponse.ExpedienteTesisResponse expedienteTesis = toExpedienteTesisResponseDetail(domain.expedienteActivo());
 
         return TesisResponse.builder()
                 .id(domain.id())
@@ -81,7 +81,7 @@ public class TesisRestMapper {
                 .estadoDenominacion(domain.estadoDenominacion())
                 .fechaRegistro(domain.fechaRegistro())
                 .autores(autores)
-                .expedienteActivo(expedienteTesis)
+                //.expedienteActivo(expedienteTesis)
                 .build();
     }
 

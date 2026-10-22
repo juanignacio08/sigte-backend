@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface GestionarExpedienteUseCase {
-    ExpedienteTesis registrar(RegistrarExpedienteCommand command, List<ArchivoSubida> archivos);
+    ExpedienteTesis registrar(RegistrarExpedienteCommand command, List<ArchivoSubida> archivos, boolean validarTesisExistente);
     ExpedienteTesis actualizar(ActualizarExpedienteCommand command);
     void activar(Long id);
     void desactivar(Long id, String motivo);

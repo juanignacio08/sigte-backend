@@ -1,5 +1,6 @@
 package unsch.fcsa.sigte.infrastructure.adapter.output.persistence.adapter.tramites;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,6 +13,9 @@ import unsch.fcsa.sigte.application.command.tramites.TesisFiltro;
 import unsch.fcsa.sigte.application.port.out.tramites.TesisRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.TesisDetalleView;
 import unsch.fcsa.sigte.domain.model.tramites.Tesis;
+import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.maestro.EscuelaEntity;
+import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.personas.EstudianteEntity;
+import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.tramites.TesisAutorEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.tramites.TesisEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.mapper.tramites.TesisPersistenceMapper;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.repository.tramites.SpringDataExpedienteTesisRepository;
@@ -30,10 +34,13 @@ public class TesisPersistenceAdapter implements TesisRepositoryPort {
     private final SpringDataTesisAutorRepository tesisAutorRepository;
     private final SpringDataExpedienteTesisRepository expedienteTesisRepository;
     private final TesisPersistenceMapper mapper;
+    private final EntityManager entityManager;
 
     @Override
     public Tesis guardar(Tesis tesis) {
+        EscuelaEntity escuela = entityManager.getReference(EscuelaEntity.class, tesis.getEscuelaId());
         TesisEntity entity = mapper.toEntity(tesis);
+        entity.setEscuela(escuela);
         TesisEntity saved = tesisRepository.save(entity);
         return mapper.toDomain(saved);
     }

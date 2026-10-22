@@ -10,8 +10,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "expediente_tesis", schema = "tramites")
@@ -67,7 +65,4 @@ public class ExpedienteTesisEntity {
     @Column(nullable = false)
     private Boolean eliminado;
 
-    @OneToMany(mappedBy = "expedienteTesis", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<ExpedienteArchivoEntity> archivos = new ArrayList<>();
 }

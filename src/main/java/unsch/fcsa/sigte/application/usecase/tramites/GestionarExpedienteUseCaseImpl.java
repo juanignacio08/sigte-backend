@@ -7,6 +7,7 @@ import unsch.fcsa.sigte.application.command.tramites.ActualizarExpedienteCommand
 import unsch.fcsa.sigte.application.command.tramites.RegistrarExpedienteCommand;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarExpedienteUseCase;
 import unsch.fcsa.sigte.application.port.out.storage.StoragePort;
+import unsch.fcsa.sigte.application.port.out.tramites.ExpedienteArchivoRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.tramites.ExpedienteRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.tramites.TesisRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteArchivoDetalleView;
@@ -25,22 +26,26 @@ import java.util.UUID;
 public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCase {
 
     private final ExpedienteRepositoryPort expedienteRepositoryPort;
+    private final ExpedienteArchivoRepositoryPort expedienteArchivoRepositoryPort;
     private final TesisRepositoryPort tesisRepositoryPort;
     private final StoragePort storagePort;
 
     public GestionarExpedienteUseCaseImpl(ExpedienteRepositoryPort expedienteRepositoryPort,
+                                          ExpedienteArchivoRepositoryPort expedienteArchivoRepositoryPort,
                                           TesisRepositoryPort tesisRepositoryPort,
                                           StoragePort storagePort) {
         this.expedienteRepositoryPort = expedienteRepositoryPort;
+        this.expedienteArchivoRepositoryPort = expedienteArchivoRepositoryPort;
         this.tesisRepositoryPort = tesisRepositoryPort;
         this.storagePort = storagePort;
     }
 
     @Override
-    public ExpedienteTesis registrar(RegistrarExpedienteCommand command, List<ArchivoSubida> archivos) {
+    @Transactional
+    public ExpedienteTesis registrar(RegistrarExpedienteCommand command, List<ArchivoSubida> archivos, boolean validarTesisExistente) {
         log.info("Registrando un nuevo expediente para una tesis. [ TESIS : {} ]", command.toString());
         // 1. Validar que la tesis exista
-        if (!tesisRepositoryPort.existePorId(command.tesisId())) {
+        if (validarTesisExistente && !tesisRepositoryPort.existePorId(command.tesisId())) {
             throw new ResourceNotFoundException("Tesis", "id", command.tesisId().toString());
         }
 
@@ -50,7 +55,7 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
         }
 
         // 3. Validar que no exista un expediente activo con el mismo número de revision en una misma etapa
-        if (expedienteRepositoryPort.existeExpedientePorEtapaYNumeroRevisionActivo(command.tesisId(), command.etapaCodigo(), command.numeroRevision())) {
+        if (validarTesisExistente && expedienteRepositoryPort.existeExpedientePorEtapaYNumeroRevisionActivo(command.tesisId(), command.etapaCodigo(), command.numeroRevision())) {
             throw new BusinessRuleException("Ya existe un expediente con la misma etapa y número de revisión");
         }
 
@@ -60,6 +65,12 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
 
         if (archivos.size() > 5) {
             throw new BusinessRuleException("No puede adjuntar más de 5 archivos PDF por expediente.");
+        }
+
+        for (ArchivoSubida archivo : archivos) {
+            if (!archivo.esPdf()) {
+                throw new BusinessRuleException("Solo se permiten archivos con formato PDF.");
+            }
         }
 
         List<String> archivosSubidosRutas = new ArrayList<>();
@@ -76,11 +87,10 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
                     null
             );
 
+            ExpedienteTesis guardado = expedienteRepositoryPort.guardar(expediente);
+
             List<ExpedienteArchivo> archivosDominio = new ArrayList<>();
             for (ArchivoSubida archivo : archivos) {
-                if (!archivo.esPdf()) {
-                    throw new BusinessRuleException("Solo se permiten archivos con formato PDF.");
-                }
                 String rutaRelativa = storagePort.guardarArchivoPdf(
                         archivo,
                         "expedientes"
@@ -90,7 +100,7 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
 
                 ExpedienteArchivo archivoDom = new ExpedienteArchivo(
                         null,
-                        null,
+                        guardado.getId(),
                         archivo.nombreOriginal(),
                         rutaRelativa,
                         archivo.tamanioBytes(),
@@ -100,9 +110,9 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
                 archivosDominio.add(archivoDom);
             }
 
-            expediente.setArchivos(archivosDominio);
+            expedienteArchivoRepositoryPort.guardarTodos(archivosDominio);
 
-            return expedienteRepositoryPort.guardar(expediente);
+            return guardado;
 
         } catch (Exception e) {
             // Rollback de archivos físicos en disco si falla la transacción/BD
@@ -188,8 +198,8 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
         ExpedienteDetalleView expediente = expedienteRepositoryPort.obtenerDetallePorId(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ExpedienteTesis", "id", id.toString()));
 
-        if (expediente.archivos() != null && !expediente.archivos().isEmpty()) {
-            for (ExpedienteArchivoDetalleView archivo : expediente.archivos()) {
+        if (expediente.getArchivos() != null && !expediente.getArchivos().isEmpty()) {
+            for (ExpedienteArchivoDetalleView archivo : expediente.getArchivos()) {
                 try {
                     storagePort.eliminarArchivo(archivo.archivoUrl());
                 } catch (Exception e) {
@@ -198,8 +208,8 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
             }
         }
 
-        if (expediente.archivos() != null) {
-            expediente.archivos().clear();
+        if (expediente.getArchivos() != null) {
+            expediente.getArchivos().clear();
         }
 
         expedienteRepositoryPort.eliminarExpediente(expediente);
@@ -214,7 +224,26 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
     @Override
     public ExpedienteDetalleView obtenerPorId(Long id) {
         log.info("Obteniendo a detalle un expediente. [ EXPEDIENTE : {} ]", id.toString());
-        return expedienteRepositoryPort.obtenerDetallePorId(id)
+        ExpedienteDetalleView detalleView = expedienteRepositoryPort.obtenerDetallePorId(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Expediente", "id", id));
+
+        List<ExpedienteArchivoDetalleView> archivoDetalleViews = expedienteArchivoRepositoryPort.obtenerPorExpediente(detalleView.getId())
+                .stream()
+                .map(this::toDetailView)
+                .toList();
+
+        detalleView.setArchivos(archivoDetalleViews);
+
+        return detalleView;
+    }
+
+    private ExpedienteArchivoDetalleView toDetailView(ExpedienteArchivo expediente) {
+        if (expediente == null) {return null;}
+        return ExpedienteArchivoDetalleView.builder()
+                .id(expediente.getId())
+                .nombreArchivo(expediente.getNombreArchivo())
+                .archivoUrl(expediente.getArchivoUrl())
+                .tamanioBytes(expediente.getTamanioBytes())
+                .build();
     }
 }

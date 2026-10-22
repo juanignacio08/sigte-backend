@@ -2,19 +2,13 @@ package unsch.fcsa.sigte.infrastructure.adapter.output.persistence.mapper.tramit
 
 import org.springframework.stereotype.Component;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.TesisDetalleView;
-import unsch.fcsa.sigte.domain.model.tramites.ExpedienteArchivo;
-import unsch.fcsa.sigte.domain.model.tramites.ExpedienteTesis;
 import unsch.fcsa.sigte.domain.model.tramites.Tesis;
 import unsch.fcsa.sigte.domain.model.tramites.TesisAutor;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.adapter.maestro.MaestroPersistenceAdapter;
-import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.maestro.EscuelaEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.personas.EstudianteEntity;
-import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.tramites.ExpedienteArchivoEntity;
-import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.tramites.ExpedienteTesisEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.tramites.TesisAutorEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.tramites.TesisEntity;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,41 +43,14 @@ public class TesisPersistenceMapper {
             tesis.setAutores(autores);
         }
 
-        if (entity.getExpedientes() != null) {
-            List<ExpedienteTesis> expedientes = entity.getExpedientes().stream()
-                    .map(e -> {
-                        ExpedienteTesis exp = new ExpedienteTesis(
-                                e.getId(), entity.getId(), e.getNumeroExpediente(),
-                                e.getEtapaCodigo(), e.getNumeroRevision(),
-                                e.getFechaIngreso(), e.getEstado(), e.getEliminado(), e.getMotivoBaja());
-
-                        if (e.getArchivos() != null) {
-                            List<ExpedienteArchivo> archivos = e.getArchivos().stream()
-                                    .map(a -> new ExpedienteArchivo(
-                                            a.getId(), e.getId(), a.getNombreArchivo(),
-                                            a.getArchivoUrl(), a.getTamanioBytes(),
-                                            a.getEstado(), a.getEliminado()
-                                    )).toList();
-                            exp.setArchivos(archivos);
-                        }
-
-                        return exp;
-                    })
-                    .toList();
-            tesis.setExpedientes(expedientes);
-        }
-
         return tesis;
     }
 
     public TesisEntity toEntity(Tesis domain) {
         if (domain == null) return null;
 
-        EscuelaEntity escuela = EscuelaEntity.builder().id(domain.getEscuelaId()).build();
-
         TesisEntity entity = TesisEntity.builder()
                 .id(domain.getId())
-                .escuela(escuela)
                 .titulo(domain.getTitulo())
                 .tituloDictaminado(domain.getTituloDictaminado())
                 .estadoCodigo(domain.getEstadoCodigo())
@@ -104,42 +71,6 @@ public class TesisPersistenceMapper {
                             .build())
                     .collect(Collectors.toSet());
             entity.setAutores(autorEntities);
-        }
-
-        if (domain.getExpedientes() != null) {
-            Set<ExpedienteTesisEntity> expEntities = domain.getExpedientes().stream()
-                    .map(e -> {
-                        ExpedienteTesisEntity expEntity = ExpedienteTesisEntity.builder()
-                                .id(e.getId())
-                                .tesis(entity)
-                                .numeroExpediente(e.getNumeroExpediente())
-                                .etapaCodigo(e.getEtapaCodigo())
-                                .numeroRevision(e.getNumeroRevision())
-                                .fechaIngreso(e.getFechaIngreso())
-                                .estado(e.getEstado())
-                                .eliminado(e.isEliminado())
-                                .build();
-
-                        if (e.getArchivos() != null) {
-                            List<ExpedienteArchivoEntity> archivoEntities = e.getArchivos().stream()
-                                    .map(arch -> ExpedienteArchivoEntity.builder()
-                                            .id(arch.getId())
-                                            .expedienteTesis(expEntity)
-                                            .nombreArchivo(arch.getNombreArchivo())
-                                            .archivoUrl(arch.getArchivoUrl())
-                                            .tamanioBytes(arch.getTamanioBytes())
-                                            .estado(arch.getEstado())
-                                            .eliminado(arch.isEliminado())
-                                            .build())
-                                    .toList();
-
-                            expEntity.setArchivos(archivoEntities);
-                        }
-
-                        return expEntity;
-                    })
-                    .collect(Collectors.toSet());
-            entity.setExpedientes(expEntities);
         }
 
         return entity;
@@ -164,26 +95,6 @@ public class TesisPersistenceMapper {
                         a.getEstado()
                 )).toList();
 
-        ExpedienteTesisEntity expActivo = entity.getExpedientes().stream()
-                .max(Comparator.comparing(ExpedienteTesisEntity::getFechaIngreso))
-                .orElse(null);
-
-        TesisDetalleView.ExpedienteView expedienteView = null;
-        if (expActivo != null) {
-            String etapaDenom = maestroAdapter.getItemByCode(expActivo.getEtapaCodigo()) != null ?
-                    maestroAdapter.getItemByCode(expActivo.getEtapaCodigo()).getDenominacion() : "NO REGISTRADO";
-
-            expedienteView = new TesisDetalleView.ExpedienteView(
-                    expActivo.getId(),
-                    expActivo.getNumeroExpediente(),
-                    expActivo.getEtapaCodigo(),
-                    etapaDenom,
-                    expActivo.getNumeroRevision(),
-                    expActivo.getFechaIngreso(),
-                    expActivo.getEstado()
-            );
-        }
-
         return new TesisDetalleView(
                 entity.getId(),
                 entity.getEscuela().getId(),
@@ -193,8 +104,7 @@ public class TesisPersistenceMapper {
                 entity.getEstadoCodigo(),
                 estadoDenom,
                 entity.getFechaRegistro(),
-                autoresView,
-                expedienteView
+                autoresView
         );
     }
 }

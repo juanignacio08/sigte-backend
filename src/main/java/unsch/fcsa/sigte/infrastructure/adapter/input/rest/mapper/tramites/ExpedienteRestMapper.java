@@ -49,14 +49,14 @@ public class ExpedienteRestMapper {
         if (domain == null) return null;
 
         return ExpedienteResponse.builder()
-                .id(domain.id())
-                .tesisId(domain.tesisId())
-                .numeroExpediente(domain.numeroExpediente())
-                .etapaCodigo(domain.etapaCodigo())
-                .etapaDenominacion(domain.etapaDenominacion())
-                .numRevision(domain.numeroRevision())
-                .fechaAsociacion(domain.fechaIngreso())
-                .estado(domain.estado())
+                .id(domain.getId())
+                .tesisId(domain.getTesisId())
+                .numeroExpediente(domain.getNumeroExpediente())
+                .etapaCodigo(domain.getEtapaCodigo())
+                .etapaDenominacion(domain.getEtapaDenominacion())
+                .numRevision(domain.getNumeroRevision())
+                .fechaAsociacion(domain.getFechaIngreso())
+                .estado(domain.getEstado())
                 .build();
     }
 
@@ -64,15 +64,15 @@ public class ExpedienteRestMapper {
         if (domain == null) return null;
 
         return ExpedienteResponse.builder()
-                .id(domain.id())
-                .tesisId(domain.tesisId())
-                .numeroExpediente(domain.numeroExpediente())
-                .etapaCodigo(domain.etapaCodigo())
-                .etapaDenominacion(domain.etapaDenominacion())
-                .numRevision(domain.numeroRevision())
-                .fechaAsociacion(domain.fechaIngreso())
-                .estado(domain.estado())
-                .archivos(domain.archivos())
+                .id(domain.getId())
+                .tesisId(domain.getTesisId())
+                .numeroExpediente(domain.getNumeroExpediente())
+                .etapaCodigo(domain.getEtapaCodigo())
+                .etapaDenominacion(domain.getEtapaDenominacion())
+                .numRevision(domain.getNumeroRevision())
+                .fechaAsociacion(domain.getFechaIngreso())
+                .estado(domain.getEstado())
+                .archivos(domain.getArchivos())
                 .build();
     }
 

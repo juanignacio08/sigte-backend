@@ -20,6 +20,7 @@ import unsch.fcsa.sigte.domain.model.tramites.ExpedienteTesis;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -235,6 +236,19 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
         detalleView.setArchivos(archivoDetalleViews);
 
         return detalleView;
+    }
+
+    @Override
+    public ExpedienteDetalleView obtenerUltimoExpedienteTesisActivo(UUID tesisId) {
+        log.info("Obteniendo ultimo detalle de expediente. [ EXPEDIENTE : {} ]", tesisId.toString());
+
+        return expedienteRepositoryPort.obtenerDetalleUltimoExpedienteDeTesis(tesisId)
+                .orElseThrow(() -> new ResourceNotFoundException("Expediente", "id", tesisId.toString()));
+    }
+
+    @Override
+    public Map<UUID, ExpedienteDetalleView> obtenerUltimosExpedientes(List<UUID> tesisIds) {
+        return expedienteRepositoryPort.buscarUltimosExpedientesPorTesisIds(tesisIds);
     }
 
     private ExpedienteArchivoDetalleView toDetailView(ExpedienteArchivo expediente) {

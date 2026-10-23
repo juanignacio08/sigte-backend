@@ -7,6 +7,7 @@ import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteDetalleView;
 import unsch.fcsa.sigte.domain.model.tramites.ExpedienteTesis;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public interface GestionarExpedienteUseCase {
@@ -17,4 +18,6 @@ public interface GestionarExpedienteUseCase {
     void eliminar(Long id);
     List<ExpedienteDetalleView> listarPorTesis(UUID tesisId);
     ExpedienteDetalleView obtenerPorId(Long id);
+    ExpedienteDetalleView obtenerUltimoExpedienteTesisActivo(UUID tesisId);
+    Map<UUID, ExpedienteDetalleView> obtenerUltimosExpedientes(List<UUID> tesisIds);
 }

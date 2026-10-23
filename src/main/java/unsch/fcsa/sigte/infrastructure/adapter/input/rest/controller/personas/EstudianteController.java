@@ -59,7 +59,7 @@ public class EstudianteController {
 
         PageResult<EstudianteDetalleView> result = gestionarEstudianteUseCase.listarPorFiltros(filtro, page, size);
 
-        List<EstudianteResponse> list = result.content().stream()
+        List<EstudianteResponse> list = result.getContent().stream()
                 .map(restMapper::fromViewToResponse)
                 .toList();
 

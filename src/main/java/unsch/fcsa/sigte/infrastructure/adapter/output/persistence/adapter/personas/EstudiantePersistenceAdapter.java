@@ -79,13 +79,13 @@ public class EstudiantePersistenceAdapter implements EstudianteRepositoryPort {
                 .toList();
 
         return new PageResult<>(
-                list,
                 estudiantePage.getNumber(),
                 estudiantePage.getSize(),
                 estudiantePage.getTotalElements(),
                 estudiantePage.getTotalPages(),
                 estudiantePage.isFirst(),
-                estudiantePage.isLast()
+                estudiantePage.isLast(),
+                list
         );
     }
 }

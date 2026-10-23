@@ -14,11 +14,8 @@ import unsch.fcsa.sigte.application.port.out.tramites.TesisRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.TesisDetalleView;
 import unsch.fcsa.sigte.domain.model.tramites.Tesis;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.maestro.EscuelaEntity;
-import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.personas.EstudianteEntity;
-import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.tramites.TesisAutorEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.tramites.TesisEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.mapper.tramites.TesisPersistenceMapper;
-import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.repository.tramites.SpringDataExpedienteTesisRepository;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.repository.tramites.SpringDataTesisAutorRepository;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.repository.tramites.SpringDataTesisRepository;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.repository.tramites.spec.TesisSpecification;
@@ -32,7 +29,6 @@ public class TesisPersistenceAdapter implements TesisRepositoryPort {
 
     private final SpringDataTesisRepository tesisRepository;
     private final SpringDataTesisAutorRepository tesisAutorRepository;
-    private final SpringDataExpedienteTesisRepository expedienteTesisRepository;
     private final TesisPersistenceMapper mapper;
     private final EntityManager entityManager;
 
@@ -64,19 +60,14 @@ public class TesisPersistenceAdapter implements TesisRepositoryPort {
                 .toList();
 
         return new PageResult<>(
-                list,
                 tesisPage.getNumber(),
                 tesisPage.getSize(),
                 tesisPage.getTotalElements(),
                 tesisPage.getTotalPages(),
                 tesisPage.isFirst(),
-                tesisPage.isLast()
+                tesisPage.isLast(),
+                list
         );
-    }
-
-    @Override
-    public boolean existeExpedientePorNumero(String numeroExpediente) {
-        return expedienteTesisRepository.existsByNumeroExpedienteAndEliminadoFalse(numeroExpediente);
     }
 
     @Override

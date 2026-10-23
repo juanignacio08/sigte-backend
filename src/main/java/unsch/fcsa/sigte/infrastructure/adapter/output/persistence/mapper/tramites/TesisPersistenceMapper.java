@@ -1,6 +1,7 @@
 package unsch.fcsa.sigte.infrastructure.adapter.output.persistence.mapper.tramites;
 
 import org.springframework.stereotype.Component;
+import unsch.fcsa.sigte.application.port.out.tramites.dto.AutorView;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.TesisDetalleView;
 import unsch.fcsa.sigte.domain.model.tramites.Tesis;
 import unsch.fcsa.sigte.domain.model.tramites.TesisAutor;
@@ -82,8 +83,8 @@ public class TesisPersistenceMapper {
         String estadoDenom = maestroAdapter.getItemByCode(entity.getEstadoCodigo()) != null ?
                 maestroAdapter.getItemByCode(entity.getEstadoCodigo()).getDenominacion() : "NO REGISTRADO";
 
-        List<TesisDetalleView.AutorView> autoresView = entity.getAutores().stream()
-                .map(a -> new TesisDetalleView.AutorView(
+        List<AutorView> autoresView = entity.getAutores().stream()
+                .map(a -> new AutorView(
                         a.getId(),
                         a.getEstudiante().getId(),
                         a.getEstudiante().getNumeroDocumento(),

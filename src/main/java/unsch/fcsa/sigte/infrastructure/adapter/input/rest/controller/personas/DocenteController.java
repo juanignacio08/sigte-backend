@@ -53,7 +53,7 @@ public class DocenteController {
         PageResult<DocenteDetalleView> result =
                 gestionarDocenteUseCase.listarPorFiltros(filtro, page, size);
 
-        List<DocenteResponse> list = result.content().stream()
+        List<DocenteResponse> list = result.getContent().stream()
                 .map(restMapper::fromDocenteViewToResponse).toList();
 
         return ResponseEntity.ok(ResponseGlobalMapper.buildPaginated(result, list, "Listado de Docentes"));

@@ -12,6 +12,7 @@ import unsch.fcsa.sigte.application.port.in.tramites.GestionarTesisUseCase;
 import unsch.fcsa.sigte.application.port.out.maestro.EscuelaProfesionalRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.personas.EstudianteRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.tramites.TesisRepositoryPort;
+import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteDetalleView;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.TesisDetalleView;
 import unsch.fcsa.sigte.domain.exception.BusinessRuleException;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
@@ -100,6 +101,10 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
         if (detalle == null) {
             throw new ResourceNotFoundException("Tesis", "id", id);
         }
+
+        ExpedienteDetalleView expedienteActual = gestionarExpedienteUseCase.obtenerUltimoExpedienteTesisActivo(detalle.getId());
+        detalle.setExpedienteActual(expedienteActual);
+
         return detalle;
     }
 
@@ -107,7 +112,23 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
     public PageResult<TesisDetalleView> listarPorFiltros(TesisFiltro filtro, int page, int size) {
         log.info("Listando tesis por un filtro");
 
-        return tesisRepositoryPort.listarPorFiltros(filtro, page, size);
+        PageResult<TesisDetalleView> pageResult = tesisRepositoryPort.listarPorFiltros(filtro, page, size);
+
+        if (pageResult.getContent() != null && !pageResult.getContent().isEmpty()) {
+
+            List<UUID> tesisIds = pageResult.getContent().stream()
+                    .map(TesisDetalleView::getId)
+                    .toList();
+
+            Map<UUID, ExpedienteDetalleView> ultimosExpedientes = gestionarExpedienteUseCase.obtenerUltimosExpedientes(tesisIds);
+
+            pageResult.getContent().forEach(tesis ->
+                    tesis.setExpedienteActual(ultimosExpedientes.get(tesis.getId()))
+            );
+
+        }
+
+        return pageResult;
     }
 
     private void validarListaEstudiantes(List<Long> estudiantesIds) {

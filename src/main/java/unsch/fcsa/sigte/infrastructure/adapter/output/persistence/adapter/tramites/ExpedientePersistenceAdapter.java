@@ -12,6 +12,7 @@ import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.mapper.tramite
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.repository.tramites.SpringDataExpedienteTesisRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -54,10 +55,33 @@ public class ExpedientePersistenceAdapter implements ExpedienteRepositoryPort {
     }
 
     @Override
+    public Optional<ExpedienteDetalleView> obtenerDetalleUltimoExpedienteDeTesis(UUID tesisId) {
+        return expedienteRepository.obtenerUltimoExpedienteDeTesis(tesisId)
+                .map(mapper::toDetalleViewWithMasterTable);
+    }
+
+    @Override
     public List<ExpedienteDetalleView> listarPorTesisId(UUID tesisId) {
         return expedienteRepository.findByTesisIdAndEliminadoFalse(tesisId).stream()
                 .map(mapper::toDetalleViewWithMasterTable)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<UUID, ExpedienteDetalleView> buscarUltimosExpedientesPorTesisIds(List<UUID> tesisIds) {
+        if (tesisIds == null || tesisIds.isEmpty()) {
+            return Map.of();
+        }
+
+        List<ExpedienteTesisEntity> expedientes = expedienteRepository
+                .findExpedientesPorTesisIds(tesisIds);
+
+        return expedientes.stream()
+                .collect(Collectors.toMap(
+                        e -> e.getTesis().getId(),
+                        mapper::toDetalleViewWithMasterTable,
+                        (primero, duplicado) -> primero  // ⬅ el primero gana (el más reciente)
+                ));
     }
 
     @Override

@@ -69,8 +69,4 @@ public class TesisEntity {
     @Builder.Default
     private Set<TesisAutorEntity> autores = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "tesis", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private Set<ExpedienteTesisEntity> expedientes = new LinkedHashSet<>();
-
 }

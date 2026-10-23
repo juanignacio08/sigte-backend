@@ -4,19 +4,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import unsch.fcsa.sigte.application.command.PageResult;
 import unsch.fcsa.sigte.application.command.files.ArchivoSubida;
+import unsch.fcsa.sigte.application.command.tramites.RegistrarExpedienteCommand;
 import unsch.fcsa.sigte.application.command.tramites.TesisCommand;
 import unsch.fcsa.sigte.application.command.tramites.TesisFiltro;
+import unsch.fcsa.sigte.application.port.in.tramites.GestionarExpedienteUseCase;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarTesisUseCase;
 import unsch.fcsa.sigte.application.port.out.maestro.EscuelaProfesionalRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.personas.EstudianteRepositoryPort;
-import unsch.fcsa.sigte.application.port.out.storage.StoragePort;
 import unsch.fcsa.sigte.application.port.out.tramites.TesisRepositoryPort;
+import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteDetalleView;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.TesisDetalleView;
 import unsch.fcsa.sigte.domain.exception.BusinessRuleException;
-import unsch.fcsa.sigte.domain.exception.DuplicateKeyException;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
-import unsch.fcsa.sigte.domain.model.tramites.ExpedienteArchivo;
-import unsch.fcsa.sigte.domain.model.tramites.ExpedienteTesis;
 import unsch.fcsa.sigte.domain.model.tramites.Tesis;
 import unsch.fcsa.sigte.domain.model.tramites.TesisAutor;
 import unsch.fcsa.sigte.domain.util.TablaMaestraCodigos;
@@ -30,16 +29,18 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
     private final TesisRepositoryPort tesisRepositoryPort;
     private final EscuelaProfesionalRepositoryPort escuelaProfesionalRepositoryPort;
     private final EstudianteRepositoryPort estudianteRepositoryPort;
-    private final StoragePort storagePort;
+    private final GestionarExpedienteUseCase gestionarExpedienteUseCase;
 
-    public GestionarTesisUseCaseImpl(TesisRepositoryPort tesisRepositoryPort,
-                                     EscuelaProfesionalRepositoryPort escuelaProfesionalRepositoryPort,
-                                     EstudianteRepositoryPort estudianteRepositoryPort,
-                                     StoragePort storagePort) {
+    public GestionarTesisUseCaseImpl(
+            TesisRepositoryPort tesisRepositoryPort,
+            EscuelaProfesionalRepositoryPort escuelaProfesionalRepositoryPort,
+            EstudianteRepositoryPort estudianteRepositoryPort,
+            GestionarExpedienteUseCase gestionarExpedienteUseCase
+    ){
         this.tesisRepositoryPort = tesisRepositoryPort;
         this.escuelaProfesionalRepositoryPort = escuelaProfesionalRepositoryPort;
         this.estudianteRepositoryPort = estudianteRepositoryPort;
-        this.storagePort = storagePort;
+        this.gestionarExpedienteUseCase = gestionarExpedienteUseCase;
     }
 
     @Override
@@ -53,19 +54,9 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
 
         validarListaEstudiantes(command.estudiantesIds());
 
-        if (tesisRepositoryPort.existeExpedientePorNumero(command.numeroExpediente())) {
-            throw new DuplicateKeyException("ExpedienteTesis", "numeroExpediente", command.numeroExpediente());
-        }
-
         for (Long estudianteId : command.estudiantesIds()) {
             if (tesisRepositoryPort.estudianteTieneTesisActiva(estudianteId)) {
                 throw new BusinessRuleException("El estudiante con ID " + estudianteId + " ya cuenta con una tesis activa.");
-            }
-        }
-
-        if (files != null && !files.isEmpty()) {
-            if (files.size() > 5) {
-                throw new BusinessRuleException("No puede adjuntar más de 5 archivos PDF por expediente.");
             }
         }
 
@@ -84,53 +75,21 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
                 .map(eId -> new TesisAutor(null, null, eId, OffsetDateTime.now(), 1, false))
                 .toList();
 
-        ExpedienteTesis expediente = new ExpedienteTesis(
-                null,
-                null,
+        tesis.setAutores(autores);
+
+        Tesis tesisGuardado = tesisRepositoryPort.guardar(tesis);
+
+        RegistrarExpedienteCommand commandExpediente =  new RegistrarExpedienteCommand(
+                tesisGuardado.getId(),
                 command.numeroExpediente(),
                 command.etapaTesis() != null ? command.etapaTesis() : TablaMaestraCodigos.ETAPA_TESIS_PROYECTO, // PROYECTO DE TESIS
                 command.numeroRevision() != null ? command.numeroRevision() : 1,
-                command.fechaIngreso(),
-                1,
-                false,
-                null
+                command.fechaIngreso()
         );
 
-        List<ExpedienteArchivo> listaArchivos = new ArrayList<>();
+        gestionarExpedienteUseCase.registrar(commandExpediente, files, false);
 
-        try {
-            for (ArchivoSubida archivo : Objects.requireNonNull(files)) {
-                String rutaPdf = storagePort.guardarArchivoPdf(
-                        archivo,
-                        "expedientes"
-                );
-
-                ExpedienteArchivo expedienteArchivo = new ExpedienteArchivo(
-                        null, null,
-                        archivo.nombreOriginal(),
-                        rutaPdf,
-                        archivo.tamanioBytes(),
-                        1, false
-                );
-
-                listaArchivos.add(expedienteArchivo);
-            }
-
-            expediente.setArchivos(listaArchivos);
-            tesis.setAutores(autores);
-            tesis.setExpedientes(List.of(expediente));
-
-            return tesisRepositoryPort.guardar(tesis);
-
-        } catch (Exception ex) {
-            log.error("Error al registrar la tesis. Revirtiendo archivos físicos subidos...", ex);
-            for (ExpedienteArchivo ea : listaArchivos) {
-                if (ea != null) {
-                    storagePort.eliminarArchivo(ea.getArchivoUrl());
-                }
-            }
-            throw ex;
-        }
+        return tesisGuardado;
 
     }
 
@@ -142,6 +101,10 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
         if (detalle == null) {
             throw new ResourceNotFoundException("Tesis", "id", id);
         }
+
+        ExpedienteDetalleView expedienteActual = gestionarExpedienteUseCase.obtenerUltimoExpedienteTesisActivo(detalle.getId());
+        detalle.setExpedienteActual(expedienteActual);
+
         return detalle;
     }
 
@@ -149,7 +112,23 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
     public PageResult<TesisDetalleView> listarPorFiltros(TesisFiltro filtro, int page, int size) {
         log.info("Listando tesis por un filtro");
 
-        return tesisRepositoryPort.listarPorFiltros(filtro, page, size);
+        PageResult<TesisDetalleView> pageResult = tesisRepositoryPort.listarPorFiltros(filtro, page, size);
+
+        if (pageResult.getContent() != null && !pageResult.getContent().isEmpty()) {
+
+            List<UUID> tesisIds = pageResult.getContent().stream()
+                    .map(TesisDetalleView::getId)
+                    .toList();
+
+            Map<UUID, ExpedienteDetalleView> ultimosExpedientes = gestionarExpedienteUseCase.obtenerUltimosExpedientes(tesisIds);
+
+            pageResult.getContent().forEach(tesis ->
+                    tesis.setExpedienteActual(ultimosExpedientes.get(tesis.getId()))
+            );
+
+        }
+
+        return pageResult;
     }
 
     private void validarListaEstudiantes(List<Long> estudiantesIds) {

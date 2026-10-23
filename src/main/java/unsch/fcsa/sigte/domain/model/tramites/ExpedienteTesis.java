@@ -3,12 +3,10 @@ package unsch.fcsa.sigte.domain.model.tramites;
 import unsch.fcsa.sigte.domain.exception.BusinessRuleException;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ExpedienteTesis {
 
-    private Long id;
+    private final Long id;
     private java.util.UUID tesisId;
     private String numeroExpediente;
     private String etapaCodigo;
@@ -17,8 +15,6 @@ public class ExpedienteTesis {
     private String motivoBaja;
     private Integer estado;
     private Boolean eliminado;
-
-    private List<ExpedienteArchivo> archivos = new ArrayList<>();;
 
     public ExpedienteTesis(Long id, java.util.UUID tesisId, String numeroExpediente, String etapaCodigo,
                            Integer numeroRevision, OffsetDateTime fechaIngreso,
@@ -94,7 +90,5 @@ public class ExpedienteTesis {
     public String getMotivoBaja() { return motivoBaja; }
     public Integer getEstado() { return estado; }
     public Boolean isEliminado() { return eliminado; }
-    public List<ExpedienteArchivo> getArchivos() { return archivos; }
 
-    public void setArchivos(List<ExpedienteArchivo> archivos) { this.archivos = archivos; }
 }

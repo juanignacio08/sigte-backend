@@ -72,13 +72,13 @@ public class DocentePersistenceAdapter implements DocenteRepositoryPort {
                 .map(mapper::toDocenteDetalleView).toList();
 
         return new PageResult<>(
-                list,
                 docentePage.getNumber(),
                 docentePage.getSize(),
                 docentePage.getTotalElements(),
                 docentePage.getTotalPages(),
                 docentePage.isFirst(),
-                docentePage.isLast()
+                docentePage.isLast(),
+                list
         );
     }
 

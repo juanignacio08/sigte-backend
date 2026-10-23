@@ -70,7 +70,7 @@ public class TesisController {
 
         PageResult<TesisDetalleView> result = gestionarTesisUseCase.listarPorFiltros(filtro, page, size);
 
-        List<TesisResponse> list = result.content().stream()
+        List<TesisResponse> list = result.getContent().stream()
                 .map(restMapper::toResponseDetail)
                 .toList();
 

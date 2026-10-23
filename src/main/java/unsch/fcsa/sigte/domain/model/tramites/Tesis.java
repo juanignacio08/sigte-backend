@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public class Tesis {
 
-    private UUID id;
+    private final UUID id;
     private Long escuelaId;
     private String titulo;
     private String tituloDictaminado;
@@ -20,7 +20,6 @@ public class Tesis {
     private Boolean eliminado;
 
     private List<TesisAutor> autores;
-    private List<ExpedienteTesis> expedientes;
 
     public Tesis(UUID id, Long escuelaId, String titulo, String tituloDictaminado, String estadoCodigo,
                  OffsetDateTime fechaRegistro, Integer estado, Boolean eliminado) {
@@ -31,9 +30,8 @@ public class Tesis {
         setEstadoCodigo(estadoCodigo);
         this.fechaRegistro = fechaRegistro != null ? fechaRegistro : OffsetDateTime.now();
         this.estado = estado != null ? estado : 1;
-        this.eliminado = eliminado != null ? eliminado : false;
+        this.eliminado = eliminado != null && eliminado;
         this.autores = new ArrayList<>();
-        this.expedientes = new ArrayList<>();
     }
 
     public void verificarEditable() {
@@ -82,8 +80,7 @@ public class Tesis {
     public Integer getEstado() { return estado; }
     public Boolean isEliminado() { return eliminado; }
     public List<TesisAutor> getAutores() { return autores; }
-    public List<ExpedienteTesis> getExpedientes() { return expedientes; }
 
     public void setAutores(List<TesisAutor> autores) { this.autores = autores; }
-    public void setExpedientes(List<ExpedienteTesis> expedientes) { this.expedientes = expedientes; }
+
 }

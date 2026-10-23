@@ -23,9 +23,8 @@ public class ExpedienteArchivoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "expediente_tesis_id", nullable = false)
-    private ExpedienteTesisEntity expedienteTesis;
+    @Column(name = "expediente_tesis_id", nullable = false)
+    private Long expedienteTesisId;
 
     @Column(name = "nombre_archivo", nullable = false, length = 255)
     private String nombreArchivo;

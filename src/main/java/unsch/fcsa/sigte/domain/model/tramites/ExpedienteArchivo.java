@@ -4,7 +4,7 @@ import unsch.fcsa.sigte.domain.exception.BusinessRuleException;
 import unsch.fcsa.sigte.domain.util.PathSanitizer;
 
 public class ExpedienteArchivo {
-    private Long id;
+    private final Long id;
     private Long expedienteTesisId;
     private String nombreArchivo;
     private String archivoUrl;

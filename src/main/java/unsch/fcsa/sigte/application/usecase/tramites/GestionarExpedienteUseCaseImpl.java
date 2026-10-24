@@ -253,11 +253,11 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
 
     private ExpedienteArchivoDetalleView toDetailView(ExpedienteArchivo expediente) {
         if (expediente == null) {return null;}
-        return ExpedienteArchivoDetalleView.builder()
-                .id(expediente.getId())
-                .nombreArchivo(expediente.getNombreArchivo())
-                .archivoUrl(expediente.getArchivoUrl())
-                .tamanioBytes(expediente.getTamanioBytes())
-                .build();
+        return new ExpedienteArchivoDetalleView(
+                expediente.getId(),
+                expediente.getNombreArchivo(),
+                expediente.getArchivoUrl(),
+                expediente.getTamanioBytes()
+        );
     }
 }

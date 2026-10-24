@@ -62,6 +62,11 @@ public class DocentePersistenceAdapter implements DocenteRepositoryPort {
     }
 
     @Override
+    public boolean existePorIdActivo(Long id) {
+        return docenteRepository.existsByIdAndEstadoAndEliminadoFalse(id, 1);
+    }
+
+    @Override
     public PageResult<DocenteDetalleView> listarPaginado(DocenteFiltro filtro, int page, int size) {
         Specification<DocenteEntity> spec = DocenteSpecification.conFiltro(filtro);
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "primerApellido"));

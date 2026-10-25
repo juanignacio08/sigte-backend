@@ -223,6 +223,12 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
     }
 
     @Override
+    public List<ExpedienteDetalleView> listarPorTesisYEtapa(UUID tesisId, String etapa) {
+        log.info("Listando expedientes de una tesis por etapa. [ TESIS : {} | ETAPA : {} ]", tesisId.toString(), etapa);
+        return expedienteRepositoryPort.listarPorTesisIdYEtapa(tesisId, etapa);
+    }
+
+    @Override
     public ExpedienteDetalleView obtenerPorId(Long id) {
         log.info("Obteniendo a detalle un expediente. [ EXPEDIENTE : {} ]", id.toString());
         ExpedienteDetalleView detalleView = expedienteRepositoryPort.obtenerDetallePorId(id)

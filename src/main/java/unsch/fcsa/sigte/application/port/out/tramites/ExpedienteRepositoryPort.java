@@ -14,6 +14,7 @@ public interface ExpedienteRepositoryPort {
     Optional<ExpedienteDetalleView> obtenerDetallePorId(Long id);
     Optional<ExpedienteDetalleView> obtenerDetalleUltimoExpedienteDeTesis(UUID tesisId);
     List<ExpedienteDetalleView> listarPorTesisId(UUID tesisId);
+    List<ExpedienteDetalleView> listarPorTesisIdYEtapa(UUID tesisId, String etapa);
     Map<UUID, ExpedienteDetalleView> buscarUltimosExpedientesPorTesisIds(List<UUID> tesisIds);
 
     boolean existeNumeroExpedienteActivo(String numeroExpediente);

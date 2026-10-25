@@ -58,4 +58,14 @@ public class ComisionMIembroPersistenceAdapter implements ComisionMiembroReposit
     public boolean existeRolSingularActivo(Long comisionId, String rolCodigo) {
         return comisionMiembroRepository.existsByComisionIdAndRolCodigo(comisionId, rolCodigo);
     }
+
+    @Override
+    public boolean existePorId(Long id) {
+        return comisionMiembroRepository.existsById(id);
+    }
+
+    @Override
+    public void eliminar(Long id) {
+        comisionMiembroRepository.deleteById(id);
+    }
 }

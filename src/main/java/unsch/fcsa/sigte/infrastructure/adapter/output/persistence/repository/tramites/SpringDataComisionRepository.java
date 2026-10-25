@@ -10,6 +10,7 @@ import java.util.UUID;
 public interface SpringDataComisionRepository extends JpaRepository<ComisionEntity, Long> {
 
     Optional<ComisionEntity> findByIdAndEliminadoFalse(Long id);
+    Optional<ComisionEntity> findByTesis_IdAndEtapaCodigoAndEliminadoFalse(UUID tesisId, String etapa);
     List<ComisionEntity> findAllByTesis_IdAndEliminadoFalse(UUID tesisId);
 
     boolean existsByTesis_IdAndEtapaCodigoAndEliminadoFalse(UUID tesisId, String etapaCodigo);

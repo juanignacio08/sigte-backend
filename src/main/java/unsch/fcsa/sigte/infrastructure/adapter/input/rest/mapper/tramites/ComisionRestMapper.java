@@ -47,6 +47,11 @@ public class ComisionRestMapper {
                 .etapaDenominacion(domain.getEtapaDenominacion())
                 .fechaConformacion(domain.getFechaConformacion())
                 .estado(domain.getEstado())
+                .miembros(domain.getMiembros() != null ?
+                        domain.getMiembros().stream()
+                                .map(this::toMiembroDetailResponse)
+                                .toList()
+                        : null)
                 .build();
     }
 

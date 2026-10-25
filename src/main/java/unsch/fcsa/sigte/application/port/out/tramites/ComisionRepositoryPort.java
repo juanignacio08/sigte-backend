@@ -9,7 +9,8 @@ import java.util.UUID;
 
 public interface ComisionRepositoryPort {
     Comision guardar(Comision comision);
-    Optional<Comision> buscarPorId(Long id);
+    Optional<ComisionDetalleView> buscarPorId(Long id);
+    Optional<ComisionDetalleView> obtenerPorTesisYEtapa(UUID tesisId, String etapa);
     List<ComisionDetalleView> listarPorTesis(UUID tesisId);
 
     boolean existeComisionActivaPorTesisYEtapa(UUID tesisId, String etapaCodigo);

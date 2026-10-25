@@ -11,10 +11,10 @@ import java.util.UUID;
 
 public interface GestionarComisionUseCase {
     Comision registrar(ComisionCommand command);
-    Comision actualizar(ComisionCommand command);
-
     ComisionMiembro agregarMienbro(MiembroComisionCommand command);
-
+    ComisionMiembro actualizarRol(Long id, String rol);
+    void quitarMiembro(Long id);
+    ComisionDetalleView obtenerPorTesisYEtapa(UUID tesisId, String etapa);
+    ComisionDetalleView obtenerComisionDetalle(Long comisionId);
     List<ComisionDetalleView> listarPorTesis(UUID tesisId);
-    void eliminar(Long id);
 }

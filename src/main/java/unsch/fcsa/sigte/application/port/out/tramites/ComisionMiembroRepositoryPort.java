@@ -13,4 +13,7 @@ public interface ComisionMiembroRepositoryPort {
     List<ComisionMiembroDetalleView> listarDetallePorComision(Long comisionId);
     boolean existeDocenteActivoEnComision(Long comisionId, Long docenteId);
     boolean existeRolSingularActivo(Long comisionId, String rolCodigo);
+    boolean existePorId(Long id);
+
+    void eliminar(Long id);
 }

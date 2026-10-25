@@ -10,6 +10,7 @@ import unsch.fcsa.sigte.application.port.out.tramites.ComisionMiembroRepositoryP
 import unsch.fcsa.sigte.application.port.out.tramites.ComisionRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.tramites.TesisRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.ComisionDetalleView;
+import unsch.fcsa.sigte.application.port.out.tramites.dto.ComisionMiembroDetalleView;
 import unsch.fcsa.sigte.domain.exception.BusinessRuleException;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
 import unsch.fcsa.sigte.domain.model.tramites.Comision;
@@ -66,22 +67,6 @@ public class GestionarComisionUseCaseImpl implements GestionarComisionUseCase {
 
     @Override
     @Transactional
-    public Comision actualizar(ComisionCommand command) {
-        log.info("Actualizando comisión. [ COMISION : {} ]", command.id());
-        Comision comision = comisionRepositoryPort.buscarPorId(command.id())
-                .orElseThrow(() -> new ResourceNotFoundException("Comision", "id", command.id().toString()));
-
-        if (!comision.getEtapaCodigo().equals(command.etapaCodigo())
-                && comisionRepositoryPort.existeComisionActivaPorTesisYEtapa(comision.getTesisId(), command.etapaCodigo())) {
-            throw new BusinessRuleException("Ya existe una comisión activa para esta tesis en la etapa indicada.");
-        }
-
-        comision.actualizarDatos(command.etapaCodigo(), command.fechaConformacion());
-        return comisionRepositoryPort.guardar(comision);
-    }
-
-    @Override
-    @Transactional
     public ComisionMiembro agregarMienbro(MiembroComisionCommand command) {
         log.info("Agregando miembro a comisión. [ COMISION : {} | DOCENTE : {} ]", command.comisionId(), command.docenteId());
 
@@ -112,14 +97,63 @@ public class GestionarComisionUseCaseImpl implements GestionarComisionUseCase {
     }
 
     @Override
-    public List<ComisionDetalleView> listarPorTesis(UUID tesisId) {
-        log.info("Listando las comisiones de una tesis. [ TESIS : {} ]", tesisId);
-        return comisionRepositoryPort.listarPorTesis(tesisId);
+    public ComisionMiembro actualizarRol(Long id, String rol) {
+        log.info("Actualizando el rol de un miembro. [ MIEMBRO : {} | ROL : {} ]", id, rol);
+
+        if (id == null || id < 1) { throw new IllegalArgumentException("Id Incorrecto. [ COMISION ]"); }
+
+        if (rol == null || rol.length() != 6) { throw new IllegalArgumentException("Rol Incorrecto. [ MIEMBRO ]"); }
+
+        ComisionMiembro miembro = comisionMiembroRepositoryPort.buscarPorId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Comision", "id", id));
+
+        miembro.actualizarRol(rol);
+
+        return comisionMiembroRepositoryPort.guardar(miembro);
     }
 
     @Override
-    public void eliminar(Long id) {
+    public void quitarMiembro(Long id) {
+        log.info("Eliminando un miembro de la comision [ COMISION-MIEMBRO : {} ]", id);
+        if (comisionMiembroRepositoryPort.existePorId(id)) {
+            comisionMiembroRepositoryPort.eliminar(id);
+        } else {
+            throw new ResourceNotFoundException("Comision-Miembro", "id", id.toString());
+        }
+    }
 
+    @Override
+    public ComisionDetalleView obtenerPorTesisYEtapa(UUID tesisId, String etapa) {
+        log.info("Obteniendo comision de una tesis en una etapa. [ TESIS : {} | ETAPA : {} ]", tesisId, etapa);
+
+        ComisionDetalleView comision = comisionRepositoryPort.obtenerPorTesisYEtapa(tesisId, etapa)
+                .orElseThrow(() -> new ResourceNotFoundException("Comision", "id", tesisId.toString()));
+
+        List<ComisionMiembroDetalleView> list = comisionMiembroRepositoryPort.listarDetallePorComision(comision.getId());
+
+        comision.setMiembros(list);
+
+        return comision;
+    }
+
+    @Override
+    public ComisionDetalleView obtenerComisionDetalle(Long comisionId) {
+        log.info("Obteniendo a detalle la informacion de una comision. [ COMISION : {} ]", comisionId);
+
+        ComisionDetalleView comision = comisionRepositoryPort.buscarPorId(comisionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comision", "id", comisionId.toString()));
+
+        List<ComisionMiembroDetalleView> list = comisionMiembroRepositoryPort.listarDetallePorComision(comision.getId());
+
+        comision.setMiembros(list);
+
+        return comision;
+    }
+
+    @Override
+    public List<ComisionDetalleView> listarPorTesis(UUID tesisId) {
+        log.info("Listando las comisiones de una tesis. [ TESIS : {} ]", tesisId);
+        return comisionRepositoryPort.listarPorTesis(tesisId);
     }
 
 }

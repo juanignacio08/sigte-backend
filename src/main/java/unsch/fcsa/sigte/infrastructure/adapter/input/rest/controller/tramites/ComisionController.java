@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarComisionUseCase;
+import unsch.fcsa.sigte.application.port.out.tramites.dto.ComisionDetalleView;
 import unsch.fcsa.sigte.domain.model.tramites.Comision;
 import unsch.fcsa.sigte.domain.model.tramites.ComisionMiembro;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.ResponseDTO;
@@ -35,19 +36,41 @@ public class ComisionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ResponseDTO<Object>> actualizar(@PathVariable Long id, @Valid @RequestBody ComisionRequest request) {
-        Comision comision = useCase.actualizar(mapper.toUpdate(id, request));
-        ResponseDTO<Object> body = ResponseGlobalMapper.build(
-                mapper.toResponse(comision), "Comisión actualizada correctamente", "201");
-        return ResponseEntity.status(HttpStatus.CREATED).body(body);
-    }
-
     @PostMapping("/registrarMiembro")
     public ResponseEntity<ResponseDTO<Object>> registrarMiembro(@Valid @RequestBody ComisionMiembroRequest request) {
         ComisionMiembro miembro = useCase.agregarMienbro(mapper.toAgregar(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(ResponseGlobalMapper.build(
                 mapper.toMiembroResponse(miembro), "Miembro agregado correctamente", "201"));
+    }
+
+    @PostMapping("/miembro/actualizarRol/{id}/{rol}")
+    public ResponseEntity<ResponseDTO<Object>> actualizarRolMiembro(@PathVariable Long id, @PathVariable String rol) {
+        ComisionMiembro miembro = useCase.actualizarRol(id, rol);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ResponseGlobalMapper.build(
+                mapper.toMiembroResponse(miembro), "Actualizado el rol del miembro correctamente", "201"));
+    }
+
+    @DeleteMapping("/miembro/{id}")
+    public ResponseEntity<ResponseDTO<Object>> eliminarMiembro(@PathVariable Long id) {
+        useCase.quitarMiembro(id);
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(null, "Miembro eliminado!", "200");
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @GetMapping("/{tesisId}/{etapa}")
+    public ResponseEntity<ResponseDTO<Object>> obtenerPorTesisYEtapae(@PathVariable UUID tesisId, @PathVariable String etapa) {
+        ComisionDetalleView view = useCase.obtenerPorTesisYEtapa(tesisId, etapa);
+
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(mapper.fromViewToResponse(view), "Comision de una tesis en una etapa", "200");
+        return ResponseEntity.ok(responseDTO);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseDTO<Object>> obtenerDetalle(@PathVariable Long id) {
+        ComisionDetalleView view = useCase.obtenerComisionDetalle(id);
+
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(mapper.fromViewToResponse(view), "Comisiones a detalle", "200");
+        return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/listarPorTesis/{id}")

@@ -32,8 +32,14 @@ public class ComisionPersistenceAdapter implements ComisionRepositoryPort {
     }
 
     @Override
-    public Optional<Comision> buscarPorId(Long id) {
-        return repository.findByIdAndEliminadoFalse(id).map(mapper::toDomain);
+    public Optional<ComisionDetalleView> buscarPorId(Long id) {
+        return repository.findByIdAndEliminadoFalse(id).map(mapper::toView);
+    }
+
+    @Override
+    public Optional<ComisionDetalleView> obtenerPorTesisYEtapa(UUID tesisId, String etapa) {
+        return repository.findByTesis_IdAndEtapaCodigoAndEliminadoFalse(tesisId, etapa)
+                .map(mapper::toView);
     }
 
     @Override

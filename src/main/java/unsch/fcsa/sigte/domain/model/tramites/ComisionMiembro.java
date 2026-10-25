@@ -39,8 +39,8 @@ public class ComisionMiembro {
         this.eliminado = true;
     }
 
-    public void actualizarOrden(Integer orden) {
-        if (orden != null && orden >= 1) this.orden = orden;
+    public void actualizarRol(String rol) {
+        setRolCodigo(rol);
     }
 
     private void setComisionId(Long comisionId) {

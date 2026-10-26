@@ -16,7 +16,7 @@ public interface DocenteRepositoryPort {
     boolean existePorCorreoInstitucional(String correo);
     boolean existePorDocumento(String tipoDocumentoCodigo, String numeroDocumento);
     boolean existePorCodigo(String codigo);
-
+    boolean existePorIdActivo(Long id);
     PageResult<DocenteDetalleView> listarPaginado(DocenteFiltro filtro, int page, int size);
     DocenteMetricasProjection obtenerMetricasPorFacultadId(Long facultadId);
 }

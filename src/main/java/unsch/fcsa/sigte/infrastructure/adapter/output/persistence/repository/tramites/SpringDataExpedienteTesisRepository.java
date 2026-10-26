@@ -16,6 +16,7 @@ public interface SpringDataExpedienteTesisRepository extends JpaRepository<Exped
     boolean existsByNumeroExpedienteAndEstadoAndEliminadoFalse(String numeroExpediente, Integer estado);
     boolean existsByTesis_IdAndEtapaCodigoAndNumeroRevisionAndEstadoAndEliminadoFalse(UUID id, String etapaCodigo, Integer numeroRevision, Integer estado);
     List<ExpedienteTesisEntity> findByTesisIdAndEliminadoFalse(UUID tesisId);
+    List<ExpedienteTesisEntity> findByTesisIdAndEtapaCodigoAndEliminadoFalse(UUID tesisId, String etapaCodigo);
 
     Optional<ExpedienteTesisEntity> findByIdAndEliminadoFalse(Long id);
 

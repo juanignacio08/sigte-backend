@@ -20,6 +20,7 @@ public interface SpringDataDocenteRepository extends JpaRepository<DocenteEntity
     boolean existsByCorreoInstitucional(String correoInstitucional);
     boolean existsByTipoDocumentoCodigoAndNumeroDocumento(String tipoDocumentoCodigo, String numeroDocumento);
     boolean existsByCodigoAndEliminadoFalse(String codigo);
+    boolean existsByIdAndEstadoAndEliminadoFalse(Long id, Integer estado);
     Optional<DocenteEntity> findByTipoDocumentoCodigoAndNumeroDocumento(String tipoDocumentoCodigo, String numeroDocumento);
     Optional<DocenteEntity> findByIdAndEliminadoFalse(Long id);
 

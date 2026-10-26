@@ -68,6 +68,13 @@ public class ExpedientePersistenceAdapter implements ExpedienteRepositoryPort {
     }
 
     @Override
+    public List<ExpedienteDetalleView> listarPorTesisIdYEtapa(UUID tesisId, String etapa) {
+        return expedienteRepository.findByTesisIdAndEtapaCodigoAndEliminadoFalse(tesisId, etapa).stream()
+                .map(mapper::toDetalleViewWithMasterTable)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Map<UUID, ExpedienteDetalleView> buscarUltimosExpedientesPorTesisIds(List<UUID> tesisIds) {
         if (tesisIds == null || tesisIds.isEmpty()) {
             return Map.of();

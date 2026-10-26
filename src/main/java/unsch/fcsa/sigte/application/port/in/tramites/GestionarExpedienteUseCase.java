@@ -17,6 +17,7 @@ public interface GestionarExpedienteUseCase {
     void desactivar(Long id, String motivo);
     void eliminar(Long id);
     List<ExpedienteDetalleView> listarPorTesis(UUID tesisId);
+    List<ExpedienteDetalleView> listarPorTesisYEtapa(UUID tesisId, String etapa);
     ExpedienteDetalleView obtenerPorId(Long id);
     ExpedienteDetalleView obtenerUltimoExpedienteTesisActivo(UUID tesisId);
     Map<UUID, ExpedienteDetalleView> obtenerUltimosExpedientes(List<UUID> tesisIds);

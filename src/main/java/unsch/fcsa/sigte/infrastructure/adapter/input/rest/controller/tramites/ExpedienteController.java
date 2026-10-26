@@ -77,6 +77,17 @@ public class ExpedienteController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @GetMapping("/listarPorTesis/{id}/{etapa}")
+    public ResponseEntity<ResponseDTO<Object>> obtenerListaPorTesis(
+            @PathVariable UUID id, @PathVariable String etapa) {
+        List<ExpedienteResponse> list = gestionarExpedienteUseCase.listarPorTesisYEtapa(id, etapa).stream()
+                .map(expedienteRestMapper::toResponseWithMasterTable)
+                .toList();
+
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(list, "Lista de expedientes de una tesis", "200");
+        return ResponseEntity.ok(responseDTO);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ResponseDTO<Object>> obtenerPorId(@PathVariable Long id) {
         ExpedienteDetalleView domain = gestionarExpedienteUseCase.obtenerPorId(id);

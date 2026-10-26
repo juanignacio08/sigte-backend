@@ -44,7 +44,7 @@ public class ComisionMIembroPersistenceAdapter implements ComisionMiembroReposit
 
     @Override
     public List<ComisionMiembroDetalleView> listarDetallePorComision(Long comisionId) {
-        return comisionMiembroRepository.findByComisionIdAndEliminadoFalse(comisionId).stream()
+        return comisionMiembroRepository.findByComisionIdAndEliminadoFalseOrderByOrdenAsc(comisionId).stream()
                 .map(mapper::toDetalleView)
                 .toList();
     }

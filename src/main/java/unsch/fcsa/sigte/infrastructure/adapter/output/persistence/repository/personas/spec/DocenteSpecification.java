@@ -1,5 +1,6 @@
 package unsch.fcsa.sigte.infrastructure.adapter.output.persistence.repository.personas.spec;
 
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import unsch.fcsa.sigte.application.command.personas.DocenteFiltro;
@@ -41,6 +42,26 @@ public class DocenteSpecification {
 
             if (filtro.correo() != null && !filtro.correo().isBlank()) {
                 predicates.add(cb.like(cb.lower(root.get("correoInstitucional")), "%" + filtro.correo().trim().toLowerCase() + "%"));
+            }
+
+            if (filtro.nombre() != null && !filtro.nombre().isBlank()) {
+                String pattern = "%" + filtro.nombre().trim().toLowerCase().replaceAll("\\s+", " ") + "%";
+
+                // Normalizamos nulos a cadena vacía y todo a minúsculas
+                Expression<String> nombres = cb.lower(cb.coalesce(root.get("nombres"), ""));
+                Expression<String> primerApellido = cb.lower(cb.coalesce(root.get("primerApellido"), ""));
+                Expression<String> segundoApellido = cb.lower(cb.coalesce(root.get("segundoApellido"), ""));
+
+                // JPA estándar: concat solo acepta 2 argumentos → anidamos
+                Expression<String> nombreCompleto = cb.concat(
+                        cb.concat(
+                                cb.concat(nombres, " "),
+                                primerApellido
+                        ),
+                        cb.concat(" ", segundoApellido)
+                );
+
+                predicates.add(cb.like(nombreCompleto, pattern));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));

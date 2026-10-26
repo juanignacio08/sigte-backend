@@ -58,7 +58,7 @@ public class ComisionController {
     }
 
     @GetMapping("/{tesisId}/{etapa}")
-    public ResponseEntity<ResponseDTO<Object>> obtenerPorTesisYEtapae(@PathVariable UUID tesisId, @PathVariable String etapa) {
+    public ResponseEntity<ResponseDTO<Object>> obtenerPorTesisYEtapa(@PathVariable UUID tesisId, @PathVariable String etapa) {
         ComisionDetalleView view = useCase.obtenerPorTesisYEtapa(tesisId, etapa);
 
         ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(mapper.fromViewToResponse(view), "Comision de una tesis en una etapa", "200");

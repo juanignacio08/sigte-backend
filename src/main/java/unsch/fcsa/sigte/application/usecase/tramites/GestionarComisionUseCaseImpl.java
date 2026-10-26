@@ -15,6 +15,7 @@ import unsch.fcsa.sigte.domain.exception.BusinessRuleException;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
 import unsch.fcsa.sigte.domain.model.tramites.Comision;
 import unsch.fcsa.sigte.domain.model.tramites.ComisionMiembro;
+import unsch.fcsa.sigte.domain.util.TablaMaestraCodigos;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -82,13 +83,28 @@ public class GestionarComisionUseCaseImpl implements GestionarComisionUseCase {
             throw new BusinessRuleException("El docente ya tiene un rol activo en esta comisión.");
         }
 
-        if (comisionMiembroRepositoryPort.existeRolSingularActivo(command.comisionId(), command.rolCodigo())) {
+        boolean rolMultiple = switch (command.rolCodigo()) {
+            case TablaMaestraCodigos.MIEMBRO_JURADO,
+                 TablaMaestraCodigos.MIEMBRO_COASESOR -> true;
+            default -> false;
+        };
+
+        if (!rolMultiple && comisionMiembroRepositoryPort.existeRolSingularActivo(command.comisionId(), command.rolCodigo())) {
             throw new BusinessRuleException("Ya existe un miembro activo con el rol indicado en esta comisión.");
         }
 
+        int orden = switch (command.rolCodigo()) {
+            case TablaMaestraCodigos.MIEMBRO_PRESIDENTE -> 2;
+            case TablaMaestraCodigos.MIEMBRO_JURADO -> 3;
+            case TablaMaestraCodigos.MIEMBRO_ASESOR -> 4;
+            case TablaMaestraCodigos.MIEMBRO_COASESOR -> 5;
+            case TablaMaestraCodigos.MIEMBRO_SECRETARIO -> 6;
+            default -> 1;
+        };
+
         ComisionMiembro miembro = new ComisionMiembro(
                 null, command.comisionId(), command.docenteId(), command.rolCodigo(),
-                command.orden() != null ? command.orden() : 1,
+                orden,
                 LocalDate.now(), null, null, 1, false
         );
 
@@ -107,7 +123,30 @@ public class GestionarComisionUseCaseImpl implements GestionarComisionUseCase {
         ComisionMiembro miembro = comisionMiembroRepositoryPort.buscarPorId(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Comision", "id", id));
 
-        miembro.actualizarRol(rol);
+        if (miembro.getRolCodigo().equals(rol)) {
+            return miembro;
+        }
+
+        boolean rolMultiple = switch (rol) {
+            case TablaMaestraCodigos.MIEMBRO_JURADO,
+                 TablaMaestraCodigos.MIEMBRO_COASESOR -> true;
+            default -> false;
+        };
+
+        if (!rolMultiple && comisionMiembroRepositoryPort.existeRolSingularActivo(miembro.getComisionId(), rol)) {
+            throw new BusinessRuleException("Ya existe un miembro activo con el rol indicado en esta comisión.");
+        }
+
+        int orden = switch (rol) {
+            case TablaMaestraCodigos.MIEMBRO_PRESIDENTE -> 2;
+            case TablaMaestraCodigos.MIEMBRO_JURADO -> 3;
+            case TablaMaestraCodigos.MIEMBRO_ASESOR -> 4;
+            case TablaMaestraCodigos.MIEMBRO_COASESOR -> 5;
+            case TablaMaestraCodigos.MIEMBRO_SECRETARIO -> 6;
+            default -> 1;
+        };
+
+        miembro.actualizarRol(rol, orden);
 
         return comisionMiembroRepositoryPort.guardar(miembro);
     }

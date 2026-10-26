@@ -7,5 +7,6 @@ public record DocenteFiltro(
         Integer estado,
         String generoCodigo,
         String numeroDocumento,
-        String correo
+        String correo,
+        String nombre
 ) {}

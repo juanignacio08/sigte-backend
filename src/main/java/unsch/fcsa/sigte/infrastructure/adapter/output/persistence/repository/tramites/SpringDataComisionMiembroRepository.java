@@ -12,7 +12,7 @@ public interface SpringDataComisionMiembroRepository extends JpaRepository<Comis
     List<ComisionMiembroEntity> findByComisionIdAndEstadoAndEliminadoFalse(Long comisionId, Integer estado);
 
     @EntityGraph(attributePaths = {"docente"})
-    List<ComisionMiembroEntity> findByComisionIdAndEliminadoFalse(Long comisionId);
+    List<ComisionMiembroEntity> findByComisionIdAndEliminadoFalseOrderByOrdenAsc(Long comisionId);
 
     boolean existsByComisionIdAndDocente_Id(Long comisionId, Long docenteId);
     boolean existsByComisionIdAndRolCodigo(Long comisionId, String rol);

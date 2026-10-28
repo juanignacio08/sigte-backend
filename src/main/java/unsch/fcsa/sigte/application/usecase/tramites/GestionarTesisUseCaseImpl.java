@@ -94,9 +94,8 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
     }
 
     @Override
-    public TesisDetalleView obtenerPorId(UUID id) {
-        log.info("Obteniendo una tesis por su id: {}", id);
-
+    public TesisDetalleView obtenerDetallePorId(UUID id) {
+        log.info("Obteniendo una tesis a detalle por su id: {}", id);
         TesisDetalleView detalle = tesisRepositoryPort.obtenerDetallePorId(id);
         if (detalle == null) {
             throw new ResourceNotFoundException("Tesis", "id", id);
@@ -104,6 +103,18 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
 
         ExpedienteDetalleView expedienteActual = gestionarExpedienteUseCase.obtenerUltimoExpedienteTesisActivo(detalle.getId());
         detalle.setExpedienteActual(expedienteActual);
+
+        return detalle;
+    }
+
+    @Override
+    public TesisDetalleView obtenerPorId(UUID id) {
+        log.info("Obteniendo una tesis por su id: {}", id);
+
+        TesisDetalleView detalle = tesisRepositoryPort.obtenerDetallePorId(id);
+        if (detalle == null) {
+            throw new ResourceNotFoundException("Tesis", "id", id);
+        }
 
         return detalle;
     }

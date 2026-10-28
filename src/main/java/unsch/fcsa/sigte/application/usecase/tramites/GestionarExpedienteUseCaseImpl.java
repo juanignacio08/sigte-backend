@@ -257,6 +257,71 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
         return expedienteRepositoryPort.buscarUltimosExpedientesPorTesisIds(tesisIds);
     }
 
+    @Override
+    public List<ExpedienteArchivo> listarPorExpediente(Long expedienteId) {
+        return expedienteArchivoRepositoryPort.obtenerPorExpediente(expedienteId);
+    }
+
+    @Override
+    public ExpedienteArchivo guardarArchivo(Long expedienteId, ArchivoSubida archivo) {
+        log.info("Agregando un nuevo archivo al expediente. [ EXPEDIENTE : {} ]", expedienteId.toString());
+
+        if (archivo == null) {
+            throw new BusinessRuleException("Debe adjuntar un archivo PDF al expediente.");
+        }
+
+        ExpedienteDetalleView expediente = expedienteRepositoryPort.obtenerDetallePorId(expedienteId)
+                .orElseThrow(() -> new ResourceNotFoundException("ExpedienteTesis", "id", expedienteId.toString()));
+
+        if (expediente.getArchivos() != null && expediente.getArchivos().size() >= 5) {
+            throw new BusinessRuleException("No se pueden agregar mas de 5 archivos");
+        }
+
+        if (!archivo.esPdf()) {
+            throw new BusinessRuleException("Solo se permiten archivos con formato PDF.");
+        }
+
+        String rutaRelativa = null;
+        try {
+            rutaRelativa = storagePort.guardarArchivoPdf(
+                    archivo,
+                    "expedientes"
+            );
+
+            ExpedienteArchivo archivoDom = new ExpedienteArchivo(
+                    null,
+                    expediente.getId(),
+                    archivo.nombreOriginal(),
+                    rutaRelativa,
+                    archivo.tamanioBytes(),
+                    1,
+                    false
+            );
+
+            return expedienteArchivoRepositoryPort.guardar(archivoDom);
+
+        } catch (Exception e) {
+            if (rutaRelativa != null) {
+                storagePort.eliminarArchivo(rutaRelativa);
+            }
+            throw e;
+        }
+    }
+
+    @Override
+    public void eliminarArchivo(Long id) {
+        log.info("Eliminando un archivo de expediente [ ARCHIVO-EXPEDIENTE : {} ]", id);
+
+        ExpedienteArchivo expedienteArchivo = expedienteArchivoRepositoryPort.obtenerPorId(id);
+        try {
+            storagePort.eliminarArchivo(expedienteArchivo.getArchivoUrl());
+        } catch (Exception e) {
+            log.warn("Error al eliminar archivo. [{}]", expedienteArchivo.getArchivoUrl(), e);
+        }
+
+        expedienteArchivoRepositoryPort.eliminar(id);
+    }
+
     private ExpedienteArchivoDetalleView toDetailView(ExpedienteArchivo expediente) {
         if (expediente == null) {return null;}
         return new ExpedienteArchivoDetalleView(

@@ -3,7 +3,9 @@ package unsch.fcsa.sigte.application.port.in.tramites;
 import unsch.fcsa.sigte.application.command.files.ArchivoSubida;
 import unsch.fcsa.sigte.application.command.tramites.ActualizarExpedienteCommand;
 import unsch.fcsa.sigte.application.command.tramites.RegistrarExpedienteCommand;
+import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteArchivoDetalleView;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteDetalleView;
+import unsch.fcsa.sigte.domain.model.tramites.ExpedienteArchivo;
 import unsch.fcsa.sigte.domain.model.tramites.ExpedienteTesis;
 
 import java.util.List;
@@ -21,4 +23,8 @@ public interface GestionarExpedienteUseCase {
     ExpedienteDetalleView obtenerPorId(Long id);
     ExpedienteDetalleView obtenerUltimoExpedienteTesisActivo(UUID tesisId);
     Map<UUID, ExpedienteDetalleView> obtenerUltimosExpedientes(List<UUID> tesisIds);
+
+    List<ExpedienteArchivo> listarPorExpediente(Long expedienteId);
+    ExpedienteArchivo guardarArchivo(Long expedienteId, ArchivoSubida archivo);
+    void eliminarArchivo(Long id);
 }

@@ -2,6 +2,7 @@ package unsch.fcsa.sigte.infrastructure.adapter.output.persistence.adapter.trami
 
 import org.springframework.stereotype.Component;
 import unsch.fcsa.sigte.application.port.out.tramites.ExpedienteArchivoRepositoryPort;
+import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
 import unsch.fcsa.sigte.domain.model.tramites.ExpedienteArchivo;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.tramites.ExpedienteArchivoEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.repository.tramites.SpringDataExpedienteArchivoRepository;
@@ -15,6 +16,18 @@ public class ExpedienteArchivoPersistenceAdapter implements ExpedienteArchivoRep
 
     public ExpedienteArchivoPersistenceAdapter(SpringDataExpedienteArchivoRepository archivoRepository) {
         this.archivoRepository = archivoRepository;
+    }
+
+    @Override
+    public ExpedienteArchivo guardar(ExpedienteArchivo domain) {
+        ExpedienteArchivoEntity entity = toEntity(domain);
+        ExpedienteArchivoEntity saved = archivoRepository.save(entity);
+        return toDomain(saved);
+    }
+
+    @Override
+    public void eliminar(Long id) {
+        archivoRepository.deleteById(id);
     }
 
     @Override
@@ -32,6 +45,13 @@ public class ExpedienteArchivoPersistenceAdapter implements ExpedienteArchivoRep
         return archivoRepository.findAllByExpedienteTesisId(expedienteId).stream()
                 .map(this::toDomain)
                 .toList();
+    }
+
+    @Override
+    public ExpedienteArchivo obtenerPorId(Long id) {
+        return archivoRepository.findById(id)
+                .map(this::toDomain)
+                .orElseThrow(() -> new ResourceNotFoundException("Expediente-Archivo", "id", id.toString()));
     }
 
     private ExpedienteArchivoEntity toEntity(ExpedienteArchivo expedienteArchivo) {

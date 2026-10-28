@@ -3,7 +3,9 @@ package unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.tramites;
 import org.springframework.stereotype.Component;
 import unsch.fcsa.sigte.application.command.tramites.ActualizarExpedienteCommand;
 import unsch.fcsa.sigte.application.command.tramites.RegistrarExpedienteCommand;
+import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteArchivoDetalleView;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteDetalleView;
+import unsch.fcsa.sigte.domain.model.tramites.ExpedienteArchivo;
 import unsch.fcsa.sigte.domain.model.tramites.ExpedienteTesis;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.ActualizarExpedienteRequest;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.ExpedienteResponse;
@@ -74,6 +76,17 @@ public class ExpedienteRestMapper {
                 .estado(domain.getEstado())
                 .archivos(domain.getArchivos())
                 .build();
+    }
+
+    public ExpedienteArchivoDetalleView toArchivoDetalle(ExpedienteArchivo domain) {
+        if (domain == null) return null;
+
+        return new ExpedienteArchivoDetalleView(
+                domain.getId(),
+                domain.getNombreArchivo(),
+                domain.getArchivoUrl(),
+                domain.getTamanioBytes()
+        );
     }
 
 }

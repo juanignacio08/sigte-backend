@@ -7,10 +7,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import unsch.fcsa.sigte.application.command.files.ArchivoSubida;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarExpedienteUseCase;
+import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteArchivoDetalleView;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteDetalleView;
+import unsch.fcsa.sigte.domain.model.tramites.ExpedienteArchivo;
 import unsch.fcsa.sigte.domain.model.tramites.ExpedienteTesis;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.ResponseDTO;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.ActualizarExpedienteRequest;
+import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.ExpedienteArchivoRequest;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.ExpedienteResponse;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.RegistrarExpedienteRequest;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.ResponseGlobalMapper;
@@ -123,4 +126,45 @@ public class ExpedienteController {
         ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(null, "Expediente eliminado!", "200");
         return ResponseEntity.ok().body(responseDTO);
     }
+
+    @GetMapping("/listarArchivosPorExpediente/{expedienteId}")
+    public ResponseEntity<ResponseDTO<Object>> listarArchivosPorExpediente(
+            @PathVariable Long expedienteId) {
+        List<ExpedienteArchivoDetalleView> list = gestionarExpedienteUseCase.listarPorExpediente(expedienteId).stream()
+                .map(expedienteRestMapper::toArchivoDetalle)
+                .toList();
+
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(list, "Lista de archivos de un expediente", "200");
+        return ResponseEntity.ok(responseDTO);
+    }
+
+    @PostMapping(
+            value = "/agregarArchivo",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ResponseDTO<Object>> agregarArchivo(
+            @Valid @ModelAttribute ExpedienteArchivoRequest request
+    ) {
+
+        ArchivoSubida archivo = multipartFileMapper.toArchivosSubida(request.archivo());
+
+        ExpedienteArchivo expedienteArchivo = gestionarExpedienteUseCase.guardarArchivo(request.expedienteId(), archivo);
+
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(
+                expedienteRestMapper.toArchivoDetalle(expedienteArchivo),
+                "Archivo registrado correctamente",
+                "201"
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+    }
+
+    @DeleteMapping("/eliminarArchivo/{id}")
+    public ResponseEntity<ResponseDTO<Object>> eliminarArchivo(
+            @PathVariable Long id
+    ) {
+        gestionarExpedienteUseCase.eliminarArchivo(id);
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(null, "Archivo eliminado!", "200");
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
 }

@@ -59,6 +59,13 @@ public class TesisController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @GetMapping("/detalle/{id}")
+    public ResponseEntity<ResponseDTO<Object>> obtenerDetallePorId(@PathVariable UUID id) {
+        TesisDetalleView detalle = gestionarTesisUseCase.obtenerDetallePorId(id);
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(restMapper.toResponseDetail(detalle), "Detalle de tesis obtenido correctamente", "200");
+        return ResponseEntity.ok(responseDTO);
+    }
+
     @PostMapping("/filtrar")
     public ResponseEntity<PaginatedResponseDTO> listarPorFiltros(
             @RequestBody TesisFiltro filtro,

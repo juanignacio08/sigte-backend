@@ -69,3 +69,41 @@ VALUES
     ('005', '004', '005004', 'ASESOR',TRUE),
     ('005', '005', '005005', 'PRESIDENTE DE SUSTENTACIÓN',TRUE),
     ('005', '007', '005007', 'SECRETARIO DOCENTE',TRUE);
+
+-- 006 TIPO DE DOCUMENTO
+INSERT INTO maestros.maestro (codigo_tabla, codigo_item, codigo, denominacion, es_sistema)
+VALUES ('006', '000', '006000', 'TIPO DE DOCUMENTO', TRUE);
+
+INSERT INTO maestros.maestro (codigo_tabla, codigo_item, codigo, denominacion, es_sistema)
+VALUES
+    ('006', '001', '006001', 'MEMORANDO DE PROYECTO',      TRUE),
+    ('006', '002', '006002', 'MEMORANDO DE BORRADOR',      TRUE),
+    ('006', '003', '006003', 'MEMORANDO DE MODIFICACIÓN',  TRUE),
+    ('006', '004', '006004', 'DICTAMEN',                   TRUE),
+    ('006', '005', '006005', 'RESOLUCIÓN DE APROBACIÓN DE PROYECTO', TRUE),
+    ('006', '006', '006006', 'RESOLUCIÓN DE FECHA Y HORA', TRUE),
+    ('006', '007', '006007', 'ACTA DE SUSTENTACIÓN',       TRUE);
+
+-- 007 ESTADO DE EXPEDIENTE
+INSERT INTO maestros.maestro (codigo_tabla, codigo_item, codigo, denominacion, es_sistema)
+VALUES ('007', '000', '007000', 'ESTADO DE EXPEDIENTE', TRUE);
+
+INSERT INTO maestros.maestro (codigo_tabla, codigo_item, codigo, denominacion, es_sistema)
+VALUES
+    ('007', '001', '007001', 'REGISTRADO',                TRUE),
+    ('007', '002', '007002', 'MEMORANDO GENERADO',        TRUE),
+    ('007', '003', '007003', 'MEMORANDO ENVIADO',         TRUE),
+    ('007', '004', '007004', 'DICTAMINADO - APROBADO',    TRUE),
+    ('007', '005', '007005', 'DICTAMINADO - OBSERVADO',   TRUE),
+    ('007', '006', '007006', 'APROBADO',                  TRUE),
+    ('007', '007', '007007', 'PROGRAMADO',                TRUE);
+
+-- 009 ESTADO DE DOCUMENTO
+INSERT INTO maestros.maestro (codigo_tabla, codigo_item, codigo, denominacion, es_sistema)
+VALUES ('009', '000', '009000', 'ESTADO DE DOCUMENTO', TRUE);
+
+INSERT INTO maestros.maestro (codigo_tabla, codigo_item, codigo, denominacion, es_sistema)
+VALUES
+    ('009', '001', '009001', 'GENERADO',  TRUE),
+    ('009', '002', '009002', 'ENVIADO',   TRUE),
+    ('009', '003', '009003', 'ANULADO',   TRUE);

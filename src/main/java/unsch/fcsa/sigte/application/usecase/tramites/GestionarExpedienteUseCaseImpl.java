@@ -16,6 +16,7 @@ import unsch.fcsa.sigte.domain.exception.BusinessRuleException;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
 import unsch.fcsa.sigte.domain.model.tramites.ExpedienteArchivo;
 import unsch.fcsa.sigte.domain.model.tramites.ExpedienteTesis;
+import unsch.fcsa.sigte.domain.util.TablaMaestraCodigos;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -83,6 +84,9 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
                     command.etapaCodigo(),
                     command.numeroRevision(),
                     command.fechaIngreso() != null ? command.fechaIngreso() : OffsetDateTime.now(),
+                    TablaMaestraCodigos.ESTADO_EXPEDIENTE_REGISTRADO,
+                    null,
+                    null,
                     1,
                     false,
                     null
@@ -155,7 +159,9 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
                 command.numeroExpediente(),
                 command.numeroRevision(),
                 command.etapaCodigo(),
-                command.fechaIngreso()
+                command.fechaIngreso(),
+                1,
+                expediente.getEstadoCodigo()
         );
 
         return expedienteRepositoryPort.guardar(expediente);
@@ -270,11 +276,14 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
             throw new BusinessRuleException("Debe adjuntar un archivo PDF al expediente.");
         }
 
-        ExpedienteDetalleView expediente = expedienteRepositoryPort.obtenerDetallePorId(expedienteId)
-                .orElseThrow(() -> new ResourceNotFoundException("ExpedienteTesis", "id", expedienteId.toString()));
+        if (!expedienteRepositoryPort.existePorId(expedienteId)) {
+            throw new ResourceNotFoundException("Expediente", "id", expedienteId.toString());
+        }
 
-        if (expediente.getArchivos() != null && expediente.getArchivos().size() >= 5) {
-            throw new BusinessRuleException("No se pueden agregar mas de 5 archivos");
+        List<ExpedienteArchivo> list = listarPorExpediente(expedienteId);
+
+        if (list != null && !list.isEmpty() && list.size() >= 5) {
+            throw new BusinessRuleException("Limite alcanzado, solo se puede registrar 5 pdfs como maximo");
         }
 
         if (!archivo.esPdf()) {
@@ -290,7 +299,7 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
 
             ExpedienteArchivo archivoDom = new ExpedienteArchivo(
                     null,
-                    expediente.getId(),
+                    expedienteId,
                     archivo.nombreOriginal(),
                     rutaRelativa,
                     archivo.tamanioBytes(),
@@ -320,6 +329,21 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
         }
 
         expedienteArchivoRepositoryPort.eliminar(id);
+    }
+
+    @Override
+    @Transactional
+    public void actualizarPasoYEstadoCodigo(Long id, Integer paso, String estado) {
+        if (id == null || id < 1) { throw new IllegalArgumentException("El id del expediente es invalido."); }
+        if (paso == null || paso < 1) { throw new IllegalArgumentException("Paso es invalido."); }
+        if (estado == null || estado.length() != 6) { throw new IllegalArgumentException("Estado invalido."); }
+
+        ExpedienteTesis expedienteTesis = expedienteRepositoryPort.buscarPorId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Expediente", "id", id.toString()));
+
+        if (!expedienteTesis.getUltimoPaso().equals(paso) || !expedienteTesis.getEstadoCodigo().equals(estado)) {
+            expedienteRepositoryPort.actualizarPasoYEstado(id, paso, estado);
+        }
     }
 
     private ExpedienteArchivoDetalleView toDetailView(ExpedienteArchivo expediente) {

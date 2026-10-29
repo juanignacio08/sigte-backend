@@ -12,10 +12,19 @@ public class ExpedienteDetalleView {
     private final String etapaDenominacion;
     private final Integer numeroRevision;
     private final OffsetDateTime fechaIngreso;
+    private final String estadoCodigo;
+    private final String estadoDenominacion;
+    private final Integer ultimoPaso;
+    private final Long comisionId;
     private final Integer estado;
     private List<ExpedienteArchivoDetalleView> archivos;
 
-    public ExpedienteDetalleView(Long id, UUID tesisId, String numeroExpediente, String etapaCodigo, String etapaDenominacion, Integer numeroRevision, OffsetDateTime fechaIngreso, Integer estado) {
+    public ExpedienteDetalleView(Long id, UUID tesisId, String numeroExpediente,
+                                 String etapaCodigo, String etapaDenominacion,
+                                 Integer numeroRevision, OffsetDateTime fechaIngreso,
+                                 String estadoCodigo, String estadoDenominacion,
+                                 Integer ultimoPaso, Long comisionId, Integer estado
+                                 ) {
         this.id = id;
         this.tesisId = tesisId;
         this.numeroExpediente = numeroExpediente;
@@ -23,6 +32,10 @@ public class ExpedienteDetalleView {
         this.etapaDenominacion = etapaDenominacion;
         this.numeroRevision = numeroRevision;
         this.fechaIngreso = fechaIngreso;
+        this.estadoCodigo = estadoCodigo;
+        this.estadoDenominacion = estadoDenominacion;
+        this.ultimoPaso = ultimoPaso;
+        this.comisionId = comisionId;
         this.estado = estado;
         this.archivos = null;
     }
@@ -54,6 +67,14 @@ public class ExpedienteDetalleView {
     public OffsetDateTime getFechaIngreso() {
         return fechaIngreso;
     }
+
+    public String getEstadoCodigo() { return estadoCodigo; }
+
+    public String getEstadoDenominacion() { return estadoDenominacion; }
+
+    public Integer getUltimoPaso() { return ultimoPaso; }
+
+    public Long getComisionId() { return comisionId; }
 
     public Integer getEstado() {
         return estado;

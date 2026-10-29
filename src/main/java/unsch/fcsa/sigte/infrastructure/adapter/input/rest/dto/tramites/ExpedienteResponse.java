@@ -17,6 +17,10 @@ public record ExpedienteResponse(
         String etapaCodigo,
         String etapaDenominacion,
         Integer numRevision,
+        String estadoCodigo,
+        String estadoDenominacion,
+        Integer ultimoPaso,
+        Long comisionId,
         OffsetDateTime fechaAsociacion,
         Integer estado,
         List<ExpedienteArchivoDetalleView> archivos

@@ -19,5 +19,7 @@ public interface ExpedienteRepositoryPort {
 
     boolean existeNumeroExpedienteActivo(String numeroExpediente);
     boolean existeExpedientePorEtapaYNumeroRevisionActivo(UUID id, String etapaCodigo, Integer numeroRevision);
+    boolean existePorId(Long id);
     void eliminarExpediente(ExpedienteDetalleView expediente);
+    void actualizarPasoYEstado(Long id, Integer paso, String estado);
 }

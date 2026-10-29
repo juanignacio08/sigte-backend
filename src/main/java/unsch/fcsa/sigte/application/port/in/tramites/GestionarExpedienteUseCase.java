@@ -27,4 +27,5 @@ public interface GestionarExpedienteUseCase {
     List<ExpedienteArchivo> listarPorExpediente(Long expedienteId);
     ExpedienteArchivo guardarArchivo(Long expedienteId, ArchivoSubida archivo);
     void eliminarArchivo(Long id);
+    void actualizarPasoYEstadoCodigo(Long id, Integer paso, String estado);
 }

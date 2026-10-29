@@ -25,6 +25,9 @@ public class ExpedientePersistenceMapper {
                 .numeroRevision(domain.getNumeroRevision())
                 .fechaIngreso(domain.getFechaIngreso())
                 .motivoBaja(domain.getMotivoBaja())
+                .estadoCodigo(domain.getEstadoCodigo())
+                .ultimoPaso(domain.getUltimoPaso())
+                .comisionId(domain.getComisionId())
                 .estado(domain.getEstado())
                 .eliminado(domain.isEliminado())
                 .build();
@@ -41,6 +44,9 @@ public class ExpedientePersistenceMapper {
                 entity.getEtapaCodigo(),
                 entity.getNumeroRevision(),
                 entity.getFechaIngreso(),
+                entity.getEstadoCodigo(),
+                entity.getUltimoPaso(),
+                entity.getComisionId(),
                 entity.getEstado(),
                 entity.getEliminado(),
                 entity.getMotivoBaja()
@@ -53,6 +59,9 @@ public class ExpedientePersistenceMapper {
         String etapa = adapter.getItemByCode(entity.getEtapaCodigo()) != null ?
                 adapter.getItemByCode(entity.getEtapaCodigo()).getDenominacion() : "NO REGISTRADO";
 
+        String estado = adapter.getItemByCode(entity.getEstadoCodigo()) != null ?
+                adapter.getItemByCode(entity.getEstadoCodigo()).getDenominacion() : "NO REGISTRADO";
+
         return new ExpedienteDetalleView(
                 entity.getId(),
                 entity.getTesis().getId(),
@@ -61,6 +70,10 @@ public class ExpedientePersistenceMapper {
                 etapa,
                 entity.getNumeroRevision(),
                 entity.getFechaIngreso(),
+                entity.getEstadoCodigo(),
+                estado,
+                entity.getUltimoPaso(),
+                entity.getComisionId(),
                 entity.getEstado()
         );
     }

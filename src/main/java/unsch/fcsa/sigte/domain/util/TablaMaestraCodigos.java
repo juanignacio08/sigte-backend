@@ -12,4 +12,6 @@ public class TablaMaestraCodigos {
     public static final String MIEMBRO_COASESOR = "005003";
     public static final String MIEMBRO_SECRETARIO = "005007";
 
+    public static final String ESTADO_EXPEDIENTE_REGISTRADO = "007001";
+
 }

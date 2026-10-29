@@ -102,10 +102,24 @@ public class ExpedientePersistenceAdapter implements ExpedienteRepositoryPort {
     }
 
     @Override
+    public boolean existePorId(Long id) {
+        return expedienteRepository.existsById(id);
+    }
+
+    @Override
     public void eliminarExpediente(ExpedienteDetalleView expediente) {
         ExpedienteTesisEntity entity = expedienteRepository.findById(expediente.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("ExpedienteTesis", "id", expediente.getId().toString()));
 
         expedienteRepository.delete(entity);
+    }
+
+    @Override
+    public void actualizarPasoYEstado(Long id, Integer paso, String estado) {
+        int filasAfectadas = expedienteRepository.actualizarEstadoYPaso(id, estado, paso);
+
+        if (filasAfectadas == 0) {
+            throw new ResourceNotFoundException("ExpedienteTesis", "id", id.toString());
+        }
     }
 }

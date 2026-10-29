@@ -43,6 +43,15 @@ public class ExpedienteTesisEntity {
     @Column(name = "motivo_baja", length = 250)
     private String motivoBaja;
 
+    @Column(name = "estado_codigo", nullable = false, length = 6)
+    private String estadoCodigo;
+
+    @Column(name = "ultimo_paso_codigo")
+    private Integer ultimoPaso;
+
+    @Column(name = "comision_id")
+    private Long comisionId;
+
     @Column(nullable = false)
     private Integer estado;
 

@@ -167,4 +167,15 @@ public class ExpedienteController {
         return ResponseEntity.ok().body(responseDTO);
     }
 
+    @PutMapping("/actualizarPasoYEstado")
+    public ResponseEntity<ResponseDTO<Object>> actualizarPasoYEstado(
+            @RequestParam Long id,
+            @RequestParam Integer paso,
+            @RequestParam String estado
+    ) {
+        gestionarExpedienteUseCase.actualizarPasoYEstadoCodigo(id, paso, estado);
+        ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(null, "Paso y Estado actualizado!", "200");
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
 }

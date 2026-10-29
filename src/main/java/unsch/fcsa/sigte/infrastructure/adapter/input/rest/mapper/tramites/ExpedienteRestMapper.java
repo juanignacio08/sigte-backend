@@ -8,6 +8,7 @@ import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteDetalleView;
 import unsch.fcsa.sigte.domain.model.tramites.ExpedienteArchivo;
 import unsch.fcsa.sigte.domain.model.tramites.ExpedienteTesis;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.ActualizarExpedienteRequest;
+import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.ComisionResponse;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.ExpedienteResponse;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.RegistrarExpedienteRequest;
 
@@ -43,6 +44,9 @@ public class ExpedienteRestMapper {
                 .etapaCodigo(domain.getEtapaCodigo())
                 .numRevision(domain.getNumeroRevision())
                 .fechaAsociacion(domain.getFechaIngreso())
+                .estadoCodigo(domain.getEstadoCodigo())
+                .ultimoPaso(domain.getUltimoPaso())
+                .comisionId(domain.getComisionId())
                 .estado(domain.getEstado())
                 .build();
     }
@@ -58,6 +62,10 @@ public class ExpedienteRestMapper {
                 .etapaDenominacion(domain.getEtapaDenominacion())
                 .numRevision(domain.getNumeroRevision())
                 .fechaAsociacion(domain.getFechaIngreso())
+                .estadoCodigo(domain.getEstadoCodigo())
+                .estadoDenominacion(domain.getEstadoDenominacion())
+                .ultimoPaso(domain.getUltimoPaso())
+                .comisionId(domain.getComisionId())
                 .estado(domain.getEstado())
                 .build();
     }
@@ -73,6 +81,10 @@ public class ExpedienteRestMapper {
                 .etapaDenominacion(domain.getEtapaDenominacion())
                 .numRevision(domain.getNumeroRevision())
                 .fechaAsociacion(domain.getFechaIngreso())
+                .estadoCodigo(domain.getEstadoCodigo())
+                .estadoDenominacion(domain.getEstadoDenominacion())
+                .ultimoPaso(domain.getUltimoPaso())
+                .comisionId(domain.getComisionId())
                 .estado(domain.getEstado())
                 .archivos(domain.getArchivos())
                 .build();

@@ -14,4 +14,8 @@ public class TablaMaestraCodigos {
 
     public static final String ESTADO_EXPEDIENTE_REGISTRADO = "007001";
 
+    public static final String ESTADO_DOCUMENTO_ESTADO_GENERADO = "009001";
+    public static final String ESTADO_DOCUMENTO_ESTADO_ENVIADO = "009002";
+    public static final String ESTADO_DOCUMENTO_ESTADO_ANULADO = "009003";
+
 }

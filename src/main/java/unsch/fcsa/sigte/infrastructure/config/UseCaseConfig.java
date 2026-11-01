@@ -9,12 +9,14 @@ import unsch.fcsa.sigte.application.port.in.maestro.GestionarMaestrosUseCase;
 import unsch.fcsa.sigte.application.port.in.personas.GestionarDocenteUseCase;
 import unsch.fcsa.sigte.application.port.in.personas.GestionarEstudianteUseCase;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarComisionUseCase;
+import unsch.fcsa.sigte.application.port.in.tramites.GestionarDocumentosTesisUseCase;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarExpedienteUseCase;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarTesisUseCase;
 import unsch.fcsa.sigte.application.port.out.maestro.FacultadRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.maestro.MaestroRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.personas.DocenteRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.personas.EstudianteRepositoryPort;
+import unsch.fcsa.sigte.application.port.out.storage.DocumentoGeneradorPort;
 import unsch.fcsa.sigte.application.port.out.storage.StoragePort;
 import unsch.fcsa.sigte.application.port.out.tramites.*;
 import unsch.fcsa.sigte.application.usecase.maestro.GestionarDepartamentoUseCaseImpl;
@@ -26,6 +28,7 @@ import unsch.fcsa.sigte.application.usecase.maestro.GestionarMaestroUseCaseImpl;
 import unsch.fcsa.sigte.application.usecase.personas.GestionarDocenteUseCaseImpl;
 import unsch.fcsa.sigte.application.usecase.personas.GestionarEstudianteUseCaseImpl;
 import unsch.fcsa.sigte.application.usecase.tramites.GestionarComisionUseCaseImpl;
+import unsch.fcsa.sigte.application.usecase.tramites.GestionarDocumentosTesisUseCaseImpl;
 import unsch.fcsa.sigte.application.usecase.tramites.GestionarExpedienteUseCaseImpl;
 import unsch.fcsa.sigte.application.usecase.tramites.GestionarTesisUseCaseImpl;
 
@@ -118,6 +121,23 @@ public class UseCaseConfig {
         return new GestionarComisionUseCaseImpl(
                 comisionRepositoryPort, comisionMiembroRepositoryPort,
                 tesisRepositoryPort, docenteRepositoryPort
+        );
+    }
+
+    @Bean
+    public GestionarDocumentosTesisUseCase gestionarDocumentosTesisUseCase(
+            DocumentoTesisRepositoryPort documentoTesisRepositoryPort,
+            DocumentoGeneradorPort documentoGeneradorPort,
+            TesisRepositoryPort tesisRepositoryPort,
+            ExpedienteRepositoryPort expedienteRepositoryPort,
+            GestionarComisionUseCase gestionarComisionUseCase
+    ) {
+        return new GestionarDocumentosTesisUseCaseImpl(
+                documentoTesisRepositoryPort,
+                documentoGeneradorPort,
+                tesisRepositoryPort,
+                expedienteRepositoryPort,
+                gestionarComisionUseCase
         );
     }
 

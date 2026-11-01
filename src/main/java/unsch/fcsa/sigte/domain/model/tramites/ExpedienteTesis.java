@@ -1,6 +1,7 @@
 package unsch.fcsa.sigte.domain.model.tramites;
 
 import unsch.fcsa.sigte.domain.exception.BusinessRuleException;
+import unsch.fcsa.sigte.domain.util.TablaMaestraCodigos;
 
 import java.time.OffsetDateTime;
 
@@ -67,6 +68,16 @@ public class ExpedienteTesis {
     public void marcarComoEliminado() {
         this.eliminado = true;
         this.estado = 0;
+    }
+
+    public void marcarComoMemoGenerado() {
+        this.estadoCodigo = TablaMaestraCodigos.ESTADO_EXPEDIENTE_MEMO_GENERADO;
+        this.ultimoPaso = 3;
+    }
+
+    public void revertirMemoGenerado() {
+        this.estadoCodigo = TablaMaestraCodigos.ESTADO_EXPEDIENTE_REGISTRADO;
+        this.ultimoPaso = 2;
     }
 
     private void setNumeroExpediente(String numeroExpediente) {

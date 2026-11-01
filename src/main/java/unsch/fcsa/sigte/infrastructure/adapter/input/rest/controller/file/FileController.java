@@ -39,6 +39,22 @@ public class FileController {
                 .body(recurso);
     }
 
+    @GetMapping("/descargarWord")
+    public ResponseEntity<Resource> descargarWord(@RequestParam("ruta") String ruta) {
+        Resource recurso = storagePort.cargarComoRecurso(ruta);
+
+        // MimeType para documentos Word (.docx)
+        String contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+        // Extraer el nombre original del archivo desde la ruta
+        String filename = recurso.getFilename();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .body(recurso);
+    }
+
     @GetMapping("descargarPdf")
     public ResponseEntity<Resource> descargarPdf(@RequestParam("ruta") String ruta) {
         Resource recurso = storagePort.cargarComoRecurso(ruta);

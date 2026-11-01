@@ -1,13 +1,14 @@
 package unsch.fcsa.sigte.infrastructure.adapter.input.rest.controller.tramites;
 
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarDocumentosTesisUseCase;
+import unsch.fcsa.sigte.domain.model.tramites.DocumentoTesis;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.ResponseDTO;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.DocumentoTesisResponse;
+import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.GenerarMemoRequest;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.ResponseGlobalMapper;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.tramites.DocumentoTesisRestMapper;
 
@@ -64,5 +65,18 @@ public class DocumentoTesisController {
         ResponseDTO<Object> body = ResponseGlobalMapper.build(
                 lista, "Documentos del expediente por tipo", "200");
         return ResponseEntity.ok(body);
+    }
+
+    @PostMapping("/memo")
+    public ResponseEntity<ResponseDTO<Object>> generarMemo(@Valid @RequestBody GenerarMemoRequest request) {
+
+        DocumentoTesis nuevoDocumento = useCase.generarMemo(mapper.toCommand(request));
+
+        DocumentoTesisResponse response = mapper.toResponse(nuevoDocumento);
+
+        ResponseDTO<Object> body = ResponseGlobalMapper.build(
+                response, "Memorando generado correctamente", "201");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 }

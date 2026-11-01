@@ -16,6 +16,7 @@ import unsch.fcsa.sigte.application.port.out.maestro.FacultadRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.maestro.MaestroRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.personas.DocenteRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.personas.EstudianteRepositoryPort;
+import unsch.fcsa.sigte.application.port.out.storage.DocumentoGeneradorPort;
 import unsch.fcsa.sigte.application.port.out.storage.StoragePort;
 import unsch.fcsa.sigte.application.port.out.tramites.*;
 import unsch.fcsa.sigte.application.usecase.maestro.GestionarDepartamentoUseCaseImpl;
@@ -125,8 +126,19 @@ public class UseCaseConfig {
 
     @Bean
     public GestionarDocumentosTesisUseCase gestionarDocumentosTesisUseCase(
-            DocumentoTesisRepositoryPort documentoTesisRepositoryPort) {
-        return new GestionarDocumentosTesisUseCaseImpl(documentoTesisRepositoryPort);
+            DocumentoTesisRepositoryPort documentoTesisRepositoryPort,
+            DocumentoGeneradorPort documentoGeneradorPort,
+            TesisRepositoryPort tesisRepositoryPort,
+            ExpedienteRepositoryPort expedienteRepositoryPort,
+            GestionarComisionUseCase gestionarComisionUseCase
+    ) {
+        return new GestionarDocumentosTesisUseCaseImpl(
+                documentoTesisRepositoryPort,
+                documentoGeneradorPort,
+                tesisRepositoryPort,
+                expedienteRepositoryPort,
+                gestionarComisionUseCase
+        );
     }
 
 }

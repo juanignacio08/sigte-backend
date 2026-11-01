@@ -1,14 +1,23 @@
 package unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.tramites;
 
 import org.springframework.stereotype.Component;
+import unsch.fcsa.sigte.application.command.tramites.GenerarMemoCommand;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.DocumentoTesisDetalleView;
 import unsch.fcsa.sigte.domain.model.tramites.DocumentoTesis;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.DocumentoTesisResponse;
+import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.GenerarMemoRequest;
 
 @Component
 public class DocumentoTesisRestMapper {
 
-    private static final String SIGLAS_FACULTAD = "UNSCH-FCSA-D";
+    public GenerarMemoCommand toCommand(GenerarMemoRequest request) {
+        return new GenerarMemoCommand(
+                request.tesisId(),
+                request.expedienteId(),
+                request.numeroCorrelativo(),
+                request.anio()
+        );
+    }
 
     public DocumentoTesisResponse toResponse(DocumentoTesis domain) {
         if (domain == null) return null;
@@ -61,6 +70,6 @@ public class DocumentoTesisRestMapper {
         return String.format("%d-%d-%s",
                 view.getNumeroCorrelativo(),
                 view.getAnioCorrelativo(),
-                SIGLAS_FACULTAD);
+                "");
     }
 }

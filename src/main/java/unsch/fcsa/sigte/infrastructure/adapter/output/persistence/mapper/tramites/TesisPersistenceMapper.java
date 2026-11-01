@@ -100,6 +100,7 @@ public class TesisPersistenceMapper {
                 entity.getId(),
                 entity.getEscuela().getId(),
                 entity.getEscuela().getDenominacion(),
+                entity.getEscuela().getPlantillaMemorando(),
                 entity.getTitulo(),
                 entity.getTituloDictaminado(),
                 entity.getEstadoCodigo(),

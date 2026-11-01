@@ -1,5 +1,6 @@
 package unsch.fcsa.sigte.application.port.in.tramites;
 
+import unsch.fcsa.sigte.application.command.tramites.GenerarMemoCommand;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.DocumentoTesisDetalleView;
 import unsch.fcsa.sigte.domain.model.tramites.DocumentoTesis;
 
@@ -13,4 +14,5 @@ public interface GestionarDocumentosTesisUseCase {
     List<DocumentoTesisDetalleView> listarPorExpedienteYTipo(Long expedienteId, String tipoDocumentoCodigo);
     DocumentoTesis obtenerPorId(Long id);
 
+    DocumentoTesis generarMemo(GenerarMemoCommand command);
 }

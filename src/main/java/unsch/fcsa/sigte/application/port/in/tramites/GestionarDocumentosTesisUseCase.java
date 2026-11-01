@@ -9,10 +9,12 @@ import java.util.UUID;
 
 public interface GestionarDocumentosTesisUseCase {
 
-    List<DocumentoTesisDetalleView> listarPorExpediente(Long expedienteId);
+    DocumentoTesisDetalleView obtenerPorExpediente(Long expedienteId);
     List<DocumentoTesisDetalleView> listarPorTesis(UUID tesisId);
     List<DocumentoTesisDetalleView> listarPorExpedienteYTipo(Long expedienteId, String tipoDocumentoCodigo);
     DocumentoTesis obtenerPorId(Long id);
 
     DocumentoTesis generarMemo(GenerarMemoCommand command);
+    DocumentoTesis volverAGenerar(Long documentoId);
+    void eliminarDocumento(Long documentoId);
 }

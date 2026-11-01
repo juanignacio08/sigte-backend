@@ -52,6 +52,22 @@ public class DocumentoTesis {
     // REGLAS DE NEGOCIO
     // ==================================================================
 
+    public void volverAGenerar(
+            String tipoDocumentoCodigo,
+            String rutaWord,
+            String rutaPdf,
+            Long tamanioBytesWord,
+            Long tamanioBytesPdf
+    ) {
+        setTipoDocumentoCodigo(tipoDocumentoCodigo);
+        this.archivoWordUrl = rutaWord;
+        this.archivoPdfUrl = rutaPdf;
+        this.tamanioBytesWord = tamanioBytesWord;
+        this.tamanioBytesPdf = tamanioBytesPdf;
+        this.fechaEmision = LocalDate.now();
+        this.estadoCodigo = TablaMaestraCodigos.ESTADO_DOCUMENTO_ESTADO_GENERADO;
+    }
+
     public void marcarComoEnviado() {
         this.estadoCodigo = TablaMaestraCodigos.ESTADO_DOCUMENTO_ESTADO_ENVIADO;
     }

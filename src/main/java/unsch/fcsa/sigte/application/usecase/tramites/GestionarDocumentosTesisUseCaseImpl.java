@@ -16,6 +16,7 @@ import unsch.fcsa.sigte.domain.util.AsuntoMemoBuilder;
 import unsch.fcsa.sigte.domain.util.TablaMaestraCodigos;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,7 +44,7 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
 
     @Override
     @Transactional(readOnly = true)
-    public List<DocumentoTesisDetalleView> listarPorExpediente(Long expedienteId) {
+    public DocumentoTesisDetalleView obtenerPorExpediente(Long expedienteId) {
         log.info("Listando documentos del expediente. [ EXPEDIENTE : {} ]", expedienteId);
         return documentoTesisRepositoryPort.listarPorExpediente(expedienteId);
     }
@@ -77,6 +78,10 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
         log.info("Generando memo. [ TESIS : {} | EXPEDIENTE : {} | N° : {}-{} ]",
                 command.tesisId(), command.expedienteId(),
                 command.numeroCorrelativo(), command.anio());
+
+        if (documentoTesisRepositoryPort.existeMemoGeneradoPorExpediente(command.expedienteId())) {
+            throw new BusinessRuleException("No se puede crear un memorando. Ya existe un memorando generado para este expediente.");
+        }
 
         TesisDetalleView tesis = tesisRepositoryPort.obtenerDetallePorId(command.tesisId());
 
@@ -152,6 +157,125 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
         log.info("Memo {} generado y guardado. ID documento: {}", command.numeroCorrelativo(), guardado.getId());
 
         return guardado;
+    }
+
+    @Override
+    @Transactional
+    public DocumentoTesis volverAGenerar(Long documentoId) {
+        log.info("Volviendo a generar DocumentoTesis. [ DOCUMENTO : {} ]", documentoId.toString());
+
+        DocumentoTesis documentoTesis = documentoTesisRepositoryPort.buscarPorId(documentoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Documento", "id", documentoId));
+
+        TesisDetalleView tesis = tesisRepositoryPort.obtenerDetallePorId(documentoTesis.getTesisId());
+
+        ExpedienteTesis expediente = expedienteRepositoryPort.buscarPorId(documentoTesis.getExpedienteTesisId())
+                .orElseThrow(() -> new ResourceNotFoundException("ExpedienteTesis", "id", documentoTesis.getExpedienteTesisId().toString()));
+
+        if (!expediente.getTesisId().equals(tesis.getId())) {
+            throw new BusinessRuleException("El expediente no pertenece a la tesis indicada.");
+        }
+
+        ComisionDetalleView comision = gestionarComisionUseCase.obtenerPorTesisYEtapa(tesis.getId(), expediente.getEtapaCodigo());
+
+        String tipoDocumentoCodigo = mapearTipoDocumento(expediente.getEtapaCodigo());
+
+        String rutaPlantilla = tesis.getPlantillaMemo();
+
+        if (rutaPlantilla == null) { throw new BusinessRuleException("NO existe una plantilla de memorando en la escuela " + tesis.getEscuelaDenominacion()); }
+
+        if (comision.getMiembros() == null || comision.getMiembros().isEmpty()) {
+            throw new BusinessRuleException("La comisión del expediente no tiene miembros registrados.");
+        }
+
+        List<MemorandumData.MiembroMemo> miembros = comision.getMiembros().stream()
+                .map(m -> new MemorandumData.MiembroMemo(m.docenteNombre(), m.rolDenominacion()))
+                .toList();
+
+        String asunto = AsuntoMemoBuilder.construir(expediente.getEtapaCodigo(), expediente.getNumeroRevision());
+        String tesistas = construirTesistas(tesis);
+        String tipoDocumento = mapearNombreTipoDocumento(expediente.getEtapaCodigo());
+
+        MemorandumData data = new MemorandumData(
+                String.format("%03d", documentoTesis.getNumeroCorrelativo()),
+                String.valueOf(documentoTesis.getAnioCorrelativo()),
+                miembros,
+                asunto,
+                tesistas,
+                expediente.getNumeroExpediente(),
+                LocalDate.now(),
+                tipoDocumento,
+                tesis.getTitulo(),
+                rutaPlantilla
+        );
+
+        String rutaWordAntiguo = documentoTesis.getArchivoWordUrl();
+        String rutaPdfAntiguo = documentoTesis.getArchivoPdfUrl();
+
+        DocumentoGenerado docGenerado = documentoGeneradorPort.generarMemorandum(data);
+
+        String nuevaRutaWord = docGenerado.rutaWord();
+        String nuevaRutaPdf  = docGenerado.rutaPdf();
+
+        documentoTesis.volverAGenerar(
+                tipoDocumentoCodigo, docGenerado.rutaWord(), docGenerado.rutaPdf(), docGenerado.tamanioWordBytes(), docGenerado.tamanioPdfBytes()
+        );
+
+        DocumentoTesis guardado = documentoTesisRepositoryPort.guardar(documentoTesis);
+
+        expediente.marcarComoMemoGenerado();
+        expedienteRepositoryPort.guardar(expediente);
+
+        List<String> rutasViejas = new ArrayList<>();
+        if (rutaWordAntiguo != null && !rutaWordAntiguo.equals(nuevaRutaWord)) {
+            rutasViejas.add(rutaWordAntiguo);
+        }
+        if (rutaPdfAntiguo != null && !rutaPdfAntiguo.equals(nuevaRutaPdf)) {
+            rutasViejas.add(rutaPdfAntiguo);
+        }
+
+        if (!rutasViejas.isEmpty()) {
+            documentoGeneradorPort.eliminarArchivosGenerados(rutasViejas);
+        }
+
+        return guardado;
+    }
+
+    @Override
+    @Transactional
+    public void eliminarDocumento(Long documentoId) {
+        log.info("Eliminando documento físicamente. [ DOCUMENTO : {} ]", documentoId);
+
+        DocumentoTesis doc = documentoTesisRepositoryPort.buscarPorId(documentoId)
+                .orElseThrow(() -> new ResourceNotFoundException("DocumentoTesis", "id", documentoId.toString()));
+
+        if (esTipoMemo(doc.getTipoDocumentoCodigo()) && doc.getExpedienteTesisId() != null) {
+            ExpedienteTesis expediente = expedienteRepositoryPort
+                    .buscarPorId(doc.getExpedienteTesisId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "ExpedienteTesis", "id", doc.getExpedienteTesisId().toString()));
+
+            expediente.revertirMemoGenerado();
+            expedienteRepositoryPort.guardar(expediente);
+
+            log.info("Expediente {} revertido a REGISTRADO", expediente.getId());
+        }
+
+        if (doc.getArchivoWordUrl() != null) {
+            documentoGeneradorPort.eliminarArchivosGenerados(List.of(doc.getArchivoWordUrl()));
+        }
+        if (doc.getArchivoPdfUrl() != null) {
+            documentoGeneradorPort.eliminarArchivosGenerados(List.of(doc.getArchivoPdfUrl()));
+        }
+
+        documentoTesisRepositoryPort.eliminar(documentoId);
+
+        log.info("Documento {} eliminado correctamente", documentoId);
+    }
+
+    private boolean esTipoMemo(String tipoCodigo) {
+        return TablaMaestraCodigos.TIPO_DOCUMENTO_MEMO_PROYECTO.equals(tipoCodigo)
+                || TablaMaestraCodigos.TIPO_DOCUMENTO_MEMO_BORRADOR.equals(tipoCodigo);
     }
 
     private String mapearTipoDocumento(String etapaCodigo) {

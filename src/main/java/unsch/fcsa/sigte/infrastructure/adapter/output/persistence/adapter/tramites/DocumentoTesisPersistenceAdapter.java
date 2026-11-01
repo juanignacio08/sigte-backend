@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Component;
 import unsch.fcsa.sigte.application.port.out.tramites.DocumentoTesisRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.DocumentoTesisDetalleView;
+import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
 import unsch.fcsa.sigte.domain.model.tramites.DocumentoTesis;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.tramites.DocumentoTesisEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.tramites.TesisEntity;
@@ -45,12 +46,11 @@ public class DocumentoTesisPersistenceAdapter implements DocumentoTesisRepositor
     }
 
     @Override
-    public List<DocumentoTesisDetalleView> listarPorExpediente(Long expedienteId) {
+    public DocumentoTesisDetalleView listarPorExpediente(Long expedienteId) {
         return repository
-                .findByExpedienteTesisIdAndEliminadoFalseOrderByFechaEmisionDesc(expedienteId)
-                .stream()
+                .findFirstByExpedienteTesisIdAndEliminadoFalseOrderByFechaEmisionDesc(expedienteId)
                 .map(mapper::toDetalleView)
-                .toList();
+                .orElseThrow(() -> new ResourceNotFoundException("DOCUMENTO", "expediente", expedienteId));
     }
 
     @Override
@@ -75,5 +75,15 @@ public class DocumentoTesisPersistenceAdapter implements DocumentoTesisRepositor
     public boolean existeCorrelativo(String tipoDocumentoCodigo, Integer anio, Integer numero) {
         return repository.existsByTipoDocumentoCodigoAndAnioCorrelativoAndNumeroCorrelativoAndEliminadoFalse(
                 tipoDocumentoCodigo, anio, numero);
+    }
+
+    @Override
+    public boolean existeMemoGeneradoPorExpediente(Long expedienteId) {
+        return repository.existsByExpedienteTesisIdAndEstadoAndEliminadoFalse(expedienteId, 1);
+    }
+
+    @Override
+    public void eliminar(Long id) {
+        repository.deleteById(id);
     }
 }

@@ -67,9 +67,10 @@ public class DocumentoTesisRestMapper {
         if (view.getNumeroCorrelativo() == null || view.getAnioCorrelativo() == null) {
             return null;
         }
-        return String.format("%d-%d-%s",
-                view.getNumeroCorrelativo(),
+        String number = String.format("%03d", view.getNumeroCorrelativo());
+        return String.format("%s-%d-%s",
+                number,
                 view.getAnioCorrelativo(),
-                "");
+                "UNSCH-FCSA-D");
     }
 }

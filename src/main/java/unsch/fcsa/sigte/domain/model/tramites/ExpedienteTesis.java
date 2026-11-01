@@ -72,7 +72,12 @@ public class ExpedienteTesis {
 
     public void marcarComoMemoGenerado() {
         this.estadoCodigo = TablaMaestraCodigos.ESTADO_EXPEDIENTE_MEMO_GENERADO;
-        this.ultimoPaso = 4;
+        this.ultimoPaso = 3;
+    }
+
+    public void revertirMemoGenerado() {
+        this.estadoCodigo = TablaMaestraCodigos.ESTADO_EXPEDIENTE_REGISTRADO;
+        this.ultimoPaso = 2;
     }
 
     private void setNumeroExpediente(String numeroExpediente) {

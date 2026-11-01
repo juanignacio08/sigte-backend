@@ -70,6 +70,13 @@ public class DocumentoGeneradorAdapter implements DocumentoGeneradorPort {
         }
     }
 
+    @Override
+    public void eliminarArchivosGenerados(List<String> rutas) {
+        for (String ruta : rutas) {
+            storagePort.eliminarTrasCommit(ruta);
+        }
+    }
+
     private Path prepararCarpetaSalida() {
         try {
             Path carpeta = storageRoot.resolve("documentos/memos");

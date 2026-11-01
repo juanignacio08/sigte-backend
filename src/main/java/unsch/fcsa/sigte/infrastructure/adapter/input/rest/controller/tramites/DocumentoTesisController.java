@@ -30,13 +30,10 @@ public class DocumentoTesisController {
 
     @GetMapping("/expediente/{expedienteId}")
     public ResponseEntity<ResponseDTO<Object>> listarPorExpediente(@PathVariable Long expedienteId) {
-        List<DocumentoTesisResponse> lista = useCase.listarPorExpediente(expedienteId)
-                .stream()
-                .map(mapper::toResponse)
-                .toList();
+        DocumentoTesisResponse response = mapper.toResponse(useCase.obtenerPorExpediente(expedienteId));
 
         ResponseDTO<Object> body = ResponseGlobalMapper.build(
-                lista, "Documentos del expediente", "200");
+                response, "Documentos del expediente", "200");
         return ResponseEntity.ok(body);
     }
 
@@ -78,5 +75,23 @@ public class DocumentoTesisController {
                 response, "Memorando generado correctamente", "201");
 
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    }
+
+    @PutMapping("/memo/{documentoId}/regenerar")
+    public ResponseEntity<ResponseDTO<Object>> volverAGenerar(@PathVariable Long documentoId) {
+        DocumentoTesis nuevoDocumento = useCase.volverAGenerar(documentoId);
+        DocumentoTesisResponse response = mapper.toResponse(nuevoDocumento);
+        ResponseDTO<Object> body = ResponseGlobalMapper.build(
+                response, "Memorando generado correctamente", "201"
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    }
+
+    @DeleteMapping("/{documentoId}")
+    public ResponseEntity<ResponseDTO<Object>> eliminar(@PathVariable Long documentoId) {
+        useCase.eliminarDocumento(documentoId);
+        ResponseDTO<Object> body = ResponseGlobalMapper.build(
+                null, "Documento eliminado correctamente", "200");
+        return ResponseEntity.ok(body);
     }
 }

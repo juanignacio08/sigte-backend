@@ -2,18 +2,17 @@ package unsch.fcsa.sigte.infrastructure.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import tools.jackson.databind.ObjectMapper;
 import unsch.fcsa.sigte.application.port.in.maestro.GestionarDepartamentoUseCase;
 import unsch.fcsa.sigte.application.port.in.maestro.GestionarEscuelaUseCase;
 import unsch.fcsa.sigte.application.port.in.maestro.GestionarFacultadUseCase;
 import unsch.fcsa.sigte.application.port.in.maestro.GestionarMaestrosUseCase;
 import unsch.fcsa.sigte.application.port.in.personas.GestionarDocenteUseCase;
 import unsch.fcsa.sigte.application.port.in.personas.GestionarEstudianteUseCase;
-import unsch.fcsa.sigte.application.port.in.tramites.GestionarComisionUseCase;
-import unsch.fcsa.sigte.application.port.in.tramites.GestionarDocumentosTesisUseCase;
-import unsch.fcsa.sigte.application.port.in.tramites.GestionarExpedienteUseCase;
-import unsch.fcsa.sigte.application.port.in.tramites.GestionarTesisUseCase;
+import unsch.fcsa.sigte.application.port.in.tramites.*;
 import unsch.fcsa.sigte.application.port.out.maestro.FacultadRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.maestro.MaestroRepositoryPort;
+import unsch.fcsa.sigte.application.port.out.notificaciones.EmailPort;
 import unsch.fcsa.sigte.application.port.out.personas.DocenteRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.personas.EstudianteRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.storage.DocumentoGeneradorPort;
@@ -27,10 +26,7 @@ import unsch.fcsa.sigte.application.usecase.maestro.GestionarFacultadUseCaseImpl
 import unsch.fcsa.sigte.application.usecase.maestro.GestionarMaestroUseCaseImpl;
 import unsch.fcsa.sigte.application.usecase.personas.GestionarDocenteUseCaseImpl;
 import unsch.fcsa.sigte.application.usecase.personas.GestionarEstudianteUseCaseImpl;
-import unsch.fcsa.sigte.application.usecase.tramites.GestionarComisionUseCaseImpl;
-import unsch.fcsa.sigte.application.usecase.tramites.GestionarDocumentosTesisUseCaseImpl;
-import unsch.fcsa.sigte.application.usecase.tramites.GestionarExpedienteUseCaseImpl;
-import unsch.fcsa.sigte.application.usecase.tramites.GestionarTesisUseCaseImpl;
+import unsch.fcsa.sigte.application.usecase.tramites.*;
 
 @Configuration
 public class UseCaseConfig {
@@ -130,14 +126,31 @@ public class UseCaseConfig {
             DocumentoGeneradorPort documentoGeneradorPort,
             TesisRepositoryPort tesisRepositoryPort,
             ExpedienteRepositoryPort expedienteRepositoryPort,
-            GestionarComisionUseCase gestionarComisionUseCase
+            ExpedienteArchivoRepositoryPort expedienteArchivoRepositoryPort,
+            EmailPort emailPort,
+            EnvioCorreoRepositoryPort envioCorreoRepositoryPort,
+            GestionarComisionUseCase gestionarComisionUseCase,
+            ObjectMapper objectMapper
     ) {
         return new GestionarDocumentosTesisUseCaseImpl(
                 documentoTesisRepositoryPort,
                 documentoGeneradorPort,
                 tesisRepositoryPort,
                 expedienteRepositoryPort,
-                gestionarComisionUseCase
+                expedienteArchivoRepositoryPort,
+                emailPort,
+                envioCorreoRepositoryPort,
+                gestionarComisionUseCase,
+                objectMapper
+        );
+    }
+
+    @Bean
+    public GestionarEnvioCorreoUseCase gestionarEnvioCorreoUseCase(
+            EnvioCorreoRepositoryPort envioCorreoRepositoryPort
+    ) {
+        return new GestionarEnvioCorreoUseCaseImpl(
+                envioCorreoRepositoryPort
         );
     }
 

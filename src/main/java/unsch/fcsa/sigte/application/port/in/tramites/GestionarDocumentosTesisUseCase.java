@@ -1,6 +1,7 @@
 package unsch.fcsa.sigte.application.port.in.tramites;
 
 import unsch.fcsa.sigte.application.command.tramites.GenerarMemoCommand;
+import unsch.fcsa.sigte.application.port.out.tramites.dto.ContenidoEmailMemo;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.DocumentoTesisDetalleView;
 import unsch.fcsa.sigte.domain.model.tramites.DocumentoTesis;
 
@@ -17,4 +18,7 @@ public interface GestionarDocumentosTesisUseCase {
     DocumentoTesis generarMemo(GenerarMemoCommand command);
     DocumentoTesis volverAGenerar(Long documentoId);
     void eliminarDocumento(Long documentoId);
+
+    void enviarMemo(Long documentoId);
+    ContenidoEmailMemo obtenerContenidoAEnviar(Long expedienteId);
 }

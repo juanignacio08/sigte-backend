@@ -28,6 +28,7 @@ public class DocumentoTesisRestMapper {
         return new RegistrarDictamenCommand(
                 request.expedienteId(),
                 request.resultadoCodigo(),
+                request.tituloDictaminado(),
                 request.observaciones(),
                 request.fechaEmision(),
                 pdf,

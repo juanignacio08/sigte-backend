@@ -301,13 +301,17 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
         log.info("Registrando dictamen. [ EXPEDIENTE : {} | RESULTADO : {} ]",
                 command.expedienteId(), command.resultadoCodigo());
 
+        if (TablaMaestraCodigos.RESULTADO_DICTAMEN_APROBADO.equals(command.resultadoCodigo()) && (command.tituloDictaminado() == null || command.tituloDictaminado().isEmpty())) {
+            throw new BusinessRuleException("El titulo dictaminado es requerido");
+        }
+
         ExpedienteTesis expediente = expedienteRepositoryPort.buscarPorId(command.expedienteId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "ExpedienteTesis", "id", command.expedienteId().toString()));
 
         if (!TablaMaestraCodigos.ESTADO_EXPEDIENTE_MEMO_ENVIADO.equals(expediente.getEstadoCodigo())) {
             throw new BusinessRuleException(
-                    "Solo se puede registrar dictamen cuando el memo ya fue enviado a la comisión.");
+                    "Solo se puede registrar el dictamen cuando el memo ya fue enviado a la comisión.");
         }
 
         if (documentoTesisRepositoryPort.existeDictamenPorExpediente(command.expedienteId())) {
@@ -359,6 +363,7 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
 
             if (TablaMaestraCodigos.RESULTADO_DICTAMEN_APROBADO.equals(command.resultadoCodigo())) {
                 expediente.marcarComoDictaminadoAprobado();
+                tesisRepositoryPort.actualizarTituloDictaminado(expediente.getTesisId(), command.tituloDictaminado());
             } else {
                 expediente.marcarComoDictaminadoObservado();
             }

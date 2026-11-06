@@ -13,5 +13,7 @@ public interface TesisRepositoryPort {
     PageResult<TesisDetalleView> listarPorFiltros(TesisFiltro filtro, int page, int size);
     boolean estudianteTieneTesisActiva(Long estudianteId);
     boolean existePorId(UUID id);
+
+    void actualizarTituloDictaminado(UUID tesisId, String tituloDictaminado);
     //void actualizarAutores(UUID tesisId, List<Long> nuevosEstudiantesIds);
 }

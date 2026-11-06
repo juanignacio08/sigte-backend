@@ -28,5 +28,7 @@ public interface SpringDataTesisRepository extends JpaRepository<TesisEntity, UU
     @EntityGraph(attributePaths = {"escuela", "autores", "autores.estudiante"})
     Optional<TesisEntity> findByIdAndEliminadoFalse(UUID id);
 
+    Optional<TesisEntity> findByIdEqualsAndEliminadoFalse(UUID id);
+
     boolean existsById(@NonNull UUID id);
 }

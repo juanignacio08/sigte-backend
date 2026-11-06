@@ -8,6 +8,7 @@ import java.time.LocalDate;
 public record RegistrarDictamenCommand(
         Long expedienteId,
         String resultadoCodigo,
+        String tituloDictaminado,
         String observaciones,
         LocalDate fechaEmision,
         ArchivoSubida archivoPdf,

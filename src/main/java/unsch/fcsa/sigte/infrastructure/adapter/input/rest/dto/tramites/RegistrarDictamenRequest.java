@@ -17,6 +17,8 @@ public record RegistrarDictamenRequest(
                 message = "El resultado debe ser APROBADO u OBSERVADO")
         String resultadoCodigo,
 
+        String tituloDictaminado,
+
         String observaciones,
 
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)

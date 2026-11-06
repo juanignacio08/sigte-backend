@@ -4,10 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 import unsch.fcsa.sigte.application.command.tramites.GenerarMemoCommand;
+import unsch.fcsa.sigte.application.command.tramites.RegistrarDictamenCommand;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarComisionUseCase;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarDocumentosTesisUseCase;
 import unsch.fcsa.sigte.application.port.out.notificaciones.EmailPort;
 import unsch.fcsa.sigte.application.port.out.storage.DocumentoGeneradorPort;
+import unsch.fcsa.sigte.application.port.out.storage.StoragePort;
 import unsch.fcsa.sigte.application.port.out.tramites.*;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.*;
 import unsch.fcsa.sigte.domain.exception.BusinessRuleException;
@@ -36,6 +38,7 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
     private final EmailPort emailPort;
     private final EnvioCorreoRepositoryPort envioCorreoRepositoryPort;
     private final GestionarComisionUseCase gestionarComisionUseCase;
+    private final StoragePort storagePort;
     private final ObjectMapper objectMapper;
 
     public GestionarDocumentosTesisUseCaseImpl(
@@ -47,6 +50,7 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
             EmailPort emailPort,
             EnvioCorreoRepositoryPort envioCorreoRepositoryPort,
             GestionarComisionUseCase gestionarComisionUseCase,
+            StoragePort storagePort,
             ObjectMapper objectMapper) {
         this.documentoTesisRepositoryPort = documentoTesisRepositoryPort;
         this.documentoGeneradorPort = documentoGeneradorPort;
@@ -56,14 +60,8 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
         this.emailPort = emailPort;
         this.envioCorreoRepositoryPort = envioCorreoRepositoryPort;
         this.gestionarComisionUseCase = gestionarComisionUseCase;
+        this.storagePort = storagePort;
         this.objectMapper = objectMapper;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public DocumentoTesisDetalleView obtenerPorExpediente(Long expedienteId) {
-        log.info("Listando documentos del expediente. [ EXPEDIENTE : {} ]", expedienteId);
-        return documentoTesisRepositoryPort.listarPorExpediente(expedienteId);
     }
 
     @Override
@@ -96,7 +94,7 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
                 command.tesisId(), command.expedienteId(),
                 command.numeroCorrelativo(), command.anio());
 
-        if (documentoTesisRepositoryPort.existeMemoGeneradoPorExpediente(command.expedienteId())) {
+        if (documentoTesisRepositoryPort.existeMemoPorExpediente(command.expedienteId())) {
             throw new BusinessRuleException("No se puede crear un memorando. Ya existe un memorando generado para este expediente.");
         }
 
@@ -259,9 +257,16 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public DocumentoTesisDetalleView obtenerMemoPorExpediente(Long expedienteId) {
+        log.info("Buscando el memo del expediente. [ EXPEDIENTE : {} ]", expedienteId);
+        return documentoTesisRepositoryPort.obtenerMemoPorExpediente(expedienteId);
+    }
+
+    @Override
     @Transactional
-    public void eliminarDocumento(Long documentoId) {
-        log.info("Eliminando documento físicamente. [ DOCUMENTO : {} ]", documentoId);
+    public void eliminarMemo(Long documentoId) {
+        log.info("Eliminando memorando físicamente. [ DOCUMENTO : {} ]", documentoId);
 
         DocumentoTesis doc = documentoTesisRepositoryPort.buscarPorId(documentoId)
                 .orElseThrow(() -> new ResourceNotFoundException("DocumentoTesis", "id", documentoId.toString()));
@@ -276,18 +281,146 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
             expedienteRepositoryPort.guardar(expediente);
 
             log.info("Expediente {} revertido a REGISTRADO", expediente.getId());
+
+            if (doc.getArchivoWordUrl() != null) {
+                storagePort.eliminarTrasCommit(doc.getArchivoWordUrl());
+            }
+            if (doc.getArchivoPdfUrl() != null) {
+                storagePort.eliminarTrasCommit(doc.getArchivoPdfUrl());
+            }
+
+            documentoTesisRepositoryPort.eliminar(documentoId);
+
+            log.info("Documento {} eliminado correctamente", documentoId);
+        }
+    }
+
+    @Override
+    @Transactional
+    public DocumentoTesis registrarDictamen(RegistrarDictamenCommand command) {
+        log.info("Registrando dictamen. [ EXPEDIENTE : {} | RESULTADO : {} ]",
+                command.expedienteId(), command.resultadoCodigo());
+
+        ExpedienteTesis expediente = expedienteRepositoryPort.buscarPorId(command.expedienteId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "ExpedienteTesis", "id", command.expedienteId().toString()));
+
+        if (!TablaMaestraCodigos.ESTADO_EXPEDIENTE_MEMO_ENVIADO.equals(expediente.getEstadoCodigo())) {
+            throw new BusinessRuleException(
+                    "Solo se puede registrar dictamen cuando el memo ya fue enviado a la comisión.");
         }
 
-        if (doc.getArchivoWordUrl() != null) {
-            documentoGeneradorPort.eliminarArchivosGenerados(List.of(doc.getArchivoWordUrl()));
-        }
-        if (doc.getArchivoPdfUrl() != null) {
-            documentoGeneradorPort.eliminarArchivosGenerados(List.of(doc.getArchivoPdfUrl()));
+        if (documentoTesisRepositoryPort.existeDictamenPorExpediente(command.expedienteId())) {
+            throw new BusinessRuleException(
+                    "Este expediente ya tiene un dictamen registrado. Elimine el anterior antes de registrar uno nuevo.");
         }
 
-        documentoTesisRepositoryPort.eliminar(documentoId);
+        String rutaWord = null, rutaPdf = null;
+        Long tamanioWord = null, tamanioPdf = null;
+        List<String> rutasSubidas = new ArrayList<>();
 
-        log.info("Documento {} eliminado correctamente", documentoId);
+        try {
+            if (command.archivoWord() != null) {
+                rutaWord = storagePort.guardarArchivo(command.archivoWord(), "documentos/dictamenes");
+                tamanioWord = command.archivoWord().tamanioBytes();
+                rutasSubidas.add(rutaWord);
+            }
+
+            if (command.archivoPdf() != null) {
+                rutaPdf = storagePort.guardarArchivoPdf(command.archivoPdf(), "documentos/dictamenes");
+                tamanioPdf = command.archivoPdf().tamanioBytes();
+                rutasSubidas.add(rutaPdf);
+            }
+
+            LocalDate fechaEmision = command.fechaEmision() != null
+                    ? command.fechaEmision()
+                    : LocalDate.now();
+
+            DocumentoTesis dictamen = new DocumentoTesis(
+                    null,
+                    expediente.getTesisId(),
+                    command.expedienteId(),
+                    TablaMaestraCodigos.TIPO_DOCUMENTO_DICTAMEN,
+                    null,
+                    null,
+                    fechaEmision,
+                    rutaWord,
+                    rutaPdf,
+                    tamanioWord,
+                    tamanioPdf,
+                    command.resultadoCodigo(),
+                    command.observaciones(),
+                    TablaMaestraCodigos.ESTADO_DOCUMENTO_ESTADO_RECIBIDO,
+                    1,
+                    false
+            );
+
+            DocumentoTesis guardado = documentoTesisRepositoryPort.guardar(dictamen);
+
+            if (TablaMaestraCodigos.RESULTADO_DICTAMEN_APROBADO.equals(command.resultadoCodigo())) {
+                expediente.marcarComoDictaminadoAprobado();
+            } else {
+                expediente.marcarComoDictaminadoObservado();
+            }
+            expedienteRepositoryPort.guardar(expediente);
+
+            log.info("Dictamen registrado. [ DOCUMENTO : {} | EXPEDIENTE : {} | RESULTADO : {} ]",
+                    guardado.getId(), expediente.getId(), command.resultadoCodigo());
+
+            return guardado;
+
+        } catch (Exception e) {
+            // Rollback inmediato de archivos subidos (aún no referenciados en BD)
+            for (String ruta : rutasSubidas) {
+                try {
+                    storagePort.eliminarArchivo(ruta);
+                } catch (Exception cleanupError) {
+                    log.warn("No se pudo limpiar el archivo huérfano: {}", ruta, cleanupError);
+                }
+            }
+            throw e;
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public DocumentoTesisDetalleView obtenerDictamenPorExpediente(Long expedienteId) {
+        log.info("Buscando el dictamen del expediente. [ EXPEDIENTE : {} ]", expedienteId);
+        return documentoTesisRepositoryPort.obtenerDictamenPorExpediente(expedienteId);
+    }
+
+    @Override
+    @Transactional
+    public void eliminarDictamen(Long expedienteId) {
+        log.info("Eliminando dictamen del expediente. [ EXPEDIENTE : {} ]", expedienteId);
+
+        ExpedienteTesis expediente = expedienteRepositoryPort.buscarPorId(expedienteId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "ExpedienteTesis", "id", expedienteId.toString()));
+
+        DocumentoTesisDetalleView dictamen = documentoTesisRepositoryPort.obtenerDictamenPorExpediente(expedienteId);
+
+        if (documentoTesisRepositoryPort.existeResolucionPorExpediente(expedienteId)) {
+            throw new BusinessRuleException(
+                    "No se puede eliminar el dictamen porque ya existe una resolución generada. " +
+                            "Elimine la resolución primero.");
+        }
+
+        expediente.revertirDictamen();
+        expedienteRepositoryPort.guardar(expediente);
+
+        if (dictamen.getArchivoWordUrl() != null) {
+            storagePort.eliminarTrasCommit(dictamen.getArchivoWordUrl());
+        }
+        if (dictamen.getArchivoPdfUrl() != null) {
+            storagePort.eliminarTrasCommit(dictamen.getArchivoPdfUrl());
+        }
+
+        documentoTesisRepositoryPort.eliminar(dictamen.getId());
+
+        log.info("Dictamen eliminado y expediente revertido a MEMO_ENVIADO. [ EXPEDIENTE : {} ]",
+                expedienteId);
+
     }
 
     @Override
@@ -437,13 +570,13 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
     }
 
     @Override
-    public ContenidoEmailMemo obtenerContenidoAEnviar(Long expedienteId) {
+    public ContenidoEmailMemo obtenerContenidoMemoAEnviar(Long expedienteId) {
         log.info("Obteniendo la vista de envio email de un expediente. [ EXPEDIENTE : {} ]", expedienteId);
 
         ExpedienteTesis expediente = expedienteRepositoryPort.buscarPorId(expedienteId)
                 .orElseThrow(() -> new ResourceNotFoundException("ExpedienteTesis", "id", expedienteId.toString()));
 
-        DocumentoTesisDetalleView doc = documentoTesisRepositoryPort.listarPorExpediente(expedienteId);
+        DocumentoTesisDetalleView doc = documentoTesisRepositoryPort.obtenerMemoPorExpediente(expedienteId);
         List<ExpedienteArchivo> expedientes = expedienteArchivoRepositoryPort.obtenerPorExpediente(expedienteId);
 
         ComisionDetalleView comision = gestionarComisionUseCase

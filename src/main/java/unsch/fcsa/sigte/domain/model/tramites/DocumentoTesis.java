@@ -72,19 +72,6 @@ public class DocumentoTesis {
         this.estadoCodigo = TablaMaestraCodigos.ESTADO_DOCUMENTO_ESTADO_ENVIADO;
     }
 
-    public void marcarComoAnulado() {
-        this.estadoCodigo = TablaMaestraCodigos.ESTADO_DOCUMENTO_ESTADO_ANULADO;
-    }
-
-    public void regenerar(String nuevoWordUrl, String nuevoPdfUrl, Long nuevoTamanioWord, Long nuevoTamanioPdf) {
-        this.archivoWordUrl = nuevoWordUrl;
-        this.archivoPdfUrl = nuevoPdfUrl;
-        this.tamanioBytesWord = nuevoTamanioWord;
-        this.tamanioBytesPdf = nuevoTamanioPdf;
-        this.fechaEmision = LocalDate.now();
-        this.estadoCodigo = TablaMaestraCodigos.ESTADO_DOCUMENTO_ESTADO_GENERADO;
-    }
-
     public void marcarComoEliminado() {
         this.eliminado = true;
         this.estado = 0;

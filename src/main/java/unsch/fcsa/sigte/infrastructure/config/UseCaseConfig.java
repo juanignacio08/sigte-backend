@@ -130,6 +130,7 @@ public class UseCaseConfig {
             EmailPort emailPort,
             EnvioCorreoRepositoryPort envioCorreoRepositoryPort,
             GestionarComisionUseCase gestionarComisionUseCase,
+            StoragePort storagePort,
             ObjectMapper objectMapper
     ) {
         return new GestionarDocumentosTesisUseCaseImpl(
@@ -141,6 +142,7 @@ public class UseCaseConfig {
                 emailPort,
                 envioCorreoRepositoryPort,
                 gestionarComisionUseCase,
+                storagePort,
                 objectMapper
         );
     }

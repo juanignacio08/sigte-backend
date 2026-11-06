@@ -2,15 +2,21 @@ package unsch.fcsa.sigte.infrastructure.adapter.input.rest.controller.tramites;
 
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import unsch.fcsa.sigte.application.command.files.ArchivoSubida;
+import unsch.fcsa.sigte.application.command.tramites.RegistrarDictamenCommand;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarDocumentosTesisUseCase;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.ContenidoEmailMemo;
+import unsch.fcsa.sigte.application.port.out.tramites.dto.DocumentoTesisDetalleView;
 import unsch.fcsa.sigte.domain.model.tramites.DocumentoTesis;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.ResponseDTO;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.DocumentoTesisResponse;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.GenerarMemoRequest;
+import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.RegistrarDictamenRequest;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.ResponseGlobalMapper;
+import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.file.MultipartFileMapper;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.tramites.DocumentoTesisRestMapper;
 
 import java.util.List;
@@ -22,16 +28,21 @@ public class DocumentoTesisController {
 
     private final GestionarDocumentosTesisUseCase useCase;
     private final DocumentoTesisRestMapper mapper;
+    private final MultipartFileMapper multipartFileMapper;
 
-    public DocumentoTesisController(GestionarDocumentosTesisUseCase useCase,
-                                    DocumentoTesisRestMapper mapper) {
+    public DocumentoTesisController(
+            GestionarDocumentosTesisUseCase useCase,
+            DocumentoTesisRestMapper mapper,
+            MultipartFileMapper multipartFileMapper
+    ) {
         this.useCase = useCase;
         this.mapper = mapper;
+        this.multipartFileMapper = multipartFileMapper;
     }
 
-    @GetMapping("/expediente/{expedienteId}")
+    @GetMapping("/expediente/obtenerMemorando/{expedienteId}")
     public ResponseEntity<ResponseDTO<Object>> listarPorExpediente(@PathVariable Long expedienteId) {
-        DocumentoTesisResponse response = mapper.toResponse(useCase.obtenerPorExpediente(expedienteId));
+        DocumentoTesisResponse response = mapper.toResponse(useCase.obtenerMemoPorExpediente(expedienteId));
 
         ResponseDTO<Object> body = ResponseGlobalMapper.build(
                 response, "Documentos del expediente", "200");
@@ -88,11 +99,55 @@ public class DocumentoTesisController {
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
-    @DeleteMapping("/{documentoId}")
-    public ResponseEntity<ResponseDTO<Object>> eliminar(@PathVariable Long documentoId) {
-        useCase.eliminarDocumento(documentoId);
+    @DeleteMapping("/memo/{documentoId}")
+    public ResponseEntity<ResponseDTO<Object>> eliminarMemo(@PathVariable Long documentoId) {
+        useCase.eliminarMemo(documentoId);
         ResponseDTO<Object> body = ResponseGlobalMapper.build(
-                null, "Documento eliminado correctamente", "200");
+                null, "Memorando eliminado correctamente", "200");
+        return ResponseEntity.ok(body);
+    }
+
+    @PostMapping(
+            value = "/dictamen",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<ResponseDTO<Object>> registrarDictamen(
+            @Valid @ModelAttribute RegistrarDictamenRequest request) {
+
+        ArchivoSubida pdf  = request.archivoPdf()  != null
+                ? multipartFileMapper.toArchivosSubida(request.archivoPdf())  : null;
+        ArchivoSubida word = request.archivoWord() != null
+                ? multipartFileMapper.toArchivosSubida(request.archivoWord()) : null;
+
+        RegistrarDictamenCommand cmd = mapper.toCommand(request, pdf, word);
+        DocumentoTesis dictamen = useCase.registrarDictamen(cmd);
+
+        DocumentoTesisResponse response = mapper.toResponse(dictamen);
+
+        ResponseDTO<Object> body = ResponseGlobalMapper.build(
+                response, "Dictamen registrado correctamente", "201");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    }
+
+    @GetMapping("/dictamen/expediente/{expedienteId}")
+    public ResponseEntity<ResponseDTO<Object>> obtenerDictamen(@PathVariable Long expedienteId) {
+        DocumentoTesisDetalleView view = useCase.obtenerDictamenPorExpediente(expedienteId);
+        DocumentoTesisResponse response = mapper.toResponse(view);
+
+        ResponseDTO<Object> body = ResponseGlobalMapper.build(
+                response, "Dictamen del expediente", "200");
+
+        return ResponseEntity.ok(body);
+    }
+
+    @DeleteMapping("/dictamen/expediente/{expedienteId}")
+    public ResponseEntity<ResponseDTO<Object>> eliminarDictamen(@PathVariable Long expedienteId) {
+        useCase.eliminarDictamen(expedienteId);
+
+        ResponseDTO<Object> body = ResponseGlobalMapper.build(
+                null, "Dictamen eliminado correctamente", "200");
+
         return ResponseEntity.ok(body);
     }
 
@@ -104,9 +159,9 @@ public class DocumentoTesisController {
         return ResponseEntity.ok(body);
     }
 
-    @GetMapping("contenidoEnviar/{expedienteId}")
-    public ResponseEntity<ResponseDTO<Object>> obtenerContenido(@PathVariable Long expedienteId) {
-        ContenidoEmailMemo view = useCase.obtenerContenidoAEnviar(expedienteId);
+    @GetMapping("contenidoEnviarMemo/{expedienteId}")
+    public ResponseEntity<ResponseDTO<Object>> obtenerContenidoMemo(@PathVariable Long expedienteId) {
+        ContenidoEmailMemo view = useCase.obtenerContenidoMemoAEnviar(expedienteId);
 
         ResponseDTO<Object> body = ResponseGlobalMapper.build(
                 view, "Obteniendo el contenido a enviar", "200");

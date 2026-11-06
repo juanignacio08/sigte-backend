@@ -1,11 +1,14 @@
 package unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.tramites;
 
 import org.springframework.stereotype.Component;
+import unsch.fcsa.sigte.application.command.files.ArchivoSubida;
 import unsch.fcsa.sigte.application.command.tramites.GenerarMemoCommand;
+import unsch.fcsa.sigte.application.command.tramites.RegistrarDictamenCommand;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.DocumentoTesisDetalleView;
 import unsch.fcsa.sigte.domain.model.tramites.DocumentoTesis;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.DocumentoTesisResponse;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.GenerarMemoRequest;
+import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.RegistrarDictamenRequest;
 
 @Component
 public class DocumentoTesisRestMapper {
@@ -16,6 +19,19 @@ public class DocumentoTesisRestMapper {
                 request.expedienteId(),
                 request.numeroCorrelativo(),
                 request.anio()
+        );
+    }
+
+    public RegistrarDictamenCommand toCommand(RegistrarDictamenRequest request,
+                                              ArchivoSubida pdf,
+                                              ArchivoSubida word) {
+        return new RegistrarDictamenCommand(
+                request.expedienteId(),
+                request.resultadoCodigo(),
+                request.observaciones(),
+                request.fechaEmision(),
+                pdf,
+                word
         );
     }
 

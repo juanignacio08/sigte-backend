@@ -11,13 +11,22 @@ import java.util.Optional;
 public interface SpringDataDocumentoTesisRepository extends JpaRepository<DocumentoTesisEntity, Long> {
 
     Optional<DocumentoTesisEntity> findByIdAndEliminadoFalse(Long id);
-    Optional<DocumentoTesisEntity> findFirstByExpedienteTesisIdAndEliminadoFalseOrderByFechaEmisionDesc(Long expedienteTesisId);
+
+    Optional<DocumentoTesisEntity> findFirstByExpedienteTesisIdAndTipoDocumentoCodigoInAndEliminadoFalseOrderByFechaEmisionDesc(
+            Long expedienteTesisId,
+            List<String> codigos
+    );
+
     List<DocumentoTesisEntity> findByTesis_IdAndEliminadoFalseOrderByFechaEmisionDesc(java.util.UUID tesisId);
     List<DocumentoTesisEntity> findByExpedienteTesisIdAndTipoDocumentoCodigoAndEliminadoFalse(Long expedienteTesisId, String tipoDocumentoCodigo);
+
 
     boolean existsByTipoDocumentoCodigoAndAnioCorrelativoAndNumeroCorrelativoAndEliminadoFalse(
             String tipoDocumentoCodigo, Integer anioCorrelativo, Integer numeroCorrelativo);
 
-    boolean existsByExpedienteTesisIdAndEstadoAndEliminadoFalse(Long expedienteTesisId, Integer estado);
+    boolean existsByExpedienteTesisIdAndTipoDocumentoCodigoInAndEliminadoFalse(
+            Long expedienteTesisId,
+            List<String> codigos
+    );
 }
 

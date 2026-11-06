@@ -10,10 +10,13 @@ import java.util.UUID;
 public interface DocumentoTesisRepositoryPort {
     DocumentoTesis guardar(DocumentoTesis documento);
     Optional<DocumentoTesis> buscarPorId(Long id);
-    DocumentoTesisDetalleView listarPorExpediente(Long expedienteId);
+    DocumentoTesisDetalleView obtenerMemoPorExpediente(Long expedienteId);
+    DocumentoTesisDetalleView obtenerDictamenPorExpediente(Long expedienteId);
     List<DocumentoTesisDetalleView> listarPorTesis(UUID tesisId);
     List<DocumentoTesisDetalleView> listarPorExpedienteYTipo(Long expedienteId, String tipoDocumentoCodigo);
     boolean existeCorrelativo(String tipoDocumentoCodigo, Integer anio, Integer numero);
-    boolean existeMemoGeneradoPorExpediente(Long expedienteId);
+    boolean existeMemoPorExpediente(Long expedienteId);
+    boolean existeDictamenPorExpediente(Long expedienteId);
+    boolean existeResolucionPorExpediente(Long expedienteId);
     void eliminar(Long id);
 }

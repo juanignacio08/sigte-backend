@@ -6,6 +6,7 @@ import unsch.fcsa.sigte.application.port.out.tramites.DocumentoTesisRepositoryPo
 import unsch.fcsa.sigte.application.port.out.tramites.dto.DocumentoTesisDetalleView;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
 import unsch.fcsa.sigte.domain.model.tramites.DocumentoTesis;
+import unsch.fcsa.sigte.domain.util.TablaMaestraCodigos;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.tramites.DocumentoTesisEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.tramites.TesisEntity;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.mapper.tramites.DocumentoTesisPersistenceMapper;
@@ -46,9 +47,21 @@ public class DocumentoTesisPersistenceAdapter implements DocumentoTesisRepositor
     }
 
     @Override
-    public DocumentoTesisDetalleView listarPorExpediente(Long expedienteId) {
+    public DocumentoTesisDetalleView obtenerMemoPorExpediente(Long expedienteId) {
+        List<String> codigos = List.of(TablaMaestraCodigos.TIPO_DOCUMENTO_MEMO_PROYECTO, TablaMaestraCodigos.TIPO_DOCUMENTO_MEMO_BORRADOR);
+
         return repository
-                .findFirstByExpedienteTesisIdAndEliminadoFalseOrderByFechaEmisionDesc(expedienteId)
+                .findFirstByExpedienteTesisIdAndTipoDocumentoCodigoInAndEliminadoFalseOrderByFechaEmisionDesc(expedienteId, codigos)
+                .map(mapper::toDetalleView)
+                .orElseThrow(() -> new ResourceNotFoundException("DOCUMENTO", "expediente", expedienteId));
+    }
+
+    @Override
+    public DocumentoTesisDetalleView obtenerDictamenPorExpediente(Long expedienteId) {
+        List<String> codigos = List.of(TablaMaestraCodigos.TIPO_DOCUMENTO_DICTAMEN);
+
+        return repository
+                .findFirstByExpedienteTesisIdAndTipoDocumentoCodigoInAndEliminadoFalseOrderByFechaEmisionDesc(expedienteId, codigos)
                 .map(mapper::toDetalleView)
                 .orElseThrow(() -> new ResourceNotFoundException("DOCUMENTO", "expediente", expedienteId));
     }
@@ -78,8 +91,27 @@ public class DocumentoTesisPersistenceAdapter implements DocumentoTesisRepositor
     }
 
     @Override
-    public boolean existeMemoGeneradoPorExpediente(Long expedienteId) {
-        return repository.existsByExpedienteTesisIdAndEstadoAndEliminadoFalse(expedienteId, 1);
+    public boolean existeMemoPorExpediente(Long expedienteId) {
+        List<String> codigos = List.of(TablaMaestraCodigos.TIPO_DOCUMENTO_MEMO_PROYECTO, TablaMaestraCodigos.TIPO_DOCUMENTO_MEMO_BORRADOR);
+
+        return repository.existsByExpedienteTesisIdAndTipoDocumentoCodigoInAndEliminadoFalse(
+                expedienteId, codigos);
+    }
+
+    @Override
+    public boolean existeDictamenPorExpediente(Long expedienteId) {
+        List<String> codigos = List.of(TablaMaestraCodigos.TIPO_DOCUMENTO_DICTAMEN);
+
+        return repository.existsByExpedienteTesisIdAndTipoDocumentoCodigoInAndEliminadoFalse(
+                expedienteId, codigos);
+    }
+
+    @Override
+    public boolean existeResolucionPorExpediente(Long expedienteId) {
+        List<String> codigos = List.of(TablaMaestraCodigos.TIPO_DOCUMENTO_RESOLUCION_APROBACION_PROYECTO, TablaMaestraCodigos.TIPO_DOCUMENTO_RESOLUCION_FECHA_HORA);
+
+        return repository.existsByExpedienteTesisIdAndTipoDocumentoCodigoInAndEliminadoFalse(
+                expedienteId, codigos);
     }
 
     @Override

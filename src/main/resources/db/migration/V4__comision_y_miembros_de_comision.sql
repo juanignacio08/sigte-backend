@@ -98,6 +98,15 @@ VALUES
     ('007', '006', '007006', 'APROBADO',                  TRUE),
     ('007', '007', '007007', 'PROGRAMADO',                TRUE);
 
+-- 008 Resultado de un Documento
+INSERT INTO maestros.maestro (codigo_tabla, codigo_item, codigo, denominacion, es_sistema)
+VALUES ('008', '000', '008000', 'RESULTADO DOCUMENTO', TRUE);
+
+INSERT INTO maestros.maestro (codigo_tabla, codigo_item, codigo, denominacion, es_sistema)
+VALUES
+    ('008', '001', '008001', 'DICTAMEN APROBADO',TRUE),
+    ('008', '002', '008002', 'DICTAMEN OBSERVADO',TRUE);
+
 -- 009 ESTADO DE DOCUMENTO
 INSERT INTO maestros.maestro (codigo_tabla, codigo_item, codigo, denominacion, es_sistema)
 VALUES ('009', '000', '009000', 'ESTADO DE DOCUMENTO', TRUE);
@@ -106,4 +115,5 @@ INSERT INTO maestros.maestro (codigo_tabla, codigo_item, codigo, denominacion, e
 VALUES
     ('009', '001', '009001', 'GENERADO',  TRUE),
     ('009', '002', '009002', 'ENVIADO',   TRUE),
-    ('009', '003', '009003', 'ANULADO',   TRUE);
+    ('009', '003', '009003', 'ANULADO',   TRUE),
+    ('009', '004', '009004', 'RECIBIDO', TRUE);

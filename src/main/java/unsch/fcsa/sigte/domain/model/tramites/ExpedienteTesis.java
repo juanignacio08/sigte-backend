@@ -85,6 +85,21 @@ public class ExpedienteTesis {
         this.ultimoPaso = 2;
     }
 
+    public void marcarComoDictaminadoAprobado() {
+        this.estadoCodigo = TablaMaestraCodigos.ESTADO_EXPEDIENTE_DICTAMINADO_APROBADO;
+        this.ultimoPaso = 5;
+    }
+
+    public void marcarComoDictaminadoObservado() {
+        this.estadoCodigo = TablaMaestraCodigos.ESTADO_EXPEDIENTE_DICTAMINADO_OBSERVADO; // "007005"
+        this.ultimoPaso = 5;
+    }
+
+    public void revertirDictamen() {
+        this.estadoCodigo = TablaMaestraCodigos.ESTADO_EXPEDIENTE_MEMO_ENVIADO;
+        this.ultimoPaso = 4;
+    }
+
     private void setNumeroExpediente(String numeroExpediente) {
         if (numeroExpediente == null || numeroExpediente.isBlank()) {
             throw new BusinessRuleException("El número de expediente es obligatorio.");

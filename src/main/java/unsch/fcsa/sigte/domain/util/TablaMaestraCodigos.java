@@ -16,13 +16,22 @@ public class TablaMaestraCodigos {
 
     public static final String TIPO_DOCUMENTO_MEMO_PROYECTO = "006001";
     public static final String TIPO_DOCUMENTO_MEMO_BORRADOR = "006002";
+    public static final String TIPO_DOCUMENTO_DICTAMEN = "006004";
+    public static final String TIPO_DOCUMENTO_RESOLUCION_APROBACION_PROYECTO = "006005";
+    public static final String TIPO_DOCUMENTO_RESOLUCION_FECHA_HORA = "006006";
 
     public static final String ESTADO_EXPEDIENTE_REGISTRADO = "007001";
     public static final String ESTADO_EXPEDIENTE_MEMO_GENERADO = "007002";
     public static final String ESTADO_EXPEDIENTE_MEMO_ENVIADO = "007003";
+    public static final String ESTADO_EXPEDIENTE_DICTAMINADO_APROBADO = "007004";
+    public static final String ESTADO_EXPEDIENTE_DICTAMINADO_OBSERVADO = "007005";
+
+    public static final String RESULTADO_DICTAMEN_APROBADO = "008001";
+    public static final String RESULTADO_DICTAMEN_OBSERVADO = "008002";
 
     public static final String ESTADO_DOCUMENTO_ESTADO_GENERADO = "009001";
     public static final String ESTADO_DOCUMENTO_ESTADO_ENVIADO = "009002";
     public static final String ESTADO_DOCUMENTO_ESTADO_ANULADO = "009003";
+    public static final String ESTADO_DOCUMENTO_ESTADO_RECIBIDO = "009004";
 
 }

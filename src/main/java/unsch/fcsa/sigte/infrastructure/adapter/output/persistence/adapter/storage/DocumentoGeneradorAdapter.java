@@ -10,6 +10,7 @@ import unsch.fcsa.sigte.application.port.out.storage.DocumentoGeneradorPort;
 import unsch.fcsa.sigte.application.port.out.storage.StoragePort;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.DocumentoGenerado;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.MemorandumData;
+import unsch.fcsa.sigte.application.port.out.tramites.dto.ResolutionProjectData;
 import unsch.fcsa.sigte.domain.exception.BusinessRuleException;
 import unsch.fcsa.sigte.domain.util.FechaEspanol;
 import unsch.fcsa.sigte.domain.util.PathSanitizer;
@@ -44,7 +45,7 @@ public class DocumentoGeneradorAdapter implements DocumentoGeneradorPort {
     public DocumentoGenerado generarMemorandum(MemorandumData data) {
         log.info("Generando memorando N° {}-{}", data.numeroMemo(), data.anio());
 
-        Path carpetaSalida = prepararCarpetaSalida();
+        Path carpetaSalida = prepararCarpetaSalida("documentos/memos");
         String baseNombre = PathSanitizer.sanitizeRelativePath("MM N° " + data.numeroMemo() + "-" + data.anio() + " " + data.tesistas());
 
         Path rutaWord = carpetaSalida.resolve(baseNombre + ".docx");
@@ -71,15 +72,47 @@ public class DocumentoGeneradorAdapter implements DocumentoGeneradorPort {
     }
 
     @Override
+    public DocumentoGenerado generarResolucionProjectAprobacion(ResolutionProjectData data) {
+        log.info("Generando resolución de aprobación N° {}-{}",
+                data.numeroResolucion(), data.anioResolucion());
+
+        Path carpetaSalida = prepararCarpetaSalida("documentos/resoluciones/proyectos");
+        String baseNombre = "RD N° " + data.numeroResolucion() + "-" + data.anioResolucion() + " " + data.tesistas();
+
+        Path rutaWord = carpetaSalida.resolve(baseNombre + ".docx");
+        Path rutaPdf  = carpetaSalida.resolve(baseNombre + ".pdf");
+
+        renderizarWordResolucionProyecto(data, rutaWord);
+        convertirAPdf(rutaWord, rutaPdf);
+
+        try {
+            long sizeWord = Files.size(rutaWord);
+            long sizePdf  = Files.size(rutaPdf);
+
+            String rutaWordRel = storageRoot.relativize(rutaWord).toString().replace("\\", "/");
+            String rutaPdfRel  = storageRoot.relativize(rutaPdf).toString().replace("\\", "/");
+
+            log.info("Resolución generada. Word: {} ({} B) · PDF: {} ({} B)",
+                    rutaWordRel, sizeWord, rutaPdfRel, sizePdf);
+
+            return new DocumentoGenerado(rutaWordRel, rutaPdfRel, sizeWord, sizePdf);
+
+        } catch (Exception e) {
+            throw new BusinessRuleException("Error al medir los archivos generados: " + e.getMessage());
+        }
+
+    }
+
+    @Override
     public void eliminarArchivosGenerados(List<String> rutas) {
         for (String ruta : rutas) {
             storagePort.eliminarTrasCommit(ruta);
         }
     }
 
-    private Path prepararCarpetaSalida() {
+    private Path prepararCarpetaSalida(String subcarpeta) {
         try {
-            Path carpeta = storageRoot.resolve("documentos/memos");
+            Path carpeta = storageRoot.resolve(subcarpeta);
             Files.createDirectories(carpeta);
             return carpeta;
         } catch (Exception e) {
@@ -100,6 +133,24 @@ public class DocumentoGeneradorAdapter implements DocumentoGeneradorPort {
         } catch (Exception e) {
             throw new BusinessRuleException(
                     "No se pudo generar el Word. Plantilla: '" + data.rutaPlantilla()
+                            + "'. Detalle: " + e.getMessage());
+        }
+    }
+
+    private void renderizarWordResolucionProyecto(ResolutionProjectData data, Path rutaWord) {
+        Resource plantillaRes = storagePort.cargarComoRecurso(data.rutaPlantilla());
+
+        try (InputStream plantilla = plantillaRes.getInputStream();
+             OutputStream salida  = Files.newOutputStream(rutaWord)) {
+
+            XWPFTemplate template = XWPFTemplate.compile(plantilla)
+                    .render(construirModeloResolucionProyecto(data));
+            template.write(salida);
+            template.close();
+
+        } catch (Exception e) {
+            throw new BusinessRuleException(
+                    "No se pudo generar la resolución. Plantilla: '" + data.rutaPlantilla()
                             + "'. Detalle: " + e.getMessage());
         }
     }
@@ -131,6 +182,47 @@ public class DocumentoGeneradorAdapter implements DocumentoGeneradorPort {
                 .map(m -> Map.of("nombre", m.nombre(), "rol", m.rol()))
                 .toList();
         modelo.put("miembros", miembros);
+
+        return modelo;
+    }
+
+    private Map<String, Object> construirModeloResolucionProyecto(ResolutionProjectData data) {
+        Map<String, Object> modelo = new HashMap<>();
+
+        // Header
+        modelo.put("numeroResolucion", data.numeroResolucion());
+        modelo.put("anioResolucion", data.anioResolucion());
+        modelo.put("fechaEmision", FechaEspanol.formatear(data.fechaEmision()));
+
+        // Solicitante
+        modelo.put("tesistas", data.tesistas());
+        modelo.put("generoGraduado", data.generoGraduado());
+        modelo.put("generoAutores", data.generoAutores());
+        modelo.put("numeroExpediente", data.numeroExpediente());
+        modelo.put("fechaExpediente", FechaEspanol.formatear(data.fechaExpediente()));
+        modelo.put("escuelaDenominacion", data.escuelaDenominacion());
+        modelo.put("tituloTesis", data.tituloTesis());
+
+        // Asesores
+        modelo.put("asesores", data.asesores());
+        modelo.put("generoAsesorDe", data.generoAsesorDe());
+        modelo.put("generoAsesorA", data.generoAsesorA());
+        modelo.put("generoSustantivoAsesor", data.generoSustantivoAsesor());
+
+        // Comisión
+        modelo.put("presidente", data.presidente());
+        modelo.put("generoPresidenteDe", data.generoPresidenteDe());
+        modelo.put("jurados", data.jurados());
+        modelo.put("generoJurados", data.generoJurados());
+
+        // Referencias
+        modelo.put("numeroMemo", data.numeroMemo());
+        modelo.put("anioMemo", data.anioMemo());
+        modelo.put("fechaMemo", FechaEspanol.formatear(data.fechaMemo()));
+        modelo.put("fechaDictamen", FechaEspanol.formatear(data.fechaDictamen()));
+
+        // Título
+        modelo.put("tituloAprobado", data.tituloAprobado());
 
         return modelo;
     }

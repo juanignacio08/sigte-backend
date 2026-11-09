@@ -12,6 +12,7 @@ public record ComisionMiembroDetalleView(
         String correoInstitucional,
         String rolCodigo,
         String rolDenominacion,
+        String generoCodigo,
         Integer orden,
         LocalDate fechaAlta,
         LocalDate fechaBaja,

@@ -1,6 +1,7 @@
 package unsch.fcsa.sigte.application.port.in.tramites;
 
 import unsch.fcsa.sigte.application.command.tramites.GenerarMemoCommand;
+import unsch.fcsa.sigte.application.command.tramites.GenerarResolucionAprobacionProyectoCommand;
 import unsch.fcsa.sigte.application.command.tramites.RegistrarDictamenCommand;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.ContenidoEmailMemo;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.DocumentoTesisDetalleView;
@@ -20,10 +21,18 @@ public interface GestionarDocumentosTesisUseCase {
     DocumentoTesisDetalleView obtenerMemoPorExpediente(Long expedienteId);
     void eliminarMemo(Long documentoId);
 
+    DocumentoTesis generarResolucionAprobacionProyecto(GenerarResolucionAprobacionProyectoCommand command);
+    DocumentoTesis volverAGenerarResolucionAprobacionProyecto(Long documentoId);
+    DocumentoTesisDetalleView obtenerResolucionPorExpediente(Long expedienteId);
+    void eliminarResolucionAprobacionProyecto(Long documentoId);
+
     DocumentoTesis registrarDictamen(RegistrarDictamenCommand command);
     DocumentoTesisDetalleView obtenerDictamenPorExpediente(Long expedienteId);
     void eliminarDictamen(Long expedienteId);
 
     void enviarMemo(Long documentoId);
     ContenidoEmailMemo obtenerContenidoMemoAEnviar(Long expedienteId);
+
+    void enviarResolucionProyecto(Long documentoId);
+    ContenidoEmailMemo obtenerContenidoResolucionProyectoAEnviar(Long documentoId);
 }

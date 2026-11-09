@@ -100,6 +100,11 @@ public class ExpedienteTesis {
         this.ultimoPaso = 4;
     }
 
+    public void marcarComoAprobado() {
+        this.estadoCodigo = TablaMaestraCodigos.ESTADO_EXPEDIENTE_APROBADO;
+        this.ultimoPaso = 6;
+    }
+
     private void setNumeroExpediente(String numeroExpediente) {
         if (numeroExpediente == null || numeroExpediente.isBlank()) {
             throw new BusinessRuleException("El número de expediente es obligatorio.");

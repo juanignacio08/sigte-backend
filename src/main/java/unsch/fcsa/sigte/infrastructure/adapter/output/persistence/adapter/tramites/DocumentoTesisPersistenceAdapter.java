@@ -57,6 +57,16 @@ public class DocumentoTesisPersistenceAdapter implements DocumentoTesisRepositor
     }
 
     @Override
+    public DocumentoTesisDetalleView obtenerResolucionPorExpediente(Long expedienteId) {
+        List<String> codigos = List.of(TablaMaestraCodigos.TIPO_DOCUMENTO_RESOLUCION_APROBACION_PROYECTO, TablaMaestraCodigos.TIPO_DOCUMENTO_RESOLUCION_FECHA_HORA);
+
+        return repository
+                .findFirstByExpedienteTesisIdAndTipoDocumentoCodigoInAndEliminadoFalseOrderByFechaEmisionDesc(expedienteId, codigos)
+                .map(mapper::toDetalleView)
+                .orElseThrow(() -> new ResourceNotFoundException("DOCUMENTO", "expediente", expedienteId));
+    }
+
+    @Override
     public DocumentoTesisDetalleView obtenerDictamenPorExpediente(Long expedienteId) {
         List<String> codigos = List.of(TablaMaestraCodigos.TIPO_DOCUMENTO_DICTAMEN);
 

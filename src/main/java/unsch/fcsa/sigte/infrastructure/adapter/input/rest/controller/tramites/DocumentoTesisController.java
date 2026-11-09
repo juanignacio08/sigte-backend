@@ -14,6 +14,7 @@ import unsch.fcsa.sigte.domain.model.tramites.DocumentoTesis;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.base.ResponseDTO;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.DocumentoTesisResponse;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.GenerarMemoRequest;
+import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.GenerarResolucionAprobacionProyectoRequest;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.tramites.RegistrarDictamenRequest;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.ResponseGlobalMapper;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.file.MultipartFileMapper;
@@ -107,6 +108,51 @@ public class DocumentoTesisController {
         return ResponseEntity.ok(body);
     }
 
+    @PostMapping("/resolucion-aprobacion-proyecto")
+    public ResponseEntity<ResponseDTO<Object>> generarResolucionAprobacion(
+            @Valid @RequestBody GenerarResolucionAprobacionProyectoRequest request) {
+
+        DocumentoTesis resolucion = useCase.generarResolucionAprobacionProyecto(mapper.toCommand(request));
+
+        DocumentoTesisResponse response = mapper.toResponse(resolucion);
+
+        ResponseDTO<Object> body = ResponseGlobalMapper.build(
+                response, "Resolución de aprobación generada correctamente", "201");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    }
+
+    @PutMapping("/resolucion-aprobacion-proyecto/{id}/regenerar")
+    public ResponseEntity<ResponseDTO<Object>> regenerarResolucionAprobacion(@PathVariable Long id) {
+        DocumentoTesis nuevoDocumento = useCase.volverAGenerarResolucionAprobacionProyecto(id);
+        DocumentoTesisResponse response = mapper.toResponse(nuevoDocumento);
+        ResponseDTO<Object> body = ResponseGlobalMapper.build(
+                response, "Resolución generado correctamente", "201"
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    }
+
+    @GetMapping("/resolucion-aprobacion-proyecto/expediente/{expedienteId}")
+    public ResponseEntity<ResponseDTO<Object>> obtenerResolucionAprobacion(
+            @PathVariable Long expedienteId) {
+        DocumentoTesisDetalleView view = useCase.obtenerResolucionPorExpediente(expedienteId);
+        DocumentoTesisResponse response = mapper.toResponse(view);
+
+        ResponseDTO<Object> body = ResponseGlobalMapper.build(
+                response, "Resolución de aprobación del expediente", "200");
+
+        return ResponseEntity.ok(body);
+    }
+
+    @DeleteMapping("/resolucion-aprobacion-proyecto/{documentoId}")
+    public ResponseEntity<ResponseDTO<Object>> eliminarResolucionAprobacion(
+            @PathVariable Long documentoId) {
+        useCase.eliminarResolucionAprobacionProyecto(documentoId);
+        ResponseDTO<Object> body = ResponseGlobalMapper.build(
+                null, "Resolución de aprobación eliminada correctamente", "200");
+        return ResponseEntity.ok(body);
+    }
+
     @PostMapping(
             value = "/dictamen",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
@@ -166,6 +212,24 @@ public class DocumentoTesisController {
         ResponseDTO<Object> body = ResponseGlobalMapper.build(
                 view, "Obteniendo el contenido a enviar", "200");
 
+        return ResponseEntity.ok(body);
+    }
+
+    @GetMapping("contenidoEnviarResolucion/{documentoId}")
+    public ResponseEntity<ResponseDTO<Object>> obtenerContenidoResolucion(@PathVariable Long documentoId) {
+        ContenidoEmailMemo view = useCase.obtenerContenidoResolucionProyectoAEnviar(documentoId);
+
+        ResponseDTO<Object> body = ResponseGlobalMapper.build(
+                view, "Obteniendo el contenido a enviar", "200");
+
+        return ResponseEntity.ok(body);
+    }
+
+    @PostMapping("/{documentoId}/enviarResolucionProyecto")
+    public ResponseEntity<ResponseDTO<Object>> enviarResolucionProyecto(@PathVariable Long documentoId) {
+        useCase.enviarResolucionProyecto(documentoId);
+        ResponseDTO<Object> body = ResponseGlobalMapper.build(
+                null, "Resolucion de Proyecto enviado correctamente a la comisión y autores", "200");
         return ResponseEntity.ok(body);
     }
 }

@@ -1,6 +1,10 @@
 package unsch.fcsa.sigte.domain.util;
 
 public class TablaMaestraCodigos {
+
+    public static final String GENERO_MASCULINO = "002001";
+    public static final String GENERO_FEMENINO = "002002";
+
     public static final String TESIS_ESTADO_EN_TRAMITE = "003001";
     public static final String TESIS_ESTADO_OBSERVADO = "003003";
 
@@ -25,6 +29,7 @@ public class TablaMaestraCodigos {
     public static final String ESTADO_EXPEDIENTE_MEMO_ENVIADO = "007003";
     public static final String ESTADO_EXPEDIENTE_DICTAMINADO_APROBADO = "007004";
     public static final String ESTADO_EXPEDIENTE_DICTAMINADO_OBSERVADO = "007005";
+    public static final String ESTADO_EXPEDIENTE_APROBADO = "007006";
 
     public static final String RESULTADO_DICTAMEN_APROBADO = "008001";
     public static final String RESULTADO_DICTAMEN_OBSERVADO = "008002";

@@ -69,6 +69,7 @@ public class ComisionMiembroPersistenceMapper {
                 .correoInstitucional(correo)
                 .rolCodigo(entity.getRolCodigo())
                 .rolDenominacion(rol)
+                .generoCodigo(entity.getDocente().getGeneroCodigo())
                 .orden(entity.getOrden())
                 .fechaAlta(entity.getFechaAlta())
                 .fechaBaja(entity.getFechaBaja())

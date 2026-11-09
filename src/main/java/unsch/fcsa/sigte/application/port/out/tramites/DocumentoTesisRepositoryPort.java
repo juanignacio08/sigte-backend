@@ -11,6 +11,7 @@ public interface DocumentoTesisRepositoryPort {
     DocumentoTesis guardar(DocumentoTesis documento);
     Optional<DocumentoTesis> buscarPorId(Long id);
     DocumentoTesisDetalleView obtenerMemoPorExpediente(Long expedienteId);
+    DocumentoTesisDetalleView obtenerResolucionPorExpediente(Long expedienteId);
     DocumentoTesisDetalleView obtenerDictamenPorExpediente(Long expedienteId);
     List<DocumentoTesisDetalleView> listarPorTesis(UUID tesisId);
     List<DocumentoTesisDetalleView> listarPorExpedienteYTipo(Long expedienteId, String tipoDocumentoCodigo);

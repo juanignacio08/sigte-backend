@@ -12,7 +12,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record EnvioCorreoResponse (
     Long id,
-    Long expedienteId,
+    Long documentoId,
     String asunto,
     List<DestinatarioEmail> destinatarios,
     List<ExpedienteArchivoDetalleView> adjuntos,

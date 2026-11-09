@@ -23,8 +23,9 @@ public class EnvioCorreoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "expediente_id", nullable = false)
-    private Long expedienteId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "documento_Id", nullable = false)
+    private DocumentoTesisEntity documento;
 
     @Column(nullable = false, length = 300)
     private String asunto;

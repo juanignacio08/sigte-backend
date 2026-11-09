@@ -894,7 +894,7 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
         try {
             EnvioCorreo envio = new EnvioCorreo(
                     null,
-                    expediente.getId(),
+                    doc.getId(),
                     asunto,
                     cuerpo,
                     destinatariosJson,
@@ -1042,7 +1042,6 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
         ExpedienteTesis expediente = expedienteRepositoryPort.buscarPorId(doc.getExpedienteTesisId())
                 .orElseThrow(() -> new ResourceNotFoundException("ExpedienteTesis", "id", doc.getExpedienteTesisId().toString()));
 
-
         // 3. Cargar comisión + tesis con autores
         ComisionDetalleView comision = gestionarComisionUseCase
                 .obtenerPorTesisYEtapa(expediente.getTesisId(), TablaMaestraCodigos.ETAPA_TESIS_PROYECTO);
@@ -1135,7 +1134,7 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
         try {
             EnvioCorreo envio = new EnvioCorreo(
                     null,
-                    doc.getExpedienteTesisId(),
+                    doc.getId(),
                     asunto,
                     cuerpo,
                     destinatariosJson,

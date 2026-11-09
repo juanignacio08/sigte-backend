@@ -7,7 +7,7 @@ import java.time.OffsetDateTime;
 public class EnvioCorreo {
 
     private final Long id;
-    private Long expedienteId;
+    private Long documentoId;
     private String asunto;
     private String cuerpo;
     private String destinatariosJson;   // JSON serializado
@@ -17,12 +17,12 @@ public class EnvioCorreo {
     private Integer estado;
     private Boolean eliminado;
 
-    public EnvioCorreo(Long id, Long expedienteId, String asunto, String cuerpo,
+    public EnvioCorreo(Long id, Long documentoId, String asunto, String cuerpo,
                        String destinatariosJson, String adjuntosJson,
                        OffsetDateTime fechaEnvio, String errorMensaje,
                        Integer estado, Boolean eliminado) {
         this.id = id;
-        setExpedienteId(expedienteId);
+        setDocumentoId(documentoId);
         setAsunto(asunto);
         this.cuerpo = cuerpo;
         this.destinatariosJson = destinatariosJson;
@@ -37,11 +37,11 @@ public class EnvioCorreo {
     // VALIDACIONES
     // ==================================================================
 
-    private void setExpedienteId(Long expedienteId) {
-        if (expedienteId == null) {
+    private void setDocumentoId(Long documentoId) {
+        if (documentoId == null) {
             throw new BusinessRuleException("El documento de tesis es obligatorio.");
         }
-        this.expedienteId = expedienteId;
+        this.documentoId = documentoId;
     }
 
     private void setAsunto(String asunto) {
@@ -56,7 +56,7 @@ public class EnvioCorreo {
     // ==================================================================
 
     public Long getId() { return id; }
-    public Long getExpedienteId() { return expedienteId; }
+    public Long getDocumentoId() { return documentoId; }
     public String getAsunto() { return asunto; }
     public String getCuerpo() { return cuerpo; }
     public String getDestinatariosJson() { return destinatariosJson; }

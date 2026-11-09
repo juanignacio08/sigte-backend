@@ -19,8 +19,8 @@ public class GestionarEnvioCorreoUseCaseImpl implements GestionarEnvioCorreoUseC
     }
 
     @Override
-    public List<EnvioCorreo> obtenerHistorialEnviosPorExpediente(Long expedienteId) {
-        log.info("Obteniendo historial de envios de un expediente. [ EXPEDIENTE : {} ]", expedienteId.toString());
-        return envioCorreoRepositoryPort.listarPorExpediente(expedienteId);
+    public List<EnvioCorreo> obtenerHistorialEnviosPorDocumento(Long documentoId) {
+        log.info("Obteniendo historial de envios de un documento. [ DOCUMENTO : {} ]", documentoId.toString());
+        return envioCorreoRepositoryPort.listarPorDocumento(documentoId);
     }
 }

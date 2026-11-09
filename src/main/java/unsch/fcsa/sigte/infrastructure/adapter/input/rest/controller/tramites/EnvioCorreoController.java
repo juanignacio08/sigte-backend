@@ -29,9 +29,9 @@ public class EnvioCorreoController {
         this.gestionarEnvioCorreoUseCase = useCase;
     }
 
-    @GetMapping("/historial/{expedienteId}")
-    public ResponseEntity<ResponseDTO<Object>> historial(@PathVariable Long expedienteId) {
-        List<EnvioCorreo> list = gestionarEnvioCorreoUseCase.obtenerHistorialEnviosPorExpediente(expedienteId);
+    @GetMapping("/historial/{documentoId}")
+    public ResponseEntity<ResponseDTO<Object>> historial(@PathVariable Long documentoId) {
+        List<EnvioCorreo> list = gestionarEnvioCorreoUseCase.obtenerHistorialEnviosPorDocumento(documentoId);
 
         ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(
                 list.stream().map(this::toResponse).toList(), "HIstorial de envios.", "200"
@@ -77,7 +77,7 @@ public class EnvioCorreoController {
 
             return EnvioCorreoResponse.builder()
                     .id(domain.getId())
-                    .expedienteId(domain.getExpedienteId())
+                    .documentoId(domain.getDocumentoId())
                     .asunto(domain.getAsunto())
                     .destinatarios(destinatarios)
                     .adjuntos(adjuntos)

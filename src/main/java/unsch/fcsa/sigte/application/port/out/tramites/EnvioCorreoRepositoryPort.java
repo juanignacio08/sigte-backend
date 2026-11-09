@@ -8,6 +8,6 @@ import java.util.Optional;
 public interface EnvioCorreoRepositoryPort {
     EnvioCorreo guardar(EnvioCorreo envio);
     Optional<EnvioCorreo> buscarPorId(Long id);
-    List<EnvioCorreo> listarPorExpediente(Long expedienteId);
-    boolean existeEnvioExitosoPorExpediente(Long expedienteId);
+    List<EnvioCorreo> listarPorDocumento(Long documentoId);
+    boolean existeEnvioExitosoPorDocumento(Long documentoId);
 }

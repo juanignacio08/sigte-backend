@@ -12,7 +12,6 @@ public class EnvioCorreoPersistenceMapper {
 
         return EnvioCorreoEntity.builder()
                 .id(domain.getId())
-                .expedienteId(domain.getExpedienteId())
                 .asunto(domain.getAsunto())
                 .cuerpo(domain.getCuerpo())
                 .destinatarios(domain.getDestinatariosJson())
@@ -29,7 +28,7 @@ public class EnvioCorreoPersistenceMapper {
 
         return new EnvioCorreo(
                 entity.getId(),
-                entity.getExpedienteId(),
+                entity.getDocumento().getId(),
                 entity.getAsunto(),
                 entity.getCuerpo(),
                 entity.getDestinatarios(),

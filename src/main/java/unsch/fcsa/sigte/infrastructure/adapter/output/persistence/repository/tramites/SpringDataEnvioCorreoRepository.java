@@ -12,7 +12,7 @@ public interface SpringDataEnvioCorreoRepository extends JpaRepository<EnvioCorr
 
     Optional<EnvioCorreoEntity> findByIdAndEliminadoFalse(Long id);
 
-    List<EnvioCorreoEntity> findByExpedienteIdAndEliminadoFalseOrderByFechaEnvioDesc(Long expedienteTesisId);
+    List<EnvioCorreoEntity> findByDocumento_IdAndEliminadoFalseOrderByFechaEnvioDesc(Long documentoId);
 
-    boolean existsByExpedienteIdAndEstadoAndEliminadoFalse(Long expedienteTesisId, Integer estado);
+    boolean existsByDocumento_IdAndEstadoAndEliminadoFalse(Long documentoId, Integer estado);
 }

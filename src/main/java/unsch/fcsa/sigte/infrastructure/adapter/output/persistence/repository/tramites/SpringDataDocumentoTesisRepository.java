@@ -28,5 +28,14 @@ public interface SpringDataDocumentoTesisRepository extends JpaRepository<Docume
             Long expedienteTesisId,
             List<String> codigos
     );
+
+    boolean existsByExpedienteTesisIdAndTipoDocumentoCodigoInAndResultadoCodigoAndEliminadoFalse(
+            Long expedienteTesisId,
+            List<String> codigos,
+            String resultadoCodigo
+    );
+
+    boolean existsByExpedienteTesisIdAndEliminadoFalse(Long expedienteId);
+
 }
 

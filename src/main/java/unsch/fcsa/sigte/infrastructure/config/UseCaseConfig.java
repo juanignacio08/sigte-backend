@@ -86,11 +86,13 @@ public class UseCaseConfig {
             TesisRepositoryPort tesisRepositoryPort,
             EscuelaProfesionalRepositoryPort escuelaProfesionalRepositoryPort,
             EstudianteRepositoryPort estudianteRepositoryPort,
+            ComisionRepositoryPort comisionRepositoryPort,
             GestionarExpedienteUseCase gestionarExpedienteUseCase) {
         return new GestionarTesisUseCaseImpl(
                 tesisRepositoryPort,
                 escuelaProfesionalRepositoryPort,
                 estudianteRepositoryPort,
+                comisionRepositoryPort,
                 gestionarExpedienteUseCase
         );
     }
@@ -100,10 +102,11 @@ public class UseCaseConfig {
             ExpedienteRepositoryPort expedienteRepositoryPort,
             ExpedienteArchivoRepositoryPort expedienteArchivoRepositoryPort,
             TesisRepositoryPort tesisRepositoryPort,
+            DocumentoTesisRepositoryPort documentoTesisRepositoryPort,
             StoragePort storagePort) {
         return new GestionarExpedienteUseCaseImpl(
                 expedienteRepositoryPort, expedienteArchivoRepositoryPort,
-                tesisRepositoryPort, storagePort
+                tesisRepositoryPort, documentoTesisRepositoryPort, storagePort
         );
     }
 

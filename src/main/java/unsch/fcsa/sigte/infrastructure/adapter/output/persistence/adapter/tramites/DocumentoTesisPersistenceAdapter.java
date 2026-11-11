@@ -101,6 +101,11 @@ public class DocumentoTesisPersistenceAdapter implements DocumentoTesisRepositor
     }
 
     @Override
+    public boolean existeDocumentosPorExpediente(Long expedienteId) {
+        return repository.existsByExpedienteTesisIdAndEliminadoFalse(expedienteId);
+    }
+
+    @Override
     public boolean existeMemoPorExpediente(Long expedienteId) {
         List<String> codigos = List.of(TablaMaestraCodigos.TIPO_DOCUMENTO_MEMO_PROYECTO, TablaMaestraCodigos.TIPO_DOCUMENTO_MEMO_BORRADOR);
 
@@ -114,6 +119,15 @@ public class DocumentoTesisPersistenceAdapter implements DocumentoTesisRepositor
 
         return repository.existsByExpedienteTesisIdAndTipoDocumentoCodigoInAndEliminadoFalse(
                 expedienteId, codigos);
+    }
+
+    @Override
+    public boolean existeDictamenAprobadoPorExpediente(Long expedienteId) {
+        List<String> codigos = List.of(TablaMaestraCodigos.TIPO_DOCUMENTO_DICTAMEN);
+        String resultado = TablaMaestraCodigos.RESULTADO_DICTAMEN_APROBADO;
+
+        return repository.existsByExpedienteTesisIdAndTipoDocumentoCodigoInAndResultadoCodigoAndEliminadoFalse(
+                expedienteId, codigos, resultado);
     }
 
     @Override

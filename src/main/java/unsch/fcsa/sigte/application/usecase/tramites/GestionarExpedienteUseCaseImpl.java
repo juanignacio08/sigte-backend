@@ -7,6 +7,7 @@ import unsch.fcsa.sigte.application.command.tramites.ActualizarExpedienteCommand
 import unsch.fcsa.sigte.application.command.tramites.RegistrarExpedienteCommand;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarExpedienteUseCase;
 import unsch.fcsa.sigte.application.port.out.storage.StoragePort;
+import unsch.fcsa.sigte.application.port.out.tramites.DocumentoTesisRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.tramites.ExpedienteArchivoRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.tramites.ExpedienteRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.tramites.TesisRepositoryPort;
@@ -30,15 +31,18 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
     private final ExpedienteRepositoryPort expedienteRepositoryPort;
     private final ExpedienteArchivoRepositoryPort expedienteArchivoRepositoryPort;
     private final TesisRepositoryPort tesisRepositoryPort;
+    private final DocumentoTesisRepositoryPort documentoTesisRepositoryPort;
     private final StoragePort storagePort;
 
     public GestionarExpedienteUseCaseImpl(ExpedienteRepositoryPort expedienteRepositoryPort,
                                           ExpedienteArchivoRepositoryPort expedienteArchivoRepositoryPort,
                                           TesisRepositoryPort tesisRepositoryPort,
+                                          DocumentoTesisRepositoryPort documentoTesisRepositoryPort,
                                           StoragePort storagePort) {
         this.expedienteRepositoryPort = expedienteRepositoryPort;
         this.expedienteArchivoRepositoryPort = expedienteArchivoRepositoryPort;
         this.tesisRepositoryPort = tesisRepositoryPort;
+        this.documentoTesisRepositoryPort = documentoTesisRepositoryPort;
         this.storagePort = storagePort;
     }
 
@@ -137,10 +141,10 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
         ExpedienteTesis expediente = expedienteRepositoryPort.buscarPorId(command.id())
                 .orElseThrow(() -> new ResourceNotFoundException("ExpedienteTesis", "id", command.id().toString()));
 
-        // TODO: Verificar si existen revisiones formales asociadas (revisionRepositoryPort.existsByExpedienteTesisId(id))
-        // Si ya fue notificado/revisado, bloquear la edición.
+        if (documentoTesisRepositoryPort.existeDictamenAprobadoPorExpediente(expediente.getId())) {
+            throw new BusinessRuleException("No se puede editar el expediente, ya existe un dictamen aprobado.");
+        }
 
-        // Validar si cambió el número de expediente y ya existe otro activo
         if (!expediente.getNumeroExpediente().equals(command.numeroExpediente())) {
             if (expedienteRepositoryPort.existeNumeroExpedienteActivo(command.numeroExpediente())) {
                 throw new BusinessRuleException("Ya existe un expediente activo con el número: '" + command.numeroExpediente() + "'");
@@ -154,7 +158,6 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
             }
         }
 
-        // Procedemos a actualizar campos básicos (aquí requerirías métodos setters limpios o reconstrucción en dominio)
         expediente.actualizarDatos(
                 command.numeroExpediente(),
                 command.numeroRevision(),
@@ -168,6 +171,7 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
     }
 
     @Override
+    @Transactional
     public void activar(Long id) {
         log.info("Activando un expediente. [ EXPEDIENTE : {} ]", id);
         ExpedienteTesis expediente = expedienteRepositoryPort.buscarPorId(id)
@@ -175,12 +179,12 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
 
         if (!expediente.getEstado().equals(1)) {
             expediente.activar();
-
             expedienteRepositoryPort.guardar(expediente);
         }
     }
 
     @Override
+    @Transactional
     public void desactivar(Long id, String motivo) {
         log.info("Desactivando expediente [ EXPEDIENTE : {} ]", id);
         ExpedienteTesis expediente = expedienteRepositoryPort.buscarPorId(id)
@@ -197,13 +201,16 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
     public void eliminar(Long id) {
         log.info("Eliminando un expediente. [ EXPEDIENTE : {} ]", id);
 
-        // TODO: Validar que el expediente no tenga revisiones formales asociadas antes de permitir borrarlo.
-        // if (revisionRepositoryPort.existsByExpedienteTesisId(id)) {
-        //     throw new BusinessRuleException("No se puede eliminar un expediente que ya cuenta con revisiones.");
-        // }
+        if (documentoTesisRepositoryPort.existeDocumentosPorExpediente(id)) {
+            throw new BusinessRuleException("No se puede eliminar el expediente, ya existen documentos generados (Memos, Dictamen, Resoluciones).");
+        }
 
         ExpedienteDetalleView expediente = expedienteRepositoryPort.obtenerDetallePorId(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ExpedienteTesis", "id", id.toString()));
+
+        if (TablaMaestraCodigos.ESTADO_EXPEDIENTE_APROBADO.equals(expediente.getEstadoCodigo())) {
+            throw new BusinessRuleException("No se puede eliminar el expediente, ya se encuentra aprobado.");
+        }
 
         if (expediente.getArchivos() != null && !expediente.getArchivos().isEmpty()) {
             for (ExpedienteArchivoDetalleView archivo : expediente.getArchivos()) {
@@ -280,6 +287,10 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
             throw new ResourceNotFoundException("Expediente", "id", expedienteId.toString());
         }
 
+        if (documentoTesisRepositoryPort.existeDictamenAprobadoPorExpediente(expedienteId)) {
+            throw new BusinessRuleException("No se puede agregar un nuevo archivo en el expediente, ya existe un dictamen aprobado.");
+        }
+
         List<ExpedienteArchivo> list = listarPorExpediente(expedienteId);
 
         if (list != null && !list.isEmpty() && list.size() >= 5) {
@@ -322,6 +333,11 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
         log.info("Eliminando un archivo de expediente [ ARCHIVO-EXPEDIENTE : {} ]", id);
 
         ExpedienteArchivo expedienteArchivo = expedienteArchivoRepositoryPort.obtenerPorId(id);
+
+        if (documentoTesisRepositoryPort.existeDictamenAprobadoPorExpediente(expedienteArchivo.getExpedienteTesisId())) {
+            throw new BusinessRuleException("No se puede eliminar el archivo, ya existe un dictamen aprobado.");
+        }
+
         try {
             storagePort.eliminarArchivo(expedienteArchivo.getArchivoUrl());
         } catch (Exception e) {
@@ -341,7 +357,7 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
         ExpedienteTesis expedienteTesis = expedienteRepositoryPort.buscarPorId(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Expediente", "id", id.toString()));
 
-        if (!expedienteTesis.getUltimoPaso().equals(paso) || !expedienteTesis.getEstadoCodigo().equals(estado)) {
+        if (!paso.equals(expedienteTesis.getUltimoPaso()) || !estado.equals(expedienteTesis.getEstadoCodigo())) {
             expedienteRepositoryPort.actualizarPasoYEstado(id, paso, estado);
         }
     }

@@ -98,6 +98,14 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
                 command.tesisId(), command.expedienteId(),
                 command.numeroCorrelativo(), command.anio());
 
+        if (documentoTesisRepositoryPort.existeDictamenPorExpediente(command.expedienteId())) {
+            throw new BusinessRuleException("No se puede generar el memorando, ya existe un dictamen registrado.");
+        }
+
+        if (documentoTesisRepositoryPort.existeResolucionPorExpediente(command.expedienteId())) {
+            throw new BusinessRuleException("No se puede generar el memorando, ya existe una resolución.");
+        }
+
         if (documentoTesisRepositoryPort.existeMemoPorExpediente(command.expedienteId())) {
             throw new BusinessRuleException("No se puede crear un memorando. Ya existe un memorando generado para este expediente.");
         }
@@ -125,6 +133,26 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
 
         if (comision.getMiembros() == null || comision.getMiembros().isEmpty()) {
             throw new BusinessRuleException("La comisión del expediente no tiene miembros registrados.");
+        }
+
+        comision.getMiembros().stream()
+                .filter(m -> TablaMaestraCodigos.MIEMBRO_PRESIDENTE.equals(m.rolCodigo()))
+                .findFirst()
+                .orElseThrow(() -> new BusinessRuleException("No hay presidente en la comisión."));
+
+        List<ComisionMiembroDetalleView> jurados = comision.getMiembros().stream()
+                .filter(m -> TablaMaestraCodigos.MIEMBRO_JURADO.equals(m.rolCodigo()))
+                .toList();
+
+        List<ComisionMiembroDetalleView> asesores = comision.getMiembros().stream()
+                .filter(m -> TablaMaestraCodigos.MIEMBRO_ASESOR.equals(m.rolCodigo()) || TablaMaestraCodigos.MIEMBRO_COASESOR.equals(m.rolCodigo()))
+                .toList();
+
+        if (jurados.isEmpty()) {
+            throw new BusinessRuleException("La comisión no tiene jurados registrados.");
+        }
+        if (asesores.isEmpty()) {
+            throw new BusinessRuleException("La comisión no tiene asesores registrados.");
         }
 
         List<MemorandumData.MiembroMemo> miembros = comision.getMiembros().stream()
@@ -207,6 +235,26 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
             throw new BusinessRuleException("La comisión del expediente no tiene miembros registrados.");
         }
 
+        comision.getMiembros().stream()
+                .filter(m -> TablaMaestraCodigos.MIEMBRO_PRESIDENTE.equals(m.rolCodigo()))
+                .findFirst()
+                .orElseThrow(() -> new BusinessRuleException("No hay presidente en la comisión."));
+
+        List<ComisionMiembroDetalleView> jurados = comision.getMiembros().stream()
+                .filter(m -> TablaMaestraCodigos.MIEMBRO_JURADO.equals(m.rolCodigo()))
+                .toList();
+
+        List<ComisionMiembroDetalleView> asesores = comision.getMiembros().stream()
+                .filter(m -> TablaMaestraCodigos.MIEMBRO_ASESOR.equals(m.rolCodigo()) || TablaMaestraCodigos.MIEMBRO_COASESOR.equals(m.rolCodigo()))
+                .toList();
+
+        if (jurados.isEmpty()) {
+            throw new BusinessRuleException("La comisión no tiene jurados registrados.");
+        }
+        if (asesores.isEmpty()) {
+            throw new BusinessRuleException("La comisión no tiene asesores registrados.");
+        }
+
         List<MemorandumData.MiembroMemo> miembros = comision.getMiembros().stream()
                 .map(m -> new MemorandumData.MiembroMemo(m.docenteNombre(), m.rolDenominacion()))
                 .toList();
@@ -242,8 +290,11 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
 
         DocumentoTesis guardado = documentoTesisRepositoryPort.guardar(documentoTesis);
 
-        expediente.marcarComoMemoGenerado();
-        expedienteRepositoryPort.guardar(expediente);
+        if (TablaMaestraCodigos.ESTADO_EXPEDIENTE_REGISTRADO.equals(expediente.getEstadoCodigo())
+        || TablaMaestraCodigos.ESTADO_EXPEDIENTE_MEMO_ENVIADO.equals(expediente.getEstadoCodigo())) {
+            expediente.marcarComoMemoGenerado();
+            expedienteRepositoryPort.guardar(expediente);
+        }
 
         List<String> rutasViejas = new ArrayList<>();
         if (rutaWordAntiguo != null && !rutaWordAntiguo.equals(nuevaRutaWord)) {
@@ -274,6 +325,14 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
 
         DocumentoTesis doc = documentoTesisRepositoryPort.buscarPorId(documentoId)
                 .orElseThrow(() -> new ResourceNotFoundException("DocumentoTesis", "id", documentoId.toString()));
+
+        if (documentoTesisRepositoryPort.existeDictamenPorExpediente(doc.getExpedienteTesisId())) {
+            throw new BusinessRuleException("No se puede eliminar el memorando, ya existe un dictamen.");
+        }
+
+        if (documentoTesisRepositoryPort.existeResolucionPorExpediente(doc.getExpedienteTesisId())) {
+            throw new BusinessRuleException("No se puede eliminar el memorando, ya existe una resolución.");
+        }
 
         if (esTipoMemo(doc.getTipoDocumentoCodigo()) && doc.getExpedienteTesisId() != null) {
             ExpedienteTesis expediente = expedienteRepositoryPort
@@ -311,6 +370,10 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
 
         ExpedienteTesis expediente = expedienteRepositoryPort.buscarPorId(command.expedienteId())
                 .orElseThrow(() -> new ResourceNotFoundException("ExpedienteTesis", "id", command.expedienteId().toString()));
+
+        if (!TablaMaestraCodigos.ETAPA_TESIS_PROYECTO.equals(expediente.getEtapaCodigo())) {
+            throw new BusinessRuleException("No se puede generar la resolución porque no es un proyecto de tesis");
+        }
 
         if (!TablaMaestraCodigos.ESTADO_EXPEDIENTE_DICTAMINADO_APROBADO.equals(expediente.getEstadoCodigo())) {
             throw new BusinessRuleException(
@@ -667,6 +730,10 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
                     "Este expediente ya tiene un dictamen registrado. Elimine el anterior antes de registrar uno nuevo.");
         }
 
+        if (documentoTesisRepositoryPort.existeResolucionPorExpediente(command.expedienteId())) {
+            throw new BusinessRuleException("No se puede registrar el expediente, ya existe una resolución");
+        }
+
         String rutaWord = null, rutaPdf = null;
         Long tamanioWord = null, tamanioPdf = null;
         List<String> rutasSubidas = new ArrayList<>();
@@ -785,8 +852,17 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
         DocumentoTesis doc = documentoTesisRepositoryPort.buscarPorId(documentoId)
                 .orElseThrow(() -> new ResourceNotFoundException("DocumentoTesis", "id", documentoId.toString()));
 
-        if (!TablaMaestraCodigos.ESTADO_DOCUMENTO_ESTADO_GENERADO.equals(doc.getEstadoCodigo())) {
-            throw new BusinessRuleException("El documento no está en estado GENERADO. Solo se pueden enviar memos recién generados.");
+        if (!TablaMaestraCodigos.TIPO_DOCUMENTO_MEMO_PROYECTO.equals(doc.getTipoDocumentoCodigo()) &&
+        !TablaMaestraCodigos.TIPO_DOCUMENTO_MEMO_BORRADOR.equals(doc.getTipoDocumentoCodigo())) {
+            throw new BusinessRuleException("El documento a enviar no es un memorando. No se puede enviar");
+        }
+
+        if (documentoTesisRepositoryPort.existeDictamenAprobadoPorExpediente(doc.getExpedienteTesisId())) {
+            throw new BusinessRuleException("No se puede enviar el memorando, ya existe un dictamen aprobado");
+        }
+
+        if (documentoTesisRepositoryPort.existeResolucionPorExpediente(doc.getExpedienteTesisId())) {
+            throw new BusinessRuleException("No se puede enviar el memorando, ya existe una resolución");
         }
 
         // 2. Cargar expediente
@@ -912,11 +988,15 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
         }
 
         // 10. Actualizar estados (documento + expediente)
-        doc.marcarComoEnviado();
-        documentoTesisRepositoryPort.guardar(doc);
+        if (TablaMaestraCodigos.ESTADO_DOCUMENTO_ESTADO_GENERADO.equals(doc.getEstadoCodigo())) {
+            doc.marcarComoEnviado();
+            documentoTesisRepositoryPort.guardar(doc);
+        }
 
-        expediente.marcarComoMemoEnviado();
-        expedienteRepositoryPort.guardar(expediente);
+        if (TablaMaestraCodigos.ESTADO_EXPEDIENTE_MEMO_GENERADO.equals(expediente.getEstadoCodigo())) {
+            expediente.marcarComoMemoEnviado();
+            expedienteRepositoryPort.guardar(expediente);
+        }
 
         log.info("Memo enviado y registrado. Destinatarios: {} · Adjuntos: {}",
                 destinatarios.size(), adjuntos.size());

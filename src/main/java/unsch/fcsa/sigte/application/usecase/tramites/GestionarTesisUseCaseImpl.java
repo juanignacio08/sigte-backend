@@ -11,11 +11,13 @@ import unsch.fcsa.sigte.application.port.in.tramites.GestionarExpedienteUseCase;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarTesisUseCase;
 import unsch.fcsa.sigte.application.port.out.maestro.EscuelaProfesionalRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.personas.EstudianteRepositoryPort;
+import unsch.fcsa.sigte.application.port.out.tramites.ComisionRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.tramites.TesisRepositoryPort;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteDetalleView;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.TesisDetalleView;
 import unsch.fcsa.sigte.domain.exception.BusinessRuleException;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
+import unsch.fcsa.sigte.domain.model.tramites.Comision;
 import unsch.fcsa.sigte.domain.model.tramites.Tesis;
 import unsch.fcsa.sigte.domain.model.tramites.TesisAutor;
 import unsch.fcsa.sigte.domain.util.TablaMaestraCodigos;
@@ -29,17 +31,20 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
     private final TesisRepositoryPort tesisRepositoryPort;
     private final EscuelaProfesionalRepositoryPort escuelaProfesionalRepositoryPort;
     private final EstudianteRepositoryPort estudianteRepositoryPort;
+    private final ComisionRepositoryPort comisionRepositoryPort;
     private final GestionarExpedienteUseCase gestionarExpedienteUseCase;
 
     public GestionarTesisUseCaseImpl(
             TesisRepositoryPort tesisRepositoryPort,
             EscuelaProfesionalRepositoryPort escuelaProfesionalRepositoryPort,
             EstudianteRepositoryPort estudianteRepositoryPort,
+            ComisionRepositoryPort comisionRepositoryPort,
             GestionarExpedienteUseCase gestionarExpedienteUseCase
     ){
         this.tesisRepositoryPort = tesisRepositoryPort;
         this.escuelaProfesionalRepositoryPort = escuelaProfesionalRepositoryPort;
         this.estudianteRepositoryPort = estudianteRepositoryPort;
+        this.comisionRepositoryPort = comisionRepositoryPort;
         this.gestionarExpedienteUseCase = gestionarExpedienteUseCase;
     }
 
@@ -79,18 +84,28 @@ public class GestionarTesisUseCaseImpl implements GestionarTesisUseCase {
 
         Tesis tesisGuardado = tesisRepositoryPort.guardar(tesis);
 
+        String etapaCodigo = command.etapaTesis() != null ? command.etapaTesis() : TablaMaestraCodigos.ETAPA_TESIS_PROYECTO;
         RegistrarExpedienteCommand commandExpediente =  new RegistrarExpedienteCommand(
                 tesisGuardado.getId(),
                 command.numeroExpediente(),
-                command.etapaTesis() != null ? command.etapaTesis() : TablaMaestraCodigos.ETAPA_TESIS_PROYECTO, // PROYECTO DE TESIS
+                etapaCodigo, // PROYECTO DE TESIS
                 command.numeroRevision() != null ? command.numeroRevision() : 1,
                 command.fechaIngreso()
         );
 
         gestionarExpedienteUseCase.registrar(commandExpediente, files, false);
 
-        return tesisGuardado;
+        Comision comision = new Comision(
+                null,
+                tesisGuardado.getId(),
+                etapaCodigo,
+                null,
+                1, false
+        );
 
+        comisionRepositoryPort.guardar(comision);
+
+        return tesisGuardado;
     }
 
     @Override

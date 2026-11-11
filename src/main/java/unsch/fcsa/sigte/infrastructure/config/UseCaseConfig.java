@@ -103,10 +103,13 @@ public class UseCaseConfig {
             ExpedienteArchivoRepositoryPort expedienteArchivoRepositoryPort,
             TesisRepositoryPort tesisRepositoryPort,
             DocumentoTesisRepositoryPort documentoTesisRepositoryPort,
+            ComisionRepositoryPort comisionRepositoryPort,
+            ComisionMiembroRepositoryPort comisionMiembroRepositoryPort,
             StoragePort storagePort) {
         return new GestionarExpedienteUseCaseImpl(
                 expedienteRepositoryPort, expedienteArchivoRepositoryPort,
-                tesisRepositoryPort, documentoTesisRepositoryPort, storagePort
+                tesisRepositoryPort, documentoTesisRepositoryPort,
+                comisionRepositoryPort, comisionMiembroRepositoryPort, storagePort
         );
     }
 

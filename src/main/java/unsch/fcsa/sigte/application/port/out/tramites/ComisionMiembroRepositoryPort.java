@@ -8,6 +8,7 @@ import java.util.Optional;
 
 public interface ComisionMiembroRepositoryPort {
     ComisionMiembro guardar(ComisionMiembro miembro);
+    List<ComisionMiembro> guardarTodo(List<ComisionMiembro> miembros);
     Optional<ComisionMiembro> buscarPorId(Long id);
     List<ComisionMiembro> listarActivosPorComision(Long comisionId);
     List<ComisionMiembroDetalleView> listarDetallePorComision(Long comisionId);

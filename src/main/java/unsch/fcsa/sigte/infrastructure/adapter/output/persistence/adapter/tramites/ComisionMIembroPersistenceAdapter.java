@@ -11,6 +11,7 @@ import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.entity.tramite
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.mapper.tramites.ComisionMiembroPersistenceMapper;
 import unsch.fcsa.sigte.infrastructure.adapter.output.persistence.repository.tramites.SpringDataComisionMiembroRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +32,20 @@ public class ComisionMIembroPersistenceAdapter implements ComisionMiembroReposit
     }
 
     @Override
+    public List<ComisionMiembro> guardarTodo(List<ComisionMiembro> miembros) {
+        List<ComisionMiembroEntity> entities = new ArrayList<>();
+        for (ComisionMiembro miembro : miembros) {
+            DocenteEntity docenteEntity = entityManager.getReference(DocenteEntity.class, miembro.getDocenteId());
+            ComisionMiembroEntity entity = mapper.toEntity(miembro);
+            entity.setDocente(docenteEntity);
+            entities.add(entity);
+        }
+        return comisionMiembroRepository.saveAll(entities).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public Optional<ComisionMiembro> buscarPorId(Long id) {
         return comisionMiembroRepository.findByIdAndEliminadoFalse(id).map(mapper::toDomain);
     }
@@ -44,7 +59,7 @@ public class ComisionMIembroPersistenceAdapter implements ComisionMiembroReposit
 
     @Override
     public List<ComisionMiembroDetalleView> listarDetallePorComision(Long comisionId) {
-        return comisionMiembroRepository.findByComisionIdAndEliminadoFalseOrderByOrdenAsc(comisionId).stream()
+        return comisionMiembroRepository.findByComisionIdAndEstadoAndEliminadoFalseOrderByOrdenAsc(comisionId, 1).stream()
                 .map(mapper::toDetalleView)
                 .toList();
     }

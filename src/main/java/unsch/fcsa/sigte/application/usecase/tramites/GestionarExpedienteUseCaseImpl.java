@@ -7,14 +7,14 @@ import unsch.fcsa.sigte.application.command.tramites.ActualizarExpedienteCommand
 import unsch.fcsa.sigte.application.command.tramites.RegistrarExpedienteCommand;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarExpedienteUseCase;
 import unsch.fcsa.sigte.application.port.out.storage.StoragePort;
-import unsch.fcsa.sigte.application.port.out.tramites.DocumentoTesisRepositoryPort;
-import unsch.fcsa.sigte.application.port.out.tramites.ExpedienteArchivoRepositoryPort;
-import unsch.fcsa.sigte.application.port.out.tramites.ExpedienteRepositoryPort;
-import unsch.fcsa.sigte.application.port.out.tramites.TesisRepositoryPort;
+import unsch.fcsa.sigte.application.port.out.tramites.*;
+import unsch.fcsa.sigte.application.port.out.tramites.dto.ComisionDetalleView;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteArchivoDetalleView;
 import unsch.fcsa.sigte.application.port.out.tramites.dto.ExpedienteDetalleView;
 import unsch.fcsa.sigte.domain.exception.BusinessRuleException;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
+import unsch.fcsa.sigte.domain.model.tramites.Comision;
+import unsch.fcsa.sigte.domain.model.tramites.ComisionMiembro;
 import unsch.fcsa.sigte.domain.model.tramites.ExpedienteArchivo;
 import unsch.fcsa.sigte.domain.model.tramites.ExpedienteTesis;
 import unsch.fcsa.sigte.domain.util.TablaMaestraCodigos;
@@ -32,17 +32,23 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
     private final ExpedienteArchivoRepositoryPort expedienteArchivoRepositoryPort;
     private final TesisRepositoryPort tesisRepositoryPort;
     private final DocumentoTesisRepositoryPort documentoTesisRepositoryPort;
+    private final ComisionRepositoryPort comisionRepositoryPort;
+    private final ComisionMiembroRepositoryPort comisionMiembroRepositoryPort;
     private final StoragePort storagePort;
 
     public GestionarExpedienteUseCaseImpl(ExpedienteRepositoryPort expedienteRepositoryPort,
                                           ExpedienteArchivoRepositoryPort expedienteArchivoRepositoryPort,
                                           TesisRepositoryPort tesisRepositoryPort,
                                           DocumentoTesisRepositoryPort documentoTesisRepositoryPort,
+                                          ComisionRepositoryPort comisionRepositoryPort,
+                                          ComisionMiembroRepositoryPort comisionMiembroRepositoryPort,
                                           StoragePort storagePort) {
         this.expedienteRepositoryPort = expedienteRepositoryPort;
         this.expedienteArchivoRepositoryPort = expedienteArchivoRepositoryPort;
         this.tesisRepositoryPort = tesisRepositoryPort;
         this.documentoTesisRepositoryPort = documentoTesisRepositoryPort;
+        this.comisionRepositoryPort = comisionRepositoryPort;
+        this.comisionMiembroRepositoryPort = comisionMiembroRepositoryPort;
         this.storagePort = storagePort;
     }
 
@@ -120,6 +126,35 @@ public class GestionarExpedienteUseCaseImpl implements GestionarExpedienteUseCas
             }
 
             expedienteArchivoRepositoryPort.guardarTodos(archivosDominio);
+
+            if (
+                    TablaMaestraCodigos.ETAPA_TESIS_BORRADOR.equals(expediente.getEtapaCodigo())
+                    && !comisionRepositoryPort.existeComisionActivaPorTesisYEtapa(expediente.getTesisId(), TablaMaestraCodigos.ETAPA_TESIS_BORRADOR)
+            ) {
+                ComisionDetalleView comision = comisionRepositoryPort.obtenerPorTesisYEtapa(expediente.getTesisId(), TablaMaestraCodigos.ETAPA_TESIS_PROYECTO)
+                        .orElse(null);
+
+                if (comision != null) {
+                    Comision comisionNueva = new Comision(
+                            null,
+                            comision.getTesisId(),
+                            TablaMaestraCodigos.ETAPA_TESIS_BORRADOR,
+                            comision.getFechaConformacion(),
+                            1,
+                            false
+                    );
+
+                    Comision comisionNuevaGuardada = comisionRepositoryPort.guardar(comisionNueva);
+
+                    List<ComisionMiembro> nuevosMiembros = comisionMiembroRepositoryPort.listarDetallePorComision(comision.getId()).stream()
+                            .map(m -> new ComisionMiembro(
+                                    null, comisionNuevaGuardada.getId(), m.docenteId(),
+                                    m.rolCodigo(), m.orden(), m.fechaAlta(), m.fechaBaja(), m.motivoBaja(), 1, false
+                            )).toList();
+
+                    comisionMiembroRepositoryPort.guardarTodo(nuevosMiembros);
+                }
+            }
 
             return guardado;
 

@@ -109,11 +109,14 @@ public class TesisRestMapper {
 
         return TesisResponse.ExpedienteTesisResponse.builder()
                 .id(domain.getId())
+                .tesisId(domain.getTesisId())
                 .numeroExpediente(domain.getNumeroExpediente())
                 .etapaCodigo(domain.getEtapaCodigo())
                 .etapaDenominacion(domain.getEtapaDenominacion())
                 .numRevision(domain.getNumeroRevision())
                 .fechaAsociacion(domain.getFechaIngreso())
+                .estadoCodigo(domain.getEstadoCodigo())
+                .estadoDenominacion(domain.getEstadoDenominacion())
                 .estado(domain.getEstado())
                 .build();
     }

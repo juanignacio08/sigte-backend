@@ -45,6 +45,8 @@ public record TesisResponse(
             String etapaCodigo,
             String etapaDenominacion,
             Integer numRevision,
+            String estadoCodigo,
+            String estadoDenominacion,
             OffsetDateTime fechaAsociacion,
             Integer estado
     ) {}

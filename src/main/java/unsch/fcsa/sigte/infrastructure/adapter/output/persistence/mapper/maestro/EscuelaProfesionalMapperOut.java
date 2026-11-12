@@ -21,8 +21,6 @@ public class EscuelaProfesionalMapperOut {
                 .codigo(domain.getCodigo())
                 .abreviatura(domain.getAbreviatura())
                 .denominacion(domain.getDenominacion())
-                .plantillaMemorando(domain.getPlantillaMemorando())
-                .plantillaResolucion(domain.getPlantillaResolucion())
                 .estado(domain.getEstado())
                 .eliminado(domain.isEliminado())
                 .build();
@@ -37,8 +35,6 @@ public class EscuelaProfesionalMapperOut {
                 entity.getCodigo(),
                 entity.getAbreviatura(),
                 entity.getDenominacion(),
-                entity.getPlantillaMemorando(),
-                entity.getPlantillaResolucion(),
                 entity.getEstado(),
                 entity.getEliminado()
         );

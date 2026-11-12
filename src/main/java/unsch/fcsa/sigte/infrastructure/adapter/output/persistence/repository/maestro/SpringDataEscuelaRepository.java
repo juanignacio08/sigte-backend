@@ -22,9 +22,7 @@ public interface SpringDataEscuelaRepository extends JpaRepository<EscuelaEntity
             SELECT e.id AS id, 
             e.codigo AS codigo, 
             e.abreviatura AS abreviatura, 
-            e.denominacion AS denominacion, 
-            e.plantillaMemorando AS plantillaMemorando,
-            e.plantillaResolucion AS plantillaResolucion,
+            e.denominacion AS denominacion,
             e.estado AS estado, 
             d.id AS departamentoId,
             d.denominacion AS departamentoDenominacion
@@ -39,8 +37,6 @@ public interface SpringDataEscuelaRepository extends JpaRepository<EscuelaEntity
             e.codigo AS codigo, 
             e.abreviatura AS abreviatura, 
             e.denominacion AS denominacion, 
-            e.plantillaMemorando AS plantillaMemorando,
-            e.plantillaResolucion AS plantillaResolucion,
             e.estado AS estado, 
             d.id AS departamentoId,
             d.denominacion AS departamentoDenominacion

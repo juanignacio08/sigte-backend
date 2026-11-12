@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import unsch.fcsa.sigte.application.command.files.ArchivoSubida;
 import unsch.fcsa.sigte.application.command.maestro.EscuelaCommand;
 import unsch.fcsa.sigte.application.port.out.maestro.dtos.EscuelaProfesionalProjection;
 import unsch.fcsa.sigte.application.port.out.storage.StoragePort;
@@ -17,7 +16,6 @@ import unsch.fcsa.sigte.infrastructure.adapter.input.rest.dto.maestro.EscuelaPro
 import unsch.fcsa.sigte.domain.model.maestro.EscuelaProfesional;
 import unsch.fcsa.sigte.application.port.in.maestro.GestionarEscuelaUseCase;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.ResponseGlobalMapper;
-import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.file.MultipartFileMapper;
 import unsch.fcsa.sigte.infrastructure.adapter.input.rest.mapper.maestro.EscuelaProfesionalMapperExpose;
 
 import java.util.List;
@@ -30,20 +28,15 @@ public class EscuelaController {
     private final StoragePort storagePort;
 
     private final EscuelaProfesionalMapperExpose mapper;
-    private final MultipartFileMapper multipartFileMapper;
 
-    public EscuelaController(GestionarEscuelaUseCase gestionarEscuelaUseCase, EscuelaProfesionalMapperExpose mapper, StoragePort storagePort, MultipartFileMapper multipartFileMapper) {
+    public EscuelaController(GestionarEscuelaUseCase gestionarEscuelaUseCase, EscuelaProfesionalMapperExpose mapper, StoragePort storagePort) {
         this.gestionarEscuelaUseCase = gestionarEscuelaUseCase;
         this.mapper = mapper;
         this.storagePort = storagePort;
-        this.multipartFileMapper = multipartFileMapper;
     }
 
-    @PostMapping(
-            value = "/guardar",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
-    public ResponseEntity<ResponseDTO<Object>> crear(@ModelAttribute @Valid EscuelaProfesionalRequest request) {
+    @PostMapping()
+    public ResponseEntity<ResponseDTO<Object>> crear(@RequestBody @Valid EscuelaProfesionalRequest request) {
         EscuelaCommand command = EscuelaCommand.create(
                 request.departamentoId(),
                 request.codigo(),
@@ -51,21 +44,15 @@ public class EscuelaController {
                 request.denominacion()
         );
 
-        ArchivoSubida plantillaMemo = multipartFileMapper.toArchivosSubida(request.plantillaMemo());
-        ArchivoSubida plantillaRes = multipartFileMapper.toArchivosSubida(request.plantillaRes());
-
-        EscuelaProfesional creado = gestionarEscuelaUseCase.crearEscuela(command, plantillaMemo, plantillaRes);
+        EscuelaProfesional creado = gestionarEscuelaUseCase.crearEscuela(command);
 
         ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(mapper.toResponse(creado), "Escuela Profesional registrado!", "201");
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
-    @PutMapping(
-            value = "/modificar",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
-    public ResponseEntity<ResponseDTO<Object>> modificar(@ModelAttribute @Valid EscuelaProfesionalRequest request) {
+    @PutMapping()
+    public ResponseEntity<ResponseDTO<Object>> modificar(@RequestBody @Valid EscuelaProfesionalRequest request) {
         EscuelaCommand command = EscuelaCommand.update(
                 request.id(),
                 request.departamentoId(),
@@ -74,10 +61,7 @@ public class EscuelaController {
                 request.denominacion()
         );
 
-        ArchivoSubida plantillaMemo = multipartFileMapper.toArchivosSubida(request.plantillaMemo());
-        ArchivoSubida plantillaRes = multipartFileMapper.toArchivosSubida(request.plantillaRes());
-
-        EscuelaProfesional creado = gestionarEscuelaUseCase.modificarEscuela(command, plantillaMemo, plantillaRes);
+        EscuelaProfesional creado = gestionarEscuelaUseCase.modificarEscuela(command);
 
         ResponseDTO<Object> responseDTO = ResponseGlobalMapper.build(mapper.toResponse(creado), "Escuela Profesional actualizada!", "201");
 

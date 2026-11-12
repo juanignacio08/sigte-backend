@@ -2,10 +2,8 @@ package unsch.fcsa.sigte.application.usecase.maestro;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
-import unsch.fcsa.sigte.application.command.files.ArchivoSubida;
 import unsch.fcsa.sigte.application.command.maestro.EscuelaCommand;
 import unsch.fcsa.sigte.application.port.out.maestro.dtos.EscuelaProfesionalProjection;
-import unsch.fcsa.sigte.application.port.out.storage.StoragePort;
 import unsch.fcsa.sigte.domain.exception.DuplicateKeyException;
 import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
 import unsch.fcsa.sigte.domain.model.maestro.EscuelaProfesional;
@@ -20,21 +18,18 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
 
     private final EscuelaProfesionalRepositoryPort escuelaProfesionalRepositoryPort;
     private final DepartamentoRepositoryPort departamentoRepositoryPort;
-    private final StoragePort storagePort;
 
     public GestionarEscuelaUseCaseImpl(
             EscuelaProfesionalRepositoryPort escuelaProfesionalRepositoryPort,
-            DepartamentoRepositoryPort departamentoRepositoryPort,
-            StoragePort storagePort
+            DepartamentoRepositoryPort departamentoRepositoryPort
     ) {
         this.escuelaProfesionalRepositoryPort = escuelaProfesionalRepositoryPort;
         this.departamentoRepositoryPort = departamentoRepositoryPort;
-        this.storagePort = storagePort;
     }
 
     @Override
     @Transactional
-    public EscuelaProfesional crearEscuela(EscuelaCommand command, ArchivoSubida plantillaMemo, ArchivoSubida plantillaRes) {
+    public EscuelaProfesional crearEscuela(EscuelaCommand command) {
         log.info("Iniciando el registro de una escuela: {}", command.denominacion());
 
         if (escuelaProfesionalRepositoryPort.existePorCodigo(command.codigo())) {
@@ -49,40 +44,19 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
             throw new ResourceNotFoundException("Departamento",  "id", command.departamentoId());
         }
 
-        String rutaMemo = null;
-        String rutaRes  = null;
+        EscuelaProfesional escuelaProfesional = new EscuelaProfesional(
+                command.departamentoId(),
+                command.codigo(),
+                command.abreviatura(),
+                command.denominacion()
+        );
 
-        try {
-            if (plantillaMemo != null) {
-                rutaMemo = storagePort.guardarArchivo(plantillaMemo, "plantillas/memorandos");
-            }
-            if (plantillaRes != null) {
-                rutaRes = storagePort.guardarArchivo(plantillaRes, "plantillas/resoluciones");
-            }
-
-            // Crear entidad de Dominio con las rutas asignadas
-            EscuelaProfesional escuelaProfesional = new EscuelaProfesional(
-                    command.departamentoId(),
-                    command.codigo(),
-                    command.abreviatura(),
-                    command.denominacion(),
-                    rutaMemo,
-                    rutaRes
-            );
-
-            return escuelaProfesionalRepositoryPort.guardar(escuelaProfesional);
-
-        } catch (Exception ex) {
-            log.error("Error al crear la escuela. Revirtiendo archivos físicos subidos...", ex);
-            if (rutaMemo != null) storagePort.eliminarArchivo(rutaMemo);
-            if (rutaRes  != null) storagePort.eliminarArchivo(rutaRes);
-            throw ex;
-        }
+        return escuelaProfesionalRepositoryPort.guardar(escuelaProfesional);
     }
 
     @Override
     @Transactional
-    public EscuelaProfesional modificarEscuela(EscuelaCommand command, ArchivoSubida plantillaMemo, ArchivoSubida plantillaRes) {
+    public EscuelaProfesional modificarEscuela(EscuelaCommand command) {
         log.info("Actualizando un recurso. [ ESCUELA : {} ]", command.id());
 
         EscuelaProfesional existente = obtenerPorId(command.id());
@@ -102,50 +76,15 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
             throw new ResourceNotFoundException("Departamento",  "id", command.departamentoId());
         }
 
-        String rutaMemoVieja = existente.getPlantillaMemorando();
-        String rutaResVieja  = existente.getPlantillaResolucion();
+        existente.actualizarDatos(
+                command.departamentoId(),
+                command.codigo(),
+                command.abreviatura(),
+                command.denominacion()
+        );
 
-        String rutaMemoFinal = rutaMemoVieja;
-        String rutaResFinal  = rutaResVieja;
+        return escuelaProfesionalRepositoryPort.guardar(existente);
 
-        String rutaMemoNueva = null;
-        String rutaResNueva  = null;
-
-        try {
-            if (plantillaMemo != null) {
-                rutaMemoNueva = storagePort.guardarArchivo(plantillaMemo, "plantillas/memorandos");
-                rutaMemoFinal = rutaMemoNueva;
-            }
-
-            if (plantillaRes != null) {
-                rutaResNueva = storagePort.guardarArchivo(plantillaRes, "plantillas/resoluciones");
-                rutaResFinal = rutaResNueva;
-            }
-
-            existente.actualizarDatos(
-                    command.departamentoId(),
-                    command.codigo(),
-                    command.abreviatura(),
-                    command.denominacion(),
-                    rutaMemoFinal,
-                    rutaResFinal
-            );
-
-            EscuelaProfesional guardada = escuelaProfesionalRepositoryPort.guardar(existente);
-
-            if (rutaMemoNueva != null && rutaMemoVieja != null) {
-                storagePort.eliminarTrasCommit(rutaMemoVieja);
-            }
-            if (rutaResNueva != null && rutaResVieja != null) {
-                storagePort.eliminarTrasCommit(rutaResVieja);
-            }
-            return guardada;
-
-        } catch (Exception ex) {
-            if (rutaMemoNueva != null) storagePort.eliminarArchivo(rutaMemoNueva);
-            if (rutaResNueva  != null) storagePort.eliminarArchivo(rutaResNueva);
-            throw ex;
-        }
     }
 
     @Override
@@ -232,13 +171,6 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
         EscuelaProfesional escuela = obtenerPorId(id);
         escuela.marcarComoEliminado();
 
-        String rutaMemoFinal = escuela.getPlantillaMemorando();
-        String rutaResFinal = escuela.getPlantillaResolucion();
-
         escuelaProfesionalRepositoryPort.guardar(escuela);
-
-        if (rutaMemoFinal != null) storagePort.eliminarArchivo(rutaMemoFinal);
-        if (rutaResFinal  != null) storagePort.eliminarArchivo(rutaResFinal);
-
     }
 }

@@ -20,8 +20,6 @@ public class EscuelaProfesionalMapperExpose {
                 .codigo(domain.getCodigo())
                 .abreviatura(domain.getAbreviatura())
                 .denominacion(domain.getDenominacion())
-                .plantillaMemo(domain.getPlantillaMemorando())
-                .plantillaRes(domain.getPlantillaResolucion())
                 .estado(domain.getEstado())
                 .build();
     }
@@ -38,8 +36,6 @@ public class EscuelaProfesionalMapperExpose {
                 .codigo(domain.getCodigo())
                 .abreviatura(domain.getAbreviatura())
                 .denominacion(domain.getDenominacion())
-                .plantillaMemo(domain.getPlantillaMemorando())
-                .plantillaRes(domain.getPlantillaResolucion())
                 .estado(domain.getEstado())
                 .build();
     }

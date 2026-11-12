@@ -8,6 +8,8 @@ import unsch.fcsa.sigte.application.command.tramites.GenerarResolucionAprobacion
 import unsch.fcsa.sigte.application.command.tramites.RegistrarDictamenCommand;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarComisionUseCase;
 import unsch.fcsa.sigte.application.port.in.tramites.GestionarDocumentosTesisUseCase;
+import unsch.fcsa.sigte.application.port.out.maestro.PlantillaDocumentoRepositoryPort;
+import unsch.fcsa.sigte.application.port.out.maestro.dtos.PlantillaDocumentoDetalleView;
 import unsch.fcsa.sigte.application.port.out.notificaciones.EmailPort;
 import unsch.fcsa.sigte.application.port.out.storage.DocumentoGeneradorPort;
 import unsch.fcsa.sigte.application.port.out.storage.StoragePort;
@@ -43,6 +45,7 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
     private final EnvioCorreoRepositoryPort envioCorreoRepositoryPort;
     private final GestionarComisionUseCase gestionarComisionUseCase;
     private final StoragePort storagePort;
+    private final PlantillaDocumentoRepositoryPort plantillaDocumentoRepositoryPort;
     private final ObjectMapper objectMapper;
 
     public GestionarDocumentosTesisUseCaseImpl(
@@ -55,6 +58,7 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
             EnvioCorreoRepositoryPort envioCorreoRepositoryPort,
             GestionarComisionUseCase gestionarComisionUseCase,
             StoragePort storagePort,
+            PlantillaDocumentoRepositoryPort plantillaDocumentoRepositoryPort,
             ObjectMapper objectMapper) {
         this.documentoTesisRepositoryPort = documentoTesisRepositoryPort;
         this.documentoGeneradorPort = documentoGeneradorPort;
@@ -65,6 +69,7 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
         this.envioCorreoRepositoryPort = envioCorreoRepositoryPort;
         this.gestionarComisionUseCase = gestionarComisionUseCase;
         this.storagePort = storagePort;
+        this.plantillaDocumentoRepositoryPort = plantillaDocumentoRepositoryPort;
         this.objectMapper = objectMapper;
     }
 
@@ -127,7 +132,9 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
             throw new BusinessRuleException("Ya existe un documento con el número " + command.numeroCorrelativo() + "-" + command.anio() + ". Por favor elija otro.");
         }
 
-        String rutaPlantilla = tesis.getPlantillaMemo();
+        PlantillaDocumentoDetalleView plantillaDocumento = obtenerPlantilla(tesis.getEscuelaId(), tipoDocumentoCodigo);
+
+        String rutaPlantilla = plantillaDocumento.archivoUrl();
 
         if (rutaPlantilla == null) { throw new BusinessRuleException("NO existe una plantilla de memorando en la escuela " + tesis.getEscuelaDenominacion()); }
 
@@ -227,7 +234,9 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
 
         String tipoDocumentoCodigo = mapearTipoDocumento(expediente.getEtapaCodigo());
 
-        String rutaPlantilla = tesis.getPlantillaMemo();
+        PlantillaDocumentoDetalleView plantillaDocumento = obtenerPlantilla(tesis.getEscuelaId(), tipoDocumentoCodigo);
+
+        String rutaPlantilla = plantillaDocumento.archivoUrl();
 
         if (rutaPlantilla == null) { throw new BusinessRuleException("NO existe una plantilla de memorando en la escuela " + tesis.getEscuelaDenominacion()); }
 
@@ -396,7 +405,9 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
 
         ComisionDetalleView comision = gestionarComisionUseCase.obtenerPorTesisYEtapa(tesis.getId(), expediente.getEtapaCodigo());
 
-        String rutaPlantilla = tesis.getPlantillaResolucionProyecto();
+        PlantillaDocumentoDetalleView plantillaDocumento = obtenerPlantilla(tesis.getEscuelaId(), TablaMaestraCodigos.TIPO_DOCUMENTO_RESOLUCION_APROBACION_PROYECTO);
+
+        String rutaPlantilla = plantillaDocumento.archivoUrl();
 
         if (rutaPlantilla == null || rutaPlantilla.isBlank()) {
             throw new BusinessRuleException(
@@ -549,7 +560,10 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
         ComisionDetalleView comision = gestionarComisionUseCase
                 .obtenerPorTesisYEtapa(tesis.getId(), expediente.getEtapaCodigo());
 
-        String rutaPlantilla = tesis.getPlantillaResolucionProyecto();
+        PlantillaDocumentoDetalleView plantillaDocumento = obtenerPlantilla(tesis.getEscuelaId(), TablaMaestraCodigos.TIPO_DOCUMENTO_RESOLUCION_APROBACION_PROYECTO);
+
+        String rutaPlantilla = plantillaDocumento.archivoUrl();
+
         if (rutaPlantilla == null || rutaPlantilla.isBlank()) {
             throw new BusinessRuleException(
                     "No hay plantilla de resolución configurada para la escuela "
@@ -1324,6 +1338,14 @@ public class GestionarDocumentosTesisUseCaseImpl implements GestionarDocumentosT
                 cuerpo,
                 adjuntos
         );
+    }
+
+    private PlantillaDocumentoDetalleView obtenerPlantilla(Long escuelaId, String tipoDocumentoCodigo) {
+        return plantillaDocumentoRepositoryPort
+                .obtenerPlantillaActivaPorEscuelaYTipo(escuelaId, tipoDocumentoCodigo)
+                .orElseThrow(() -> new BusinessRuleException(
+                        "No hay plantilla configurada para el tipo " + tipoDocumentoCodigo
+                                + " en la escuela " + escuelaId));
     }
 
     private boolean esTipoMemo(String tipoCodigo) {

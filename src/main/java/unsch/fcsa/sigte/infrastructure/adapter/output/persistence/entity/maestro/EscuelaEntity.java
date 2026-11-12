@@ -36,12 +36,6 @@ public class EscuelaEntity {
     @Column(nullable = false, length = 200)
     private String denominacion;
 
-    @Column(name = "plantilla_memorando", nullable = false, length = 200)
-    private String plantillaMemorando;
-
-    @Column(name = "plantilla_resolucion", nullable = false, length = 200)
-    private String plantillaResolucion;
-
     @Column(nullable = false)
     private Integer estado;
 

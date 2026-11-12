@@ -38,8 +38,6 @@ CREATE TABLE maestros.escuela (
     codigo INT NOT NULL,
     abreviatura VARCHAR(10) NOT NULL,
     denominacion VARCHAR(200) NOT NULL,
-    plantilla_memorando TEXT,
-    plantilla_resolucion TEXT,
     estado INT NOT NULL DEFAULT 1,
     creado_por VARCHAR(100) NOT NULL DEFAULT 'admin',
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,

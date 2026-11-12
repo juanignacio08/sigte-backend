@@ -8,8 +8,6 @@ public class TesisDetalleView {
     private final UUID id;
     private final Long escuelaId;
     private final String escuelaDenominacion;
-    private final String plantillaMemo;
-    private final String plantillaResolucionProyecto;
     private final String titulo;
     private final String tituloDictaminado;
     private final String estadoCodigo;
@@ -18,12 +16,10 @@ public class TesisDetalleView {
     private final List<AutorView> autores;
     private ExpedienteDetalleView expedienteActual;
 
-    public TesisDetalleView(UUID id, Long escuelaId, String escuelaDenominacion, String plantillaMemo, String plantillaResolucionProyecto, String titulo, String tituloDictaminado, String estadoCodigo, String estadoDenominacion, OffsetDateTime fechaRegistro, List<AutorView> autores) {
+    public TesisDetalleView(UUID id, Long escuelaId, String escuelaDenominacion, String titulo, String tituloDictaminado, String estadoCodigo, String estadoDenominacion, OffsetDateTime fechaRegistro, List<AutorView> autores) {
         this.id = id;
         this.escuelaId = escuelaId;
         this.escuelaDenominacion = escuelaDenominacion;
-        this.plantillaMemo = plantillaMemo;
-        this.plantillaResolucionProyecto = plantillaResolucionProyecto;
         this.titulo = titulo;
         this.tituloDictaminado = tituloDictaminado;
         this.estadoCodigo = estadoCodigo;
@@ -44,12 +40,6 @@ public class TesisDetalleView {
     public String getEscuelaDenominacion() {
         return escuelaDenominacion;
     }
-
-    public String getPlantillaMemo() {
-        return plantillaMemo;
-    }
-
-    public String getPlantillaResolucionProyecto() {return plantillaResolucionProyecto;}
 
     public String getTitulo() {
         return titulo;

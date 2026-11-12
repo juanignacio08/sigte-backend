@@ -11,8 +11,6 @@ public record EscuelaProfesionalResponse(
         Integer codigo,
         String abreviatura,
         String denominacion,
-        String plantillaMemo,
-        String plantillaRes,
         Integer estado
 ) {
 }

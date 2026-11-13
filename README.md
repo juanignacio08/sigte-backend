@@ -1,0 +1,107 @@
+# SIGTE - Sistema de Gestión de Tesis y Trámites
+
+Sistema integral desarrollado para la **Facultad de Ciencias de la Salud (UNSCH)**, compuesto por una API REST en **Spring Boot** y una interfaz moderna en **Angular**. Permite la administración académica, gestión de personas, flujos de tesis, comisiones y la generación automatizada de documentos.
+
+---
+
+## 📋 Requerimientos del Sistema (Prerrequisitos)
+
+Para levantar el sistema completo de forma local, es necesario contar con las siguientes herramientas instaladas en tu equipo:
+
+1. **Java Development Kit (JDK) 21:** Requerido para compilar y ejecutar el backend (`spring-boot-starter-parent` v4.1.1).
+2. **Apache Maven 3.9+:** Gestor de dependencias y construcción para Java (o utilizar el wrapper `./mvnw` incluido).
+3. **PostgreSQL 15+:** Motor de base de datos relacional.
+4. **LibreOffice (Writer / Headless):** **Obligatorio** en el sistema operativo para que `JODConverter` pueda transformar de forma nativa las plantillas generadas en Word (`.docx`) a formato PDF.
+
+---
+
+## 🚀 Stack Tecnológico
+
+* **Backend:** Java 21, Spring Boot (Web MVC, Data JPA, Validation, Mail), Flyway, HikariCP, `poi-tl` (generación de Word), `JODConverter` (conversión a PDF).
+* **Frontend:**
+**Node.js:** `v24.22.0` (o superior)
+**npm:** `v11.17.0` (o superior)
+**Angular CLI:** `v22.1.8`
+**Angular:** `v22.1.7`
+**TypeScript:** `v6.0.3`
+  
+* **Base de Datos:** PostgreSQL.
+
+---
+
+## 💻 Guía de Instalación y Ejecución
+
+Sigue estos pasos para poner en marcha tanto el backend como el frontend en tu entorno local.
+
+### 1. Configuración y Ejecución del Backend (Spring Boot)
+
+1. **Clonar el repositorio del backend:**
+   ```bash
+   git clone https://github.com/juanignacio08/sigte-backend.git
+   ```
+2. Crea en ***PostgreSQL*** una base de datos con el nombre **bd_sigte**. (solo una base de datos sencilla).
+```sql
+CREATE DATABASE bd_sigte;
+```
+
+3. Cambia a la rama ***dev*** del proyecto desde un editor de codigo como **IntelliJ IDEA**. **(IMPORTANTE!!)**
+
+4. Entra a la carpeta **resource** (*./src/main/resources*) y busca el archivo **application.yaml.example**
+
+5. Renómbralo a **application.yaml** y configura tus credenciales locales de PostgreSql (DB_USERNAME, DB_PASSWORD, MAIL_USERNAME y MAIL_PASSWORD). **modifica únicamente estos 4 campos** con tus datos:
+
+* `spring.datasource.username`: Usuario de tu base de datos PostgreSQL (ej. `postgres`).
+* **`spring.datasource.password`** 🔴 **(Crucial):** Contraseña de acceso a tu base de datos.
+* `spring.mail.username`: Tu dirección de correo electrónico para el envío de notificaciones.
+* **`spring.mail.password`** 🔴 **(Crucial):** **Contraseña de aplicación** de tu correo.
+
+> **Nota importante sobre el correo:** Si usas Gmail u otro proveedor con verificación en dos pasos, **no** coloques tu contraseña habitual. Debes generar una **contraseña de aplicación** de 16 caracteres desde la configuración de seguridad de tu cuenta y pegarla aquí.
+
+5. Ejecuta el proyecto desde tu IDE (*ir a ./src/main/java/unsch/fcsa/sigte/* encontraras el archivo **SigteApplication.java** habrelo y ejecutalo) o consola. (El backend correrá por defecto en http://localhost:8080).
+
+6. Si ejecuto correctamente prueba desde postman o el navegador la siguiente url: http://localhost:8080/sigte/api/v1/departamentos/listarPorFacultad/1  deberia de devolver algo como esto.
+
+```json
+{
+    "data": [
+        {
+            "id": 1,
+            "facultadId": 1,
+            "abreviatura": "DAENF",
+            "denominacion": "Departamento Académico de Enfermería",
+            "estado": 1,
+            "totalEscuelas": 1
+        }
+    ],
+    "message": "Lista de departamentos académicos",
+    "status": "success",
+    "code": "200"
+}
+```
+
+### 2. Clonar y configurar el Frontend (Angular)
+1. Clona este repositoriO:
+   ```bash
+   git clone https://github.com/juanignacio08/sigte-frontend.git
+    ```
+    
+2. Cámbiate a la rama **dev** (IMPORTANTE!!), te recomiendo que lo hagas desde visual studio code.
+
+3. Instala las dependencias:
+   ```bash
+   npm install
+    ```
+3. Importante: Abre el archivo src/environments/environment.ts y environment.development.ts y asegúrate de que useMock esté en false (si es que existe, si no hay no hacer nada):
+```ts
+export const environment = {
+  production: false,
+  useMock: false, // <--- Desactiva los mocks para usar el backend real
+  apiUrl: 'http://localhost:8080/sigte/api/v1'
+};
+```
+
+4. Inicia el servidor:
+```bash
+npm start
+```
+5. Abre http://localhost:4200 en tu navegador.

@@ -32,6 +32,6 @@ INSERT INTO maestros.plantilla_documento (
     plazo_dias,
     plazo_meses
 ) VALUES
-(1, '006001', 'MEMORANDO DE PROYECTO', 'storage/plantillas/memorandos/4474be4f-2a7d-4b29-81a2-419de3920c6b.docx', 10, NULL),
-(1, '006002', 'MEMORANDO DE BORRADOR', 'torage/plantillas/memorandos/9181b338-9a8a-4fde-a5e1-dea938b0fb7d.docx', 15, NULL),
-(1, '006005', 'RESOLUCIÓN DE APROBACIÓN DE PROYECTO', 'storage/plantillas/resoluciones/11e0abb9-4fe9-4b2c-ac6c-2bbf75e515aa.docx', NULL, 12);
+(1, '006001', 'MEMORANDO DE PROYECTO', 'plantillas/memorandos/4474be4f-2a7d-4b29-81a2-419de3920c6b.docx', 10, NULL),
+(1, '006002', 'MEMORANDO DE BORRADOR', 'plantillas/memorandos/9181b338-9a8a-4fde-a5e1-dea938b0fb7d.docx', 15, NULL),
+(1, '006005', 'RESOLUCIÓN DE APROBACIÓN DE PROYECTO', 'plantillas/resoluciones/11e0abb9-4fe9-4b2c-ac6c-2bbf75e515aa.docx', NULL, 12);

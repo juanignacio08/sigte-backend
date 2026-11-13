@@ -8,7 +8,7 @@ spring:
     name: sigte
 
   datasource:
-    url: //localhost:5432/bd_sigte
+    url: jdbc:postgresql://localhost:5432/bd_sigte
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:tu_contrasena}
     driver-class-name: org.postgresql.Driver

@@ -1,15 +1,11 @@
 package unsch.fcsa.sigte.domain.model.maestro;
 
-import unsch.fcsa.sigte.domain.util.PathSanitizer;
-
 public class EscuelaProfesional {
     private Long id;
     private Long departamentoAcademicoId;
     private Integer codigo;
     private String abreviatura;
     private String denominacion;
-    private String plantillaMemorando;
-    private String plantillaResolucion;
     private Integer estado;
     private Boolean eliminado;
 
@@ -17,16 +13,12 @@ public class EscuelaProfesional {
             Long departamentoAcademicoId,
             Integer codigo,
             String abreviatura,
-            String denominacion,
-            String plantillaMemorando,
-            String plantillaResolucion
+            String denominacion
     ) {
         setDepartamentoAcademicoId(departamentoAcademicoId);
         setCodigo(codigo);
         setAbreviatura(abreviatura);
         setDenominacion(denominacion);
-        setPlantillaMemorando(plantillaMemorando);
-        setPlantillaResolucion(plantillaResolucion);
         estado = 1;
         eliminado = false;
     }
@@ -37,8 +29,6 @@ public class EscuelaProfesional {
             Integer codigo,
             String abreviatura,
             String denominacion,
-            String plantillaMemorando,
-            String plantillaResolucion,
             Integer estado,
             Boolean eliminado
     ) {
@@ -47,8 +37,6 @@ public class EscuelaProfesional {
         setCodigo(codigo);
         setAbreviatura(abreviatura);
         setDenominacion(denominacion);
-        setPlantillaMemorando(plantillaMemorando);
-        setPlantillaResolucion(plantillaResolucion);
         this.estado = estado != null ? estado : 1;
         this.eliminado = eliminado != null && eliminado;
     }
@@ -70,21 +58,17 @@ public class EscuelaProfesional {
             Long departamentoAcademicoId,
             Integer codigo,
             String abreviatura,
-            String denominacion,
-            String plantillaMemorando,
-            String plantillaResolucion
+            String denominacion
     ) {
         setDepartamentoAcademicoId(departamentoAcademicoId);
         setCodigo(codigo);
         setAbreviatura(abreviatura);
         setDenominacion(denominacion);
-        setPlantillaMemorando(plantillaMemorando);
-        setPlantillaResolucion(plantillaResolucion);
     }
 
     private void setDepartamentoAcademicoId(Long departamentoAcademicoId) {
         if (departamentoAcademicoId == null || departamentoAcademicoId <= 0) {
-            throw new IllegalArgumentException("El departamento académico no puede estar vacío.");
+            throw new IllegalArgumentException("El departamento académico es inválido.");
         }
 
         this.departamentoAcademicoId = departamentoAcademicoId;
@@ -113,23 +97,11 @@ public class EscuelaProfesional {
             throw new IllegalArgumentException("La denominación no puede estar vacía.");
         }
 
-        if (denominacion.length() > 200) {
-            throw new IllegalArgumentException("La denominación no puede superar los 200 caracteres.");
-        }
+            if (denominacion.length() > 200) {
+                throw new IllegalArgumentException("La denominación no puede superar los 200 caracteres.");
+            }
 
         this.denominacion = denominacion.trim();
-    }
-
-    private void setPlantillaMemorando(String plantillaMemorando) {
-        if (plantillaMemorando != null && !plantillaMemorando.trim().isEmpty()) {
-            this.plantillaMemorando = PathSanitizer.sanitizeRelativePath(plantillaMemorando.trim());
-        }
-    }
-
-    private void setPlantillaResolucion(String plantillaResolucion) {
-        if (plantillaResolucion != null && !plantillaResolucion.trim().isEmpty()) {
-            this.plantillaResolucion = PathSanitizer.sanitizeRelativePath(plantillaResolucion.trim());
-        }
     }
 
     public Long getId() { return id; }
@@ -137,8 +109,6 @@ public class EscuelaProfesional {
     public Integer getCodigo() { return codigo; }
     public String getAbreviatura() { return abreviatura; }
     public String getDenominacion() { return denominacion; }
-    public String getPlantillaMemorando() { return plantillaMemorando; }
-    public String getPlantillaResolucion() { return plantillaResolucion; }
     public Integer getEstado() { return estado; }
     public Boolean isEliminado() { return eliminado; }
 }

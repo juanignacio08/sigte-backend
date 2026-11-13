@@ -1,0 +1,41 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /sigte/api/v1
+
+spring:
+  application:
+    name: sigte
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/nombre_bd
+    username: tu_usuario
+    password: tu_contrasena
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+      enabled: true
+      schemas:
+        - maestros
+        - personas
+      default-schema: maestros
+      create-schemas: true
+      locations: classpath:db/migration
+
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 22MB
+
+app:
+  storage:
+    location: ./storage

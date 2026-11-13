@@ -63,12 +63,12 @@ public class DepartamentoAcademico {
         this.abreviatura = abreviatura.trim().toUpperCase();
     }
 
-        private void setDenominacion(String denominacion) {
-            if (denominacion == null || denominacion.trim().isEmpty()) {
-                throw new IllegalArgumentException("La denominación del departamento no puede estar vacía.");
-            }
-            this.denominacion = denominacion.trim();
+    private void setDenominacion(String denominacion) {
+        if (denominacion == null || denominacion.trim().isEmpty()) {
+            throw new IllegalArgumentException("La denominación del departamento no puede estar vacía.");
         }
+        this.denominacion = denominacion.trim();
+    }
 
     // Getters
     public Long getId() { return id; }

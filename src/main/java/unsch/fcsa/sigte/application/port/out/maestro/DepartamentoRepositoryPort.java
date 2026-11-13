@@ -1,5 +1,6 @@
 package unsch.fcsa.sigte.application.port.out.maestro;
 
+import unsch.fcsa.sigte.application.port.out.maestro.dtos.DepartamentoConTotalEscuelasView;
 import unsch.fcsa.sigte.domain.model.maestro.DepartamentoAcademico;
 
 import java.util.List;
@@ -9,9 +10,11 @@ public interface DepartamentoRepositoryPort {
 
     DepartamentoAcademico guardar(DepartamentoAcademico departamento);
 
-    Optional<DepartamentoAcademico> buscarPorId(Long id);
+    List<DepartamentoConTotalEscuelasView> listarTodosPorFacultad(Long facultadId);
 
-    List<DepartamentoAcademico> listarTodos();
+    List<DepartamentoAcademico> listarActivosPorFacultad(Long facultadId);
+
+    Optional<DepartamentoAcademico> buscarPorId(Long id);
 
     boolean existePorAbreviatura(String abreviatura);
 

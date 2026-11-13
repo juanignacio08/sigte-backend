@@ -1,5 +1,11 @@
 package unsch.fcsa.sigte.application.usecase.maestro;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
+import unsch.fcsa.sigte.application.command.maestro.EscuelaCommand;
+import unsch.fcsa.sigte.application.port.out.maestro.dtos.EscuelaProfesionalProjection;
+import unsch.fcsa.sigte.domain.exception.DuplicateKeyException;
+import unsch.fcsa.sigte.domain.exception.ResourceNotFoundException;
 import unsch.fcsa.sigte.domain.model.maestro.EscuelaProfesional;
 import unsch.fcsa.sigte.application.port.in.maestro.GestionarEscuelaUseCase;
 import unsch.fcsa.sigte.application.port.out.maestro.DepartamentoRepositoryPort;
@@ -7,6 +13,7 @@ import unsch.fcsa.sigte.application.port.out.maestro.EscuelaProfesionalRepositor
 
 import java.util.List;
 
+@Slf4j
 public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
 
     private final EscuelaProfesionalRepositoryPort escuelaProfesionalRepositoryPort;
@@ -21,69 +28,149 @@ public class GestionarEscuelaUseCaseImpl implements GestionarEscuelaUseCase {
     }
 
     @Override
-    public EscuelaProfesional crearEscuela(Long departamentoId, Integer codigo, String abreviatura, String denominacion, String plantillaMemo, String plantillaRes) {
-        if (escuelaProfesionalRepositoryPort.existePorCodigo(codigo)) {
-            throw new IllegalArgumentException("El codigo " + codigo + " ya existe en el sistema");
+    @Transactional
+    public EscuelaProfesional crearEscuela(EscuelaCommand command) {
+        log.info("Iniciando el registro de una escuela: {}", command.denominacion());
+
+        if (escuelaProfesionalRepositoryPort.existePorCodigo(command.codigo())) {
+            throw new DuplicateKeyException("Escuela", "codigo", command.codigo());
         }
 
-        if (escuelaProfesionalRepositoryPort.existePorAbreviatura(abreviatura)) {
-            throw new IllegalArgumentException("Ya existe una escuela con la abreviatura " + abreviatura);
+        if (escuelaProfesionalRepositoryPort.existePorAbreviatura(command.abreviatura())) {
+            throw new DuplicateKeyException("Escuela", "abreviatura", command.abreviatura());
         }
 
-        if (!departamentoRepositoryPort.existePorId(departamentoId)) {
-            throw new IllegalArgumentException("El departamento " + departamentoId + " no existe");
+        if (!departamentoRepositoryPort.existePorId(command.departamentoId())) {
+            throw new ResourceNotFoundException("Departamento",  "id", command.departamentoId());
         }
 
         EscuelaProfesional escuelaProfesional = new EscuelaProfesional(
-                departamentoId, codigo, abreviatura, denominacion, plantillaMemo, plantillaRes
+                command.departamentoId(),
+                command.codigo(),
+                command.abreviatura(),
+                command.denominacion()
         );
 
         return escuelaProfesionalRepositoryPort.guardar(escuelaProfesional);
     }
 
     @Override
-    public EscuelaProfesional modificarEscuela(Long id, Long departamentoId, Integer codigo, String abreviatura, String denominacion, String plantillaMemo, String plantillaRes) {
-        EscuelaProfesional existente = obtenerPorId(id);
+    @Transactional
+    public EscuelaProfesional modificarEscuela(EscuelaCommand command) {
+        log.info("Actualizando un recurso. [ ESCUELA : {} ]", command.id());
 
-        if (!existente.getAbreviatura().equalsIgnoreCase(abreviatura) &&
-                escuelaProfesionalRepositoryPort.existePorAbreviatura(abreviatura)) {
-            throw new IllegalArgumentException("La abreviatura " + abreviatura + " ya está registrada por otra escuela.");
+        EscuelaProfesional existente = obtenerPorId(command.id());
+
+        if (!existente.getAbreviatura().equalsIgnoreCase(command.abreviatura()) &&
+                escuelaProfesionalRepositoryPort.existePorAbreviatura(command.abreviatura())) {
+            throw new DuplicateKeyException("Escuela", "abreviatura", command.abreviatura());
         }
 
-        if (!existente.getCodigo().equals(codigo) &&
-                escuelaProfesionalRepositoryPort.existePorCodigo(codigo)) {
-            throw new IllegalArgumentException("El codigo " + codigo + " ya está registrado por otra escuela.");
+        if (!existente.getCodigo().equals(command.codigo()) &&
+                escuelaProfesionalRepositoryPort.existePorCodigo(command.codigo())) {
+            throw new DuplicateKeyException("Escuela", "codigo", command.codigo());
         }
 
-        if (!existente.getDepartamentoAcademicoId().equals(departamentoId) &&
-                !departamentoRepositoryPort.existePorId(departamentoId)) {
-            throw new IllegalArgumentException("No existe un departamento academico con el id " + departamentoId);
+        if (!existente.getDepartamentoAcademicoId().equals(command.departamentoId()) &&
+                !departamentoRepositoryPort.existePorId(command.departamentoId())) {
+            throw new ResourceNotFoundException("Departamento",  "id", command.departamentoId());
         }
 
-        existente.actualizarDatos(departamentoId, codigo, abreviatura, denominacion, plantillaMemo, plantillaRes);
+        existente.actualizarDatos(
+                command.departamentoId(),
+                command.codigo(),
+                command.abreviatura(),
+                command.denominacion()
+        );
 
         return escuelaProfesionalRepositoryPort.guardar(existente);
+
     }
 
     @Override
     public EscuelaProfesional obtenerPorId(Long id) {
+        log.info("Obteniendo una escuela por ID: {}", id);
+
         if (id == null || id <= 0) {
-            throw new IllegalArgumentException("El id de escuela no puede ser null o negativo.");
+            throw new IllegalArgumentException("ID invalido [ ESCUELA ]");
         }
 
         return escuelaProfesionalRepositoryPort.buscarPorId(id)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró la escuela con ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Escuela", "id", id));
     }
 
     @Override
-    public List<EscuelaProfesional> listarTodos() {
-        return escuelaProfesionalRepositoryPort.listarTodos();
+    public EscuelaProfesionalProjection obtenerDetallePorId(Long id) {
+        log.info("Obteniendo una escuela a detaller por ID: {}", id);
+
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("ID invalido [ ESCUELA ]");
+        }
+
+        return escuelaProfesionalRepositoryPort.obtenerDetallerPorId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Escuela", "id", id));
     }
 
     @Override
+    public List<EscuelaProfesionalProjection> listarTodosPorFacultad(Long facultadId) {
+        log.info("Lista de escuelas de una facultad. [ FACULTAD : {} ]", facultadId);
+
+        return escuelaProfesionalRepositoryPort.listarTodosPorFacultad(facultadId);
+    }
+
+    @Override
+    public List<EscuelaProfesionalProjection> listarActivosPorFacultad(Long facultadId) {
+        log.info("Lista de escuelas activas de una facultad. [ FACULTAD : {} ]", facultadId);
+
+        return escuelaProfesionalRepositoryPort.listarTodosPorFacultad(facultadId).stream()
+                .filter(e -> e.getEstado().equals(1)).toList();
+    }
+
+    @Override
+    public List<EscuelaProfesional> listarPorDepartamento(Long departamentoId) {
+        log.info("Lista de escuelas de un departamento académico. [ DEPARTAMENTO : {} ]", departamentoId);
+
+        return escuelaProfesionalRepositoryPort.listarPorDepartamento(departamentoId);
+    }
+
+    @Override
+    @Transactional
+    public EscuelaProfesional activarEscuela(Long id) {
+        log.info("Activar Escuela Profesional por ID: {}", id);
+
+        EscuelaProfesional escuelaProfesional = obtenerPorId(id);
+        if (escuelaProfesional.getEstado().equals(1)) {
+            return escuelaProfesional;
+        }
+
+        escuelaProfesional.activar();
+
+        return escuelaProfesionalRepositoryPort.guardar(escuelaProfesional);
+    }
+
+    @Override
+    @Transactional
+    public EscuelaProfesional desactivarEscuela(Long id) {
+        log.info("Desactivar Escuela Profesional por ID: {}", id);
+
+        EscuelaProfesional escuelaProfesional = obtenerPorId(id);
+        if (escuelaProfesional.getEstado().equals(0)) {
+            return escuelaProfesional;
+        }
+
+        escuelaProfesional.desactivar();
+
+        return escuelaProfesionalRepositoryPort.guardar(escuelaProfesional);
+    }
+
+    @Override
+    @Transactional
     public void eliminarEscuela(Long id) {
+        log.info("Eliminar Escuela Profesional por ID: {}", id);
+
         EscuelaProfesional escuela = obtenerPorId(id);
         escuela.marcarComoEliminado();
+
         escuelaProfesionalRepositoryPort.guardar(escuela);
     }
 }
